@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GLFW;
-
+using OpenGL;
 
 namespace Engine
 {
@@ -51,15 +51,18 @@ namespace Engine
                 Glfw.Terminate();
                 return;
             }
-
             Glfw.MakeContextCurrent(_glfwWindow);
 
-            Glfw.SwapInterval(1);
+            GL.Import(Glfw.GetProcAddress);
 
+            Glfw.SwapInterval(1);
+            
             while (!Glfw.WindowShouldClose(_glfwWindow))
             {
                 Glfw.PollEvents();
 
+                GL.glClearColor(1, 0, 0, 1);
+                GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 
                 Glfw.SwapBuffers(_glfwWindow);
