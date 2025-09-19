@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\Game\Game.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF &quot;%25OS%25&quot;==&quot;Windows_NT&quot; (&#xD;&#xA;    echo Running on Windows&#xD;&#xA;    copy /Y &quot;$(SolutionDir)Third\Win\glfw\lib-vc2022\glfw3.dll&quot; &quot;$(TargetDir)glfw.dll&quot;&#xD;&#xA;) ELSE (&#xD;&#xA;    echo Running on unknown OS&#xD;&#xA;)" />
+  </Target>
+
+</Project>
