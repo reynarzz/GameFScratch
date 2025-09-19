@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entity\Components\" />
     <Folder Include="Graphics\Device\Generic\" />
     <Folder Include="Graphics\Device\Null\" />
     <Folder Include="Graphics\Device\OpenGL\" />

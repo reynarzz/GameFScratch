@@ -8,6 +8,165 @@ namespace Engine
 {
     public class Actor : EObject
     {
+        private List<Component> _components;
+        public Transform Transform { get; private set; }
+        internal Scene Scene { get; set; }
 
+        public Actor() : this(string.Empty, string.Empty)
+        {
+        }
+
+        public Actor(string name) : this(name, string.Empty)
+        {
+        }
+
+        public Actor(string name, string id) : base(name, id)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                Name = "Actor";
+            }
+            else
+            {
+                Name = name;
+            }
+
+            _components = new List<Component>();
+            Transform = AddComponent<Transform>();
+
+            // TODO: Add to current active scene
+
+            Scene = SceneManager.ActiveScene;
+            Scene.AddActor(this);
+        }
+
+        public void AddComponent(Type component)
+        {
+            if (!IsValidComponent(component))
+            {
+                return;
+            }
+        }
+
+
+        public T AddComponent<T>() where T : Component
+        {
+            if (!IsValidComponent(typeof(T)))
+            {
+                return default;
+            }
+
+            var component = Activator.CreateInstance(typeof(T)) as T;
+            component.Actor = this;
+            _components.Add(component);
+
+            return component;
+        }
+
+        public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
+        {
+            AddComponent<T1>();
+            AddComponent<T2>();
+        }
+
+        public void AddComponent<T1, T2, T3>() where T1 : Component
+                                                where T2 : Component
+                                                where T3 : Component
+        {
+            AddComponent<T1, T2>();
+            AddComponent<T2>();
+        }
+
+        public void AddComponent<T1, T2, T3, T4>() where T1 : Component
+                                                    where T2 : Component
+                                                    where T3 : Component
+                                                    where T4 : Component
+        {
+            AddComponent<T1, T2, T3>();
+            AddComponent<T4>();
+        }
+
+        public void AddComponent<T1, T2, T3, T4, T5>() where T1 : Component
+                                                        where T2 : Component
+                                                        where T3 : Component
+                                                        where T4 : Component
+                                                        where T5 : Component
+        {
+            AddComponent<T1, T2, T3, T4>();
+            AddComponent<T5>();
+        }
+
+        public T GetComponent<T>() where T: Component
+        {
+            for (int i = 0; i < _components.Count; i++)
+            {
+                if (typeof(T) == _components[i].GetType())
+                {
+                    return _components[i] as T;
+                }
+            }
+
+            return null;
+        }
+
+        public T[] GetComponents<T>() where T : Component
+        {
+            var components = new List<T>();
+            for (int i = 0; i < _components.Count; i++)
+            {
+                if (typeof(T).IsAssignableFrom(_components[i].GetType()))
+                {
+                    components.Add(_components[i] as T);
+                }
+            }
+
+            return components.ToArray();
+        }
+
+        private bool IsValidComponent(Type component)
+        {
+            return component.IsClass && typeof(Component).IsAssignableFrom(component) &&
+                   typeof(Component) != component;
+
+        }
+
+        public static void Destroy(Actor actor) 
+        {
+            if(actor == null || actor.IsAlive)
+            {
+                Console.WriteLine("Trying to destroy null or non alive actor.");
+                return;
+            }
+            actor.IsAlive = false;
+
+            // TODO: remove from scene graph
+        }
+
+        public static void Destroy(Component component) 
+        {
+            if (component == null || component.IsAlive)
+            {
+                Console.WriteLine("Trying to destroy null or non alive component.");
+                return;
+            }
+
+            component.Actor._components.Remove(component);
+            component.IsAlive = false;
+        }
+
+        public void Update()
+        {
+            // Update components
+        }
+
+        internal void LateUpdate()
+        {
+
+        }
+
+        internal void FixedUpdate()
+        {
+
+        }
     }
 }

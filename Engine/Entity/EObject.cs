@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class EObject
+    public abstract class EObject
     {
         public string Name { get; set; }
 
         private const string DefaultObjectName = "Object";
 
         private Guid _guid;
+
+        internal bool IsAlive { get; set; } = true;
 
         public EObject()
         {
@@ -29,7 +31,15 @@ namespace Engine
         public EObject(string name, string id)
         {
             Name = name;
-            _guid = Guid.Parse(id);
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                _guid = Guid.Parse(id);
+            }
+            else
+            {
+                _guid = Guid.NewGuid();
+            }
         }
 
         public Guid GetID()
