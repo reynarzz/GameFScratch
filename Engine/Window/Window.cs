@@ -67,7 +67,7 @@ namespace Engine
             {
                 Glfw.PollEvents();
 
-                GL.glClearColor(1, 0, 0, 1);
+                GL.glClearColor(0.2f, 0.2f, 0.2f, 1);
                 GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
                 shader.Bind();

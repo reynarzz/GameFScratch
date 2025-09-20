@@ -49,9 +49,17 @@ namespace Engine.Graphics.OpenGL
         // Texture update will not be implemented for this game
         internal override void UpdateResource(TextureDescriptor descriptor) { }
 
+        /// <summary>
+        /// Binds texture to first slot (0)
+        /// </summary>
         internal override void Bind() 
         {
-            glActiveTexture(GL_TEXTURE0 + 0);
+            Bind(0);
+        }
+
+        internal void Bind(int slot)
+        {
+            glActiveTexture(GL_TEXTURE0 + slot);
             glBindTexture(GL_TEXTURE_2D, Handle);
         }
 
