@@ -26,9 +26,9 @@ namespace Engine.Graphics.OpenGL
         //}
         protected int Target { get; private set; }
 
-        public GLBuffer(int target) : base(handle => glBindBuffer(target, handle),
-                                                glGenBuffer,
-                                                glDeleteBuffer)
+        public GLBuffer(int target) : base(glGenBuffer,
+                                           glDeleteBuffer,
+                                           handle => glBindBuffer(target, handle))
         {
             Target = target;
         }
@@ -66,12 +66,12 @@ namespace Engine.Graphics.OpenGL
                     glBufferData(Target, desc.Buffer.Length, data, usage);
                 }
             }
-            UnBind();
+            Unbind();
 
             return true;
         }
 
-        public override void UpdateResource(BufferDataDescriptor desc)
+        internal override void UpdateResource(BufferDataDescriptor desc)
         {
             Bind();
             unsafe
@@ -81,7 +81,7 @@ namespace Engine.Graphics.OpenGL
                     glBufferSubData(Target, desc.Offset, desc.Buffer.Length, data);
                 } 
             }
-            UnBind();
+            Unbind();
         }
     }
 }

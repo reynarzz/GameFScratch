@@ -12,7 +12,7 @@ namespace Engine.Graphics.OpenGL
         private readonly GLVertexBuffer _vertBuffer;
         private readonly GLIndexBuffer _indexBuffer;
 
-        public GLGeometry() : base(glBindVertexArray, glGenVertexArray, glDeleteVertexArray)
+        public GLGeometry() : base(glGenVertexArray, glDeleteVertexArray, glBindVertexArray)
         {
             _vertBuffer = new GLVertexBuffer();
             _indexBuffer = new GLIndexBuffer();
@@ -24,18 +24,20 @@ namespace Engine.Graphics.OpenGL
             if (!_vertBuffer.Create(descriptor.VertexDesc.BufferDesc)) 
             {
                 Logger.Error("Failed to create vertex buffer.");
-                UnBind();
+                Unbind();
                 return false;
             }
 
             if (!_indexBuffer.Create(descriptor.IndexBuffer)) 
             {
                 Logger.Error("Failed to create index buffer.");
-                UnBind();
+                Unbind();
                 return false;
             }
+            
             _vertBuffer.Bind();
             _indexBuffer.Bind();
+
             for (uint i = 0; i < descriptor.VertexDesc.Attribs.Count; i++)
             {
                 var attrib = descriptor.VertexDesc.Attribs[(int)i];
@@ -44,12 +46,12 @@ namespace Engine.Graphics.OpenGL
                 glVertexAttribPointer(i, attrib.Count, attrib.Type.ToGL(), attrib.Normalized, attrib.Stride, attrib.Offset);
             }
 
-            UnBind();
+            Unbind();
 
             return true;
         }
 
-        public override void UpdateResource(GeometryDescriptor descriptor)
+        internal override void UpdateResource(GeometryDescriptor descriptor)
         {
             _vertBuffer.Update(descriptor.VertexDesc.BufferDesc);
             _indexBuffer.Update(descriptor.IndexBuffer);

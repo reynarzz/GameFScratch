@@ -9,7 +9,7 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLShader : GLGfxResource<ShaderDescriptor>
     {
-        public GLShader() : base(glUseProgram, glCreateProgram, glDeleteProgram) { }
+        public GLShader() : base(glCreateProgram, glDeleteProgram, glUseProgram) { }
 
         protected override bool CreateResource(ShaderDescriptor descriptor)
         {
@@ -37,6 +37,8 @@ namespace Engine.Graphics.OpenGL
             glDeleteShader(vertId);
             glDeleteShader(fragId);
 
+
+            
             return ValidateProgram(Handle);
         }
 
@@ -109,6 +111,16 @@ namespace Engine.Graphics.OpenGL
             _ => "unknown"
         };
 
-        public override void UpdateResource(ShaderDescriptor descriptor) { }
+        internal override void UpdateResource(ShaderDescriptor descriptor) { }
+
+        // Remove this
+        internal override void Bind()
+        {
+            base.Bind();
+
+            int location = glGetUniformLocation(Handle, "uTexture");
+            glUniform1i(location, 0);
+
+        }
     }
 }

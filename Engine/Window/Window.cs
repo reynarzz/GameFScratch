@@ -61,6 +61,7 @@ namespace Engine
 
             TestShaders();
             TestGeometryCreation();
+            TestTextureCreation();
 
             while (!Glfw.WindowShouldClose(_glfwWindow))
             {
@@ -71,6 +72,8 @@ namespace Engine
 
                 shader.Bind();
                 geometry.Bind();
+                texture.Bind();
+
                 unsafe
                 {
                     GL.glDrawElements(GL.GL_TRIANGLES, indices.Length, GL.GL_UNSIGNED_INT, null);
@@ -85,11 +88,11 @@ namespace Engine
         layout(location = 0) in vec3 position;
         layout(location = 1) in vec2 uv;
 
-        out vec2 vertex_uv;
+        out vec2 fragUV;
 
         void main() 
         {
-            vertex_uv = uv;
+            fragUV = uv;
             gl_Position = vec4(position, 1.0);
         }
         ";
@@ -103,18 +106,24 @@ namespace Engine
         {
             color = vec4(1.0, 1.0, 1.0, 1.0); 
         }";
-        private void TestShaders()
-        {
 
-            var shaderDescriptor = new ShaderDescriptor();
-            shaderDescriptor.VertexSource = Encoding.UTF8.GetBytes(Vertex);
-            shaderDescriptor.FragmentSource = Encoding.UTF8.GetBytes(fragment);
+        private string fragmentTex = @"
+           #version 330 core
+            in vec2 fragUV;
+            out vec4 color;
 
-            shader.Create(shaderDescriptor);
-        }
+            uniform sampler2D uTexture; // uniform for the texture
+
+            void main()
+            {
+                color = texture(uTexture, fragUV);
+            }";
+
         GLShader shader = new GLShader();
 
         GLGeometry geometry = new GLGeometry();
+        GLTexture texture = new GLTexture();
+
         uint[] indices = new uint[6]
             {
                 0, 1, 2,
@@ -131,6 +140,16 @@ namespace Engine
                  0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // bottom-right
         };
 
+
+        private void TestShaders()
+        {
+
+            var shaderDescriptor = new ShaderDescriptor();
+            shaderDescriptor.VertexSource = Encoding.UTF8.GetBytes(Vertex);
+            shaderDescriptor.FragmentSource = Encoding.UTF8.GetBytes(fragmentTex);
+
+            shader.Create(shaderDescriptor);
+        }
 
         private unsafe void TestGeometryCreation()
         {
@@ -155,6 +174,15 @@ namespace Engine
             geoDesc.VertexDesc = vertexDesc;
 
             geometry.Create(geoDesc);
+        }
+
+        private void TestTextureCreation() 
+        {
+            var textureDescriptor = new TextureDescriptor();
+            textureDescriptor.Width = 1;
+            textureDescriptor.Height = 1;
+            textureDescriptor.Buffer = new byte[] { 0x3F, 0xFF, 0xF0, 0xFF };
+            texture.Create(textureDescriptor);
         }
 
         public void FullScreen(bool fullscreen)

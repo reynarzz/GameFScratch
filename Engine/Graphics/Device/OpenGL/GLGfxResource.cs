@@ -19,25 +19,43 @@ namespace Engine.Graphics.OpenGL
         private Action<uint> _handleDeleter;
         private Func<uint> _handleCreator;
 
-        protected GLGfxResource(Action<uint> binder, 
-                                Func<uint> creator,
+        protected GLGfxResource(Func<uint> creator,
+                                Action<uint> deleter, 
+                                Action<uint> binder)
+        {
+            _handleCreator = creator;
+            _handleDeleter = deleter;
+            _handleBinder = binder;
+        }
+
+        protected GLGfxResource(Func<uint> creator,
                                 Action<uint> deleter)
         {
-            _handleBinder = binder;
-            _handleDeleter = deleter;
             _handleCreator = creator;
+            _handleDeleter = deleter;
+            _handleBinder = null;
         }
 
         /// <summary>
         /// Bind this resource for use.
         /// </summary>
-        public virtual void Bind()
+        internal virtual void Bind()
         {
+            if(_handleBinder == null)
+            {
+                Logger.Error("Binder not specified in constructor, override Bind() if this was intended.");
+                return;
+            }
             _handleBinder(Handle);
         }
 
-        public virtual void UnBind()
+        internal virtual void Unbind()
         {
+            if (_handleBinder == null)
+            {
+                Logger.Error("Binder not specified in constructor, override UnBind() if this was intended.");
+                return;
+            }
             _handleBinder(0);
         }
 
@@ -49,6 +67,7 @@ namespace Engine.Graphics.OpenGL
 
             if (!IsInitialized)
             {
+                Logger.Error($"Could not create resource (returns false): {GetType().Name}");
                 DestroyHandle();
             }
 
@@ -64,7 +83,7 @@ namespace Engine.Graphics.OpenGL
         }
 
         protected abstract bool CreateResource(T descriptor);
-        public abstract void UpdateResource(T descriptor);
+        internal abstract void UpdateResource(T descriptor);
 
         private void CreateHandle()
         {
