@@ -144,7 +144,6 @@ namespace Engine
 
         private void TestShaders()
         {
-
             var shaderDescriptor = new ShaderDescriptor();
             shaderDescriptor.VertexSource = Encoding.UTF8.GetBytes(Vertex);
             shaderDescriptor.FragmentSource = Encoding.UTF8.GetBytes(fragmentTex);
@@ -161,7 +160,7 @@ namespace Engine
 
             vertexDesc.BufferDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<float>(vertices).ToArray();
             vertexDesc.BufferDesc.Usage = BufferUsage.Static;
-            vertexDesc.Attribs = new List<GeometryDescriptor.VertexAtrib>()
+            vertexDesc.Attribs = new()
             {
                 new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(float) * 5, Offset = 0 },
                 new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(float) * 5, Offset = sizeof(float) * 3 },
@@ -182,7 +181,7 @@ namespace Engine
             var textureDescriptor = new TextureDescriptor();
             textureDescriptor.Width = 1;
             textureDescriptor.Height = 1;
-            textureDescriptor.Buffer = new byte[] { 0x3F, 0xFF, 0xF0, 0xFF };
+            textureDescriptor.Buffer = new byte[] { 0x3F, 0x0F, 0xF0, 0xFF };
             texture.Create(textureDescriptor);
         }
 

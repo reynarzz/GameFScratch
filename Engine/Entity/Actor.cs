@@ -139,8 +139,7 @@ namespace Engine
                 return;
             }
             actor.IsAlive = false;
-
-            // TODO: remove from scene graph
+            actor.Scene.RemoveActor(actor);
         }
 
         public static void Destroy(Component component)
