@@ -37,5 +37,7 @@ namespace Engine
 
         public virtual void OnEnabled() { }
         public virtual void OnDisabled() { }
+        public virtual void OnDestroy() { }
+
     }
 }

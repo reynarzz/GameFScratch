@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    // All behaviors need to inherit from this class
+    /// <summary>
+    /// Base class for all scripts
+    /// </summary>
     public abstract class ScriptBehavior : Component
     {
         public virtual void OnAwake() { }
@@ -16,6 +18,5 @@ namespace Engine
         public virtual void OnFixedUpdate() { }
         public virtual void OnTriggerEnter2D() { }
         public virtual void OnTriggerExit2D() { }
-        public virtual void OnDestroy() { }
     }
 }

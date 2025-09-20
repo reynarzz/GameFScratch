@@ -34,18 +34,17 @@ namespace Engine
             _components = new List<Component>();
             Transform = AddComponent<Transform>();
 
-            // TODO: Add to current active scene
-
             Scene = SceneManager.ActiveScene;
             Scene.AddActor(this);
         }
 
-        public void AddComponent(Type component)
+        public Component AddComponent(Type type)
         {
-            if (!IsValidComponent(component))
+            if (!IsValidComponent(type))
             {
-                return;
+                return null;
             }
+            return (Component)Activator.CreateInstance(type);
         }
 
 
@@ -56,11 +55,11 @@ namespace Engine
                 return default;
             }
 
-            var component = Activator.CreateInstance(typeof(T)) as T;
+            var component = AddComponent(typeof(T));
             component.Actor = this;
             _components.Add(component);
 
-            return component;
+            return component as T;
         }
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
@@ -96,7 +95,7 @@ namespace Engine
             AddComponent<T5>();
         }
 
-        public T GetComponent<T>() where T: Component
+        public T GetComponent<T>() where T : Component
         {
             for (int i = 0; i < _components.Count; i++)
             {
@@ -125,14 +124,16 @@ namespace Engine
 
         private bool IsValidComponent(Type component)
         {
-            return component.IsClass && typeof(Component).IsAssignableFrom(component) &&
+            return component != null && 
+                   component.IsClass && 
+                   typeof(Component).IsAssignableFrom(component) &&
                    typeof(Component) != component;
 
         }
 
-        public static void Destroy(Actor actor) 
+        public static void Destroy(Actor actor)
         {
-            if(actor == null || actor.IsAlive)
+            if (actor == null || actor.IsAlive)
             {
                 Console.WriteLine("Trying to destroy null or non alive actor.");
                 return;
@@ -142,7 +143,7 @@ namespace Engine
             // TODO: remove from scene graph
         }
 
-        public static void Destroy(Component component) 
+        public static void Destroy(Component component)
         {
             if (component == null || component.IsAlive)
             {
@@ -151,6 +152,7 @@ namespace Engine
             }
 
             component.Actor._components.Remove(component);
+            component.Actor = null;
             component.IsAlive = false;
         }
 

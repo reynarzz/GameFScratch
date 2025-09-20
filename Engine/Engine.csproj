@@ -8,9 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Graphics\Device\Generic\" />
     <Folder Include="Graphics\Device\Null\" />
-    <Folder Include="Graphics\Device\OpenGL\" />
     <Folder Include="IO\" />
     <Folder Include="Layers\Graphics\" />
     <Folder Include="Layers\Input\" />

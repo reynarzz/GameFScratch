@@ -1,7 +1,7 @@
-﻿<Application x:Class="GameCookerGUI.App"
+﻿<Application x:Class="GameAssetsEditor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:GameCookerGUI"
+             xmlns:local="clr-namespace:GameAssetsEditor"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          
