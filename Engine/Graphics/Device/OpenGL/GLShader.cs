@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlmSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,13 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLShader : GLGfxResource<ShaderDescriptor>
     {
-        public GLShader() : base(glCreateProgram, glDeleteProgram, glUseProgram) { }
+        private readonly Dictionary<string, Action> _pendingUniforms;
+        private readonly Dictionary<string, int> _uniformLocations;
+        public GLShader() : base(glCreateProgram, glDeleteProgram, glUseProgram)
+        {
+            _pendingUniforms = new Dictionary<string, Action>();
+            _uniformLocations = new Dictionary<string, int>();
+        }
 
         protected override bool CreateResource(ShaderDescriptor descriptor)
         {
@@ -21,7 +28,7 @@ namespace Engine.Graphics.OpenGL
 
             uint vertId = CompileShader(GL_VERTEX_SHADER, descriptor.VertexSource);
 
-            if(vertId == 0)
+            if (vertId == 0)
                 return false;
 
             uint fragId = CompileShader(GL_FRAGMENT_SHADER, descriptor.FragmentSource);
@@ -38,7 +45,6 @@ namespace Engine.Graphics.OpenGL
             glDeleteShader(fragId);
 
 
-            
             return ValidateProgram(Handle);
         }
 
@@ -113,14 +119,63 @@ namespace Engine.Graphics.OpenGL
 
         internal override void UpdateResource(ShaderDescriptor descriptor) { }
 
-        // Remove this
+        internal void SetUniform(string name, int value)
+        {
+            var location = GetLocation(name);
+            _pendingUniforms[name] = () => glUniform1i(location, value);
+        }
+
+        internal void SetUniform(string name, vec2 value)
+        {
+            int location = GetLocation(name);
+            _pendingUniforms[name] = () => glUniform2fv(location, 1, value.Values);
+        }
+
+        internal void SetUniform(string name, vec3 value)
+        {
+            int location = GetLocation(name);
+            _pendingUniforms[name] = () => glUniform3fv(location, 1, value.Values);
+        }
+
+        internal void SetUniform(string name, vec4 value)
+        {
+            int location = GetLocation(name);
+            _pendingUniforms[name] = () => glUniform4fv(location, 1, value.Values);
+        }
+
+        internal void SetUniform(string name, mat4 value)
+        {
+            int location = GetLocation(name);
+            _pendingUniforms[name] = () =>
+            {
+                glUniformMatrix4fv(location, 1, false, value.Values1D);
+            };
+        }
+
+        // Tries to find the location for 'name', if found, the location will be cached.
+        private int GetLocation(string name)
+        {
+            if (_uniformLocations.TryGetValue(name, out var loc))
+            {
+                return loc;
+            }
+            int location = glGetUniformLocation(Handle, name);
+
+            _uniformLocations.Add(name, location);
+
+            return location;
+        }
+
         internal override void Bind()
         {
             base.Bind();
 
-            int location = glGetUniformLocation(Handle, "uTexture");
-            glUniform1i(location, 0);
+            foreach (var uniformFunc in _pendingUniforms.Values)
+            {
+                uniformFunc();
+            }
 
+            _pendingUniforms.Clear();
         }
     }
 }

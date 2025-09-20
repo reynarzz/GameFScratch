@@ -73,6 +73,7 @@ namespace Engine
                 shader.Bind();
                 geometry.Bind();
                 texture.Bind();
+                shader.SetUniform("uTexture", 0);
 
                 unsafe
                 {
@@ -125,10 +126,10 @@ namespace Engine
         GLTexture texture = new GLTexture();
 
         uint[] indices = new uint[6]
-            {
-                0, 1, 2,
-                0, 2, 3
-            };
+        {
+            0, 1, 2,
+            0, 2, 3
+        };
 
 
         float[] vertices = new float[]

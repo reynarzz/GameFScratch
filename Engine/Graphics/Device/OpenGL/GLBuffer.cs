@@ -57,7 +57,6 @@ namespace Engine.Graphics.OpenGL
                 return false;
             }
             
-
             Bind();
             unsafe 
             {
