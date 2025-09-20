@@ -10,7 +10,7 @@ namespace Engine.Graphics.OpenGL
     /// Base class for all gl resources
     /// </summary>
     /// <typeparam name="T">Resource descriptor info used for creation</typeparam>
-    internal abstract class GLGfxResource<T> : GfxResource where T : ResourceDescriptorBase
+    internal abstract class GLGfxResource<T> : GfxResource where T : IResourceDescriptor
     {
         public uint Handle { get; protected set; }
         public bool IsValidHandle => Handle > 0;
@@ -28,6 +28,9 @@ namespace Engine.Graphics.OpenGL
             _handleCreator = creator;
         }
 
+        /// <summary>
+        /// Bind this resource for use.
+        /// </summary>
         public virtual void Bind()
         {
             _handleBinder(Handle);
@@ -38,7 +41,7 @@ namespace Engine.Graphics.OpenGL
             _handleBinder(0);
         }
 
-        internal void Create(T descriptor)
+        internal bool Create(T descriptor)
         {
             CreateHandle();
 
@@ -48,6 +51,8 @@ namespace Engine.Graphics.OpenGL
             {
                 DestroyHandle();
             }
+
+            return IsInitialized;
         }
 
         internal void Update(T descriptor)

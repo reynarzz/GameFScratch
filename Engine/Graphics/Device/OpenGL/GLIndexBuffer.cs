@@ -9,6 +9,6 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLIndexBuffer : GLBuffer
     {
-        public GLIndexBuffer() : base(GL_ELEMENT_ARRAY_BUFFER) { }
+        internal GLIndexBuffer() : base(GL_ELEMENT_ARRAY_BUFFER) { }
     }
 }

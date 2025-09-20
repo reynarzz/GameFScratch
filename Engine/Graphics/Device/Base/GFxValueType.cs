@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal class ResourceDescriptorBase
+    internal enum GfxValueType
     {
+        Float,
+        Int,
+        Uint,
+        Ulong,
+        UByte
     }
 }

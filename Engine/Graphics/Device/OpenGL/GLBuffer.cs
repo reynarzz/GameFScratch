@@ -26,7 +26,7 @@ namespace Engine.Graphics.OpenGL
         //}
         protected int Target { get; private set; }
 
-        public GLBuffer(int target) : base(x => glBindBuffer(target, x),
+        public GLBuffer(int target) : base(handle => glBindBuffer(target, handle),
                                                 glGenBuffer,
                                                 glDeleteBuffer)
         {
@@ -50,21 +50,23 @@ namespace Engine.Graphics.OpenGL
                 return false;
             }
 
-            if (desc.Size <= 0)
+            if (desc.Buffer == null || desc.Buffer.Length == 0)
             {
-                Logger.Error("Invalid buffer size");
-                return false;
-            }
-
-            if (desc.Buffer == IntPtr.Zero) 
-            {
-                Logger.Error("Invalid buffer data (zero)");
+                Logger.Error("Invalid buffer data (zero/null)");
 
                 return false;
             }
+            
 
             Bind();
-            glBufferData(Target, desc.Size, desc.Buffer, usage);
+            unsafe 
+            {
+                fixed (byte* data = desc.Buffer) 
+                {
+                    glBufferData(Target, desc.Buffer.Length, data, usage);
+                }
+            }
+        
             UnBind();
 
             return true;
@@ -73,7 +75,13 @@ namespace Engine.Graphics.OpenGL
         public override void UpdateResource(BufferDataDescriptor desc)
         {
             Bind();
-            glBufferSubData(Target, desc.Offset, desc.Size, desc.Buffer);
+            unsafe
+            {
+                fixed (byte* data = desc.Buffer)
+                {
+                    glBufferSubData(Target, desc.Offset, desc.Buffer.Length, data);
+                } 
+            }
             UnBind();
         }
     }

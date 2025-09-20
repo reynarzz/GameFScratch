@@ -9,10 +9,7 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLShader : GLGfxResource<ShaderDescriptor>
     {
-        public GLShader() : base(glUseProgram, glCreateProgram, glDeleteProgram)
-        {
-
-        }
+        public GLShader() : base(glUseProgram, glCreateProgram, glDeleteProgram) { }
 
         protected override bool CreateResource(ShaderDescriptor descriptor)
         {
