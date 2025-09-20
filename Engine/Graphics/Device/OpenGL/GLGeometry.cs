@@ -10,12 +10,12 @@ namespace Engine.Graphics.OpenGL
     internal class GLGeometry : GLGfxResource<GeometryDescriptor>
     {
         private readonly GLVertexBuffer _vertBuffer;
-        private readonly GLIndexBuffer _vertIndexBuffer;
+        private readonly GLIndexBuffer _indexBuffer;
 
         public GLGeometry() : base(glBindVertexArray, glGenVertexArray, glDeleteVertexArray)
         {
             _vertBuffer = new GLVertexBuffer();
-            _vertIndexBuffer = new GLIndexBuffer();
+            _indexBuffer = new GLIndexBuffer();
         }
 
         protected override bool CreateResource(GeometryDescriptor descriptor)
@@ -28,19 +28,20 @@ namespace Engine.Graphics.OpenGL
                 return false;
             }
 
-            if (!_vertIndexBuffer.Create(descriptor.IndexBuffer)) 
+            if (!_indexBuffer.Create(descriptor.IndexBuffer)) 
             {
                 Logger.Error("Failed to create index buffer.");
                 UnBind();
                 return false;
             }
-
+            _vertBuffer.Bind();
+            _indexBuffer.Bind();
             for (uint i = 0; i < descriptor.VertexDesc.Attribs.Count; i++)
             {
                 var attrib = descriptor.VertexDesc.Attribs[(int)i];
 
                 glEnableVertexAttribArray(i);
-                glVertexAttribPointer(i, attrib.Count, attrib.Type.ToGL(), attrib.Normalized, attrib.Stride, attrib.Offset); // positions
+                glVertexAttribPointer(i, attrib.Count, attrib.Type.ToGL(), attrib.Normalized, attrib.Stride, attrib.Offset);
             }
 
             UnBind();
@@ -48,25 +49,18 @@ namespace Engine.Graphics.OpenGL
             return true;
         }
 
-        public override void Bind()
-        {
-            base.Bind();
-            _vertIndexBuffer.Bind();
-
-        }
         public override void UpdateResource(GeometryDescriptor descriptor)
         {
             _vertBuffer.Update(descriptor.VertexDesc.BufferDesc);
-            _vertIndexBuffer.Update(descriptor.IndexBuffer);
+            _indexBuffer.Update(descriptor.IndexBuffer);
         }
 
         protected override void FreeResource()
         {
             _vertBuffer.Dispose();
-            _vertIndexBuffer.Dispose();
+            _indexBuffer.Dispose();
 
             base.FreeResource();
-
         }
     }
 }

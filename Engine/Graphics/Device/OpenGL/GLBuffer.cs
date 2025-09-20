@@ -66,7 +66,6 @@ namespace Engine.Graphics.OpenGL
                     glBufferData(Target, desc.Buffer.Length, data, usage);
                 }
             }
-        
             UnBind();
 
             return true;

@@ -80,27 +80,28 @@ namespace Engine
         }
 
         private string Vertex = @"
-        #version 330 core
-        layout(location = 0)in vec3 _POSITION_;
-        layout(location = 1)in vec2 _UV_;
-        
+          #version 330 core
+
+        layout(location = 0) in vec3 position;
+        layout(location = 1) in vec2 uv;
+
         out vec2 vertex_uv;
-        
+
         void main() 
         {
-           vertex_uv = _UV_;
-           gl_Position = vec4(_POSITION_, 1.0);
+            vertex_uv = uv;
+            gl_Position = vec4(position, 1.0);
         }
-    ";
+        ";
 
         private string fragment = @"
-#version 330 core
-        precision mediump float;
+       #version 330 core
+
         out vec4 color;
 
         void main()
         {
-             color = vec4(1,0, 1, 1); 
+            color = vec4(1.0, 1.0, 1.0, 1.0); 
         }";
         private void TestShaders()
         {
@@ -114,7 +115,7 @@ namespace Engine
         GLShader shader = new GLShader();
 
         GLGeometry geometry = new GLGeometry();
-        int[] indices = new int[6]
+        uint[] indices = new uint[6]
             {
                 0, 1, 2,
                 0, 2, 3
@@ -133,24 +134,22 @@ namespace Engine
 
         private unsafe void TestGeometryCreation()
         {
-
             var geoDesc = new GeometryDescriptor();
 
             var vertexDesc = new GeometryDescriptor.VertexDataDescriptor();
             vertexDesc.BufferDesc = new BufferDataDescriptor();
-
 
             vertexDesc.BufferDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<float>(vertices).ToArray();
             vertexDesc.BufferDesc.Usage = BufferUsage.Static;
             vertexDesc.Attribs = new List<GeometryDescriptor.VertexAtrib>()
             {
                 new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(float) * 5, Offset = 0 },
-                //new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(float) * 5, Offset = sizeof(float) * 3 },
+                new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(float) * 5, Offset = sizeof(float) * 3 },
             };
 
             var indexDesc = new BufferDataDescriptor();
             indexDesc.Usage = BufferUsage.Static;
-            indexDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<int>(indices).ToArray();
+            indexDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<uint>(indices).ToArray();
 
             geoDesc.IndexBuffer = indexDesc;
             geoDesc.VertexDesc = vertexDesc;
