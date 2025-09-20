@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Engine
+namespace Engine.Graphics.OpenGL
 {
     internal class GLGfxDevice : GfxDevice
     {

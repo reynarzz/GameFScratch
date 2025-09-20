@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static OpenGL.GL;
 
 namespace Engine.Graphics.OpenGL
 {
-    internal class GLMeshBuffer //: GLGfxResource
+    internal class GLIndexBuffer : GLBuffer
     {
-        //protected override void FreeResource()
-        //{
-            
-        //}
+        public GLIndexBuffer() : base(GL_ELEMENT_ARRAY_BUFFER) { }
     }
 }

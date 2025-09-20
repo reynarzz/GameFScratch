@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Engine
+namespace Engine.Graphics
 {
     internal abstract class GfxResource : IDisposable
     {
         private bool _disposed = false;
+        public bool IsInitialized { get; protected set; } = false;
 
         public void Dispose()
         {
