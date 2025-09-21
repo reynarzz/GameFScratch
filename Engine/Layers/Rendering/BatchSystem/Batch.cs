@@ -11,8 +11,8 @@ namespace Engine.Rendering
     {
         internal Material Material { get; set; }
         internal GfxResource Geometry { get; set; }
-        internal GfxResource IndexBuffer { get; set; }
-        internal GfxResource VertexBuffer { get; set; }
+        internal GfxResource IndexBuffer { get; private set; }
+        internal GfxResource VertexBuffer { get; private set; }
         
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }

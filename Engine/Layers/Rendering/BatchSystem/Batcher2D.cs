@@ -19,12 +19,44 @@ namespace Engine.Rendering
         private GfxResource _sharedIndexBuffer;
 
         private const int IndicesPerQuad = 6;
-        private Dictionary<Material, List<SpriteRenderer>> _renderBuckets;
+        private Dictionary<BucketKey, List<SpriteRenderer>> _renderBuckets;
+
+        // TODO: implement has code
+        struct BucketKey : IEquatable<BucketKey>
+        {
+            public Material Material;
+            public int SortOrder;
+
+            // Required for Dictionary
+            public bool Equals(BucketKey other)
+            {
+                return ReferenceEquals(Material, other.Material) && SortOrder == other.SortOrder;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is BucketKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = 17;
+                    hash = hash * 31 + (Material != null ? Material.GetHashCode() : 0);
+                    hash = hash * 31 + SortOrder;
+                    return hash;
+                }
+            }
+
+            public static bool operator ==(BucketKey a, BucketKey b) => a.Equals(b);
+            public static bool operator !=(BucketKey a, BucketKey b) => !a.Equals(b);
+        }
 
         public Batcher2D(int maxQuadsPerBatch)
         {
             MaxQuadsPerBatch = maxQuadsPerBatch;
-            _renderBuckets = new Dictionary<Material, List<SpriteRenderer>>();
+            _renderBuckets = new Dictionary<BucketKey, List<SpriteRenderer>>();
         }
 
         internal void Initialize()
@@ -54,12 +86,13 @@ namespace Engine.Rendering
 
             for (int i = 0; i < renderers.Count; i++)
             {
-                if(!renderers[i].IsEnabled || !renderers[i].Actor.IsEnabled)
+                var renderer = renderers[i];
+                if (!renderer.IsEnabled || !renderer.Actor.IsEnabled)
                 {
                     continue;
                 }
 
-                var mat = renderers[i].Material;
+                var mat = renderer.Material;
 
                 if (!mat)
                 {
@@ -67,16 +100,41 @@ namespace Engine.Rendering
                     mat = pinkMaterial;
                 }
 
-                if(_renderBuckets[mat] == null)
+                var key = new BucketKey() { SortOrder = renderer.SortOrder, Material = renderer.Material };
+
+
+                if (!_renderBuckets.ContainsKey(key))
                 {
-                    _renderBuckets[mat] = new List<SpriteRenderer>();
+                    _renderBuckets.Add(key, new List<SpriteRenderer>());
                 }
 
-                _renderBuckets[mat].Add(renderers[i]);
+                _renderBuckets[key].Add(renderers[i]);
             }
+
+            var batches = new List<Batch>();
+            Log.Debug("Buckets : " + _renderBuckets.Count);
 
             foreach (var bucket in _renderBuckets.Values)
             {
+                bucket.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
+
+                if(bucket.Count > 0)
+                {
+                    var batch = new Batch();
+
+                    for (int i = 0; i < bucket.Count; i++)
+                    {
+                        var renderer = bucket[i];
+
+                    }
+
+                    batches.Add(batch);
+                }
+                
+                // TODO: create batches
+
+                // GfxDeviceManager.Current.UpdateResouce();
 
             }
 
@@ -89,7 +147,7 @@ namespace Engine.Rendering
 
             // 
 
-            return Array.Empty<Batch>();
+            return batches;
         }
     }
 }

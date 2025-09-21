@@ -9,7 +9,7 @@ namespace Engine
 {
     public class SpriteRenderer : Renderer
     {
-        public int SortingOrder { get; set; } = 0;
+        public int SortOrder { get; set; } = 0;
 
         internal override void Initialize()
         {

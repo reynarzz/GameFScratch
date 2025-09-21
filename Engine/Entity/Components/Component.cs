@@ -11,7 +11,7 @@ namespace Engine
         public Actor Actor { get; internal set; }
         public Transform Transform => Actor.Transform;
 
-        private bool _isEnabled;
+        private bool _isEnabled = true;
         public bool IsEnabled 
         {
             get => _isEnabled;

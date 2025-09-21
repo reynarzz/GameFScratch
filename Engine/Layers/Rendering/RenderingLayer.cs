@@ -42,9 +42,7 @@ namespace Engine.Layers
             // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = camera.BackgroundColor });
 
-            var spriteRenderers = SceneManager.ActiveScene.FindAll<SpriteRenderer>();
-
-            var batches = _batcher2d.CreateBatches(spriteRenderers);
+            var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<SpriteRenderer>());
 
             for (int i = 0; i < batches.Count; i++)
             {

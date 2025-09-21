@@ -21,7 +21,7 @@ namespace Engine
 
         private static readonly object _lock = new object();
 
-        public static void Info(string message,
+        public static void Info(object message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
@@ -29,7 +29,7 @@ namespace Engine
             LogMessage(LogLevel.Info, message, file, line, member);
         }
 
-        public static void Debug(string message,
+        public static void Debug(object message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
@@ -37,14 +37,14 @@ namespace Engine
             LogMessage(LogLevel.Debug, message, file, line, member);
         }
 
-        public static void Warn(string message,
+        public static void Warn(object message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
         {
             LogMessage(LogLevel.Warn, message, file, line, member);
         }
-        public static void Error(string message,
+        public static void Error(object message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
@@ -52,7 +52,7 @@ namespace Engine
             LogMessage(LogLevel.Error, message, file, line, member);
         }
 
-        public static void Success(string message,
+        public static void Success(object message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
@@ -60,7 +60,7 @@ namespace Engine
             LogMessage(LogLevel.Success, message, file, line, member);
         }
         
-        public static void LogMessage(LogLevel level, string message,
+        public static void LogMessage(LogLevel level, object message,
                                 string file = "",
                                 int line = 0,
                                string member = "")
