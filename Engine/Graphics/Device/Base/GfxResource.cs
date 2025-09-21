@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
+    /// <summary>
+    /// Base for all graphics resources.
+    /// </summary>
     internal abstract class GfxResource : IDisposable
     {
         private bool _disposed = false;

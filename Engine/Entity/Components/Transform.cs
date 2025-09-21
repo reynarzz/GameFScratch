@@ -4,7 +4,7 @@ using GlmSharp;
 
 namespace Engine
 {
-    public class Transform : Component
+    public sealed class Transform : Component
     {
         // Local transform
         private vec3 _localPosition = vec3.Zero;

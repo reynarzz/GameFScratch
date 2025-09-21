@@ -10,7 +10,7 @@ namespace Engine
     {
         private List<Component> _components;
         public Transform Transform { get; private set; }
-        internal Scene Scene { get; set; }
+        public Scene Scene { get; internal set; }
 
         public Actor() : this(string.Empty, string.Empty)
         {
@@ -47,12 +47,16 @@ namespace Engine
             return (Component)Activator.CreateInstance(type);
         }
 
-
         public T AddComponent<T>() where T : Component
         {
             if (!IsValidComponent(typeof(T)))
             {
                 return default;
+            }
+
+            if(typeof(T) == typeof(Transform) && _components.Count > 0)
+            {
+                return Transform as T;
             }
 
             var component = AddComponent(typeof(T));
@@ -169,5 +173,40 @@ namespace Engine
         {
 
         }
+    }
+
+    public class Actor<T1> : Actor where T1 : Component
+    {
+        public Actor() : this(string.Empty, string.Empty) { }
+        public Actor(string name) : this(name, string.Empty) { }
+        public Actor(string name, string id) : base(name, id) => AddComponent<T1>();
+    }
+
+    public class Actor<T1, T2> : Actor where T1 : Component where T2 : Component
+    {
+        public Actor() : this(string.Empty, string.Empty) { }
+        public Actor(string name) : this(name, string.Empty) { }
+        public Actor(string name, string id) : base(name, id) => AddComponent<T1, T2>();
+    }
+
+    public class Actor<T1, T2, T3> : Actor where T1 : Component where T2 : Component where T3 : Component
+    {
+        public Actor() : this(string.Empty, string.Empty) { }
+        public Actor(string name) : this(name, string.Empty) { }
+        public Actor(string name, string id) : base(name, id) => AddComponent<T1, T2, T3>();
+    }
+
+    public class Actor<T1, T2, T3, T4> : Actor where T1 : Component where T2 : Component where T3 : Component where T4 : Component
+    {
+        public Actor() : this(string.Empty, string.Empty) { }
+        public Actor(string name) : this(name, string.Empty) { }
+        public Actor(string name, string id) : base(name, id) => AddComponent<T1, T2, T3, T4>();
+    }
+
+    public class Actor<T1, T2, T3, T4, T5> : Actor where T1 : Component where T2 : Component where T3 : Component where T4 : Component where T5 : Component
+    {
+        public Actor() : this(string.Empty, string.Empty) { }
+        public Actor(string name) : this(name, string.Empty) { }
+        public Actor(string name, string id) : base(name, id) => AddComponent<T1, T2, T3, T4, T5>();
     }
 }

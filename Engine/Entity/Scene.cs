@@ -26,6 +26,11 @@ namespace Engine
             _rootActors.Remove(actor);
         }
 
+        internal IReadOnlyList<Actor> GetRootActors()
+        {
+            return _rootActors;
+        }
+
         internal void AddActor(Actor actor)
         {
             // explicitly add a new root actor
@@ -48,7 +53,71 @@ namespace Engine
             actor.Scene = null;
         }
 
-        internal void Update() 
+        internal IReadOnlyList<T> FindAll<T>() where T : Component
+        {
+            var list = new List<T>();
+
+            void Find(Actor actor)
+            {
+                var comp = actor.GetComponent<T>();
+
+                if (comp && comp.IsAlive) 
+                {
+                    list.Add(comp);
+                }
+
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    Find(actor.Transform.Children[i].Actor);
+                }
+            }
+
+            for (int i = 0; i < _rootActors.Count; i++)
+            {
+                Find(_rootActors[i]);
+            }
+
+            return list;
+        }
+        
+        internal T Find<T>() where T : Component
+        {
+            T Find(Actor actor)
+            {
+                var comp = actor.GetComponent<T>();
+
+                if (comp && comp.IsAlive)
+                {
+                    return comp;
+                }
+
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    var found = Find(actor.Transform.Children[i].Actor);
+
+                    if (found) 
+                    {
+                        return found;
+                    }
+                }
+
+                return null;
+            }
+
+            for (int i = 0; i < _rootActors.Count; i++)
+            {
+                var comp = Find(_rootActors[i]);
+
+                if (comp)
+                {
+                    return comp;
+                }
+            }
+
+            return null;
+        }
+
+        internal void Update()
         {
             foreach (var actor in _rootActors)
             {

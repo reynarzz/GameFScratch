@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Engine;
+using Game;
 
 namespace Sandbox
 {
@@ -7,19 +8,9 @@ namespace Sandbox
     {
         private static void Main(string[] args)
         {
-            var assembly = Assembly.LoadFrom($"{nameof(Game)}.dll");
-            var allClasses = assembly.GetTypes()
-                                     .Where(t => t.IsClass)
-                                     .ToList();
-
-            foreach (var t in allClasses)
-            {
-                Console.WriteLine(t.Name);
-            }
-
-            var init = new Engine.Engine();
-            init.Initialize();
-            init.Run();
+            var engine = new Engine.Engine();
+            engine.Initialize(typeof(GameApplication), typeof(Engine.Layers.RenderingLayer));
+            engine.Run();
         }
     }
 }

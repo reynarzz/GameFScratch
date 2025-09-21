@@ -1,35 +1,46 @@
-﻿namespace Engine
+﻿using Engine.Graphics;
+using Engine.Graphics.OpenGL;
+using Engine.Layers;
+using Engine.Utils;
+using System.Text;
+
+namespace Engine
 {
     public class Engine
     {
+        private LayersManager _layersManager;
+
         public Engine()
         {
-            
         }
 
         public void Initialize(params Type[] layers)
         {
-            Window win = new Window("Game", 920, 600);
+            var win = new Window("Game", 920, 600);
+
+            _layersManager = new LayersManager(layers);
+            _layersManager.Initialize();
         }
 
-        public void Run() 
+        public void Run()
         {
-            //while (!Window.ShouldClose)
-            //{
-            //    GL.glClearColor(0.2f, 0.2f, 0.2f, 1);
-            //    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            var geometry = GfxDeviceManager.Current.CreateGeometry(Tests.GetTestGeometryDescriptor());
+            var shader = GfxDeviceManager.Current.CreateShader(Tests.GetTestShaderDescriptor());
+            var texture = GfxDeviceManager.Current.CreateTexture(Tests.TestTextureCreation());
 
-            //    shader.Bind();
-            //    geometry.Bind();
-            //    texture.Bind();
-            //    shader.SetUniform("uTexture", 0);
+            while (!Window.ShouldClose)
+            {
+                Window.PollEvents();
 
-            //    unsafe
-            //    {
-            //        GL.glDrawElements(GL.GL_TRIANGLES, indices.Length, GL.GL_UNSIGNED_INT, null);
-            //    }
-            //    Glfw.SwapBuffers(NativeWindow);
-            //}
+                _layersManager.Update();
+
+                (shader as GLShader).Bind();
+                (geometry as GLGeometry).Bind();
+                (texture as GLTexture).Bind();
+
+                GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, 6);
+                Window.SwapBuffers();
+            }
         }
     }
 }

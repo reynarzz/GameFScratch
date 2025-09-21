@@ -46,5 +46,10 @@ namespace Engine
         {
             return _guid;
         }
+
+        public static implicit operator bool(EObject obj)
+        {
+            return obj != null && obj.IsAlive && obj._guid != Guid.Empty;
+        }
     }
 }
