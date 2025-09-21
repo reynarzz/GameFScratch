@@ -76,7 +76,7 @@ namespace Engine.Utils
 
             var geoDesc = new GeometryDescriptor();
 
-            var vertexDesc = new GeometryDescriptor.VertexDataDescriptor();
+            var vertexDesc = new VertexDataDescriptor();
             vertexDesc.BufferDesc = new BufferDataDescriptor();
 
             vertexDesc.BufferDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<float>(vertices).ToArray();
@@ -100,8 +100,8 @@ namespace Engine.Utils
         internal static TextureDescriptor TestTextureCreation()
         {
             var textureDescriptor = new TextureDescriptor();
-            textureDescriptor.Width = 256;
-            textureDescriptor.Height = 256;
+            textureDescriptor.Width = 96;
+            textureDescriptor.Height = 96;
 
             var bufferSize = textureDescriptor.Width * textureDescriptor.Height * 4;
             textureDescriptor.Buffer = new byte[bufferSize];

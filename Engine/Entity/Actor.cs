@@ -11,6 +11,7 @@ namespace Engine
         private List<Component> _components;
         public Transform Transform { get; private set; }
         public Scene Scene { get; internal set; }
+        public bool IsEnabled { get; internal set; }
 
         public Actor() : this(string.Empty, string.Empty)
         {

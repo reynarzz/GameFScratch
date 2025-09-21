@@ -59,7 +59,7 @@ namespace Engine
         {
             LogMessage(LogLevel.Success, message, file, line, member);
         }
-       
+        
         public static void LogMessage(LogLevel level, string message,
                                 string file = "",
                                 int line = 0,
@@ -72,7 +72,8 @@ namespace Engine
 
                 string timestamp = DateTime.Now.ToString("HH:mm:ss");
                 string filename = System.IO.Path.GetFileName(file);
-                Console.WriteLine($"[{timestamp}] [{level}] {filename}:{line} ({member}) - {message}");
+                //Console.WriteLine($"[{timestamp}] [{level}] {filename}:{line} ({member}) - {message}");
+                Console.WriteLine($"[{timestamp}] [{level}] [{filename}:{line}] {message}");
 
                 Console.ForegroundColor = prevColor;
             }

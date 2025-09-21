@@ -12,25 +12,9 @@ namespace Engine
     /// </summary>
     public abstract class Renderer : Component
     {
-        private Material _material;
-        public Material Material 
+        public Material Material { get; set; }
+        public Mesh Mesh { get; set; }
 
-        { 
-            get => _material;
-            set
-            {
-                if(_material == value)
-                {
-                    return;
-                }
-
-                _material = value;
-                OnMaterialSet(_material);
-            }
-        }
-
-        protected virtual void OnMaterialSet(Material mat) { }
         internal abstract void Initialize();
-        internal abstract GfxResource GetGeometry();
     }
 }

@@ -14,20 +14,5 @@ namespace Engine
         internal override void Initialize()
         {
         }
-
-        protected override void OnMaterialSet(Material mat)
-        {
-            if (!mat)
-            {
-                // Look
-            }
-        }
-
-        internal override GfxResource GetGeometry()
-        {
-            // TODO:
-            return null;
-        }
-
     }
 }

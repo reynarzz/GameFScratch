@@ -1,4 +1,5 @@
 ﻿using Engine.Graphics;
+using Engine.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,13 @@ namespace Engine.Layers
     /*internal*/ public class RenderingLayer : LayerBase
     {
         private List<Renderer> _renderers;
+
+        private Batcher2D _batcher2d;
+
+        public RenderingLayer()
+        {
+            _batcher2d = new Batcher2D(777);
+        }
 
         public override void Initialize()
         {
@@ -31,16 +39,22 @@ namespace Engine.Layers
                 return;
             }
 
-            var renderers = SceneManager.ActiveScene.FindAll<Renderer>();
-            
+            // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = camera.BackgroundColor });
 
-            for (int i = 0; i < renderers.Count; i++)
+            var spriteRenderers = SceneManager.ActiveScene.FindAll<SpriteRenderer>();
+
+            var batches = _batcher2d.CreateBatches(spriteRenderers);
+
+            for (int i = 0; i < batches.Count; i++)
             {
                 // Sort first by sortingOrder, then by transform's z
 
-                var geometry = renderers[i].GetGeometry();
-
+                // - Multiply the four vertex of quad with the worldMatrix
+                // spriteRenderers[i].Transform.WorldMatrix;
+                // Geometries will be created by the batcher
+                // var geometry = renderers[i].GetGeometry();
+                
 
                 //GfxDeviceManager.Current.DrawIndexed();
             }

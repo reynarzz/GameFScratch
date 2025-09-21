@@ -22,6 +22,22 @@ namespace Engine.Graphics.OpenGL
             return geometry;
         }
 
+        internal override GfxResource CreateVertexBuffer(VertexDataDescriptor desc)
+        {
+            // TODO: Also create the vao here
+            var vertexBuffer = new GLVertexBuffer();
+            vertexBuffer.Create(desc.BufferDesc);
+
+            return vertexBuffer;
+        }
+        internal override GfxResource CreateIndexBuffer(BufferDataDescriptor desc)
+        {
+            var indexBuffer = new GLIndexBuffer();
+            indexBuffer.Create(desc);
+
+            return indexBuffer;
+        }
+
         internal override GfxResource CreateShader(ShaderDescriptor desc)
         {
             var shader = new GLShader();
@@ -35,6 +51,7 @@ namespace Engine.Graphics.OpenGL
             texture.Create(desc);
             return texture;
         }
+
 
         internal override void DrawIndexed(DrawMode mode, int indicesLength)
         {
