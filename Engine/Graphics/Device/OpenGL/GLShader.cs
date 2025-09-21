@@ -22,7 +22,7 @@ namespace Engine.Graphics.OpenGL
         {
             if (descriptor.VertexSource == null || descriptor.FragmentSource == null)
             {
-                Logger.Error("Shaders sources are invalid");
+                Log.Error("Shaders sources are invalid");
                 return false;
             }
 
@@ -66,14 +66,14 @@ namespace Engine.Graphics.OpenGL
                 glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
                 var message = glGetShaderInfoLog(shaderId, length);
 
-                Logger.Error($"failed to compile '{ShaderTypeName(shaderType)}' \n{message}");
+                Log.Error($"failed to compile '{ShaderTypeName(shaderType)}' \n{message}");
                 glDeleteShader(shaderId);
 
                 return 0;
             }
             else
             {
-                Logger.Success($"Shader compilation sucess '{ShaderTypeName(shaderType)}'");
+                Log.Success($"Shader compilation sucess '{ShaderTypeName(shaderType)}'");
             }
 
             return shaderId;
@@ -88,7 +88,7 @@ namespace Engine.Graphics.OpenGL
                 int length;
                 glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
                 var log = glGetProgramInfoLog(program, length);
-                Logger.Error($"Program linking failed: {log}");
+                Log.Error($"Program linking failed: {log}");
                 return false;
             }
 #if DEBUG
@@ -102,7 +102,7 @@ namespace Engine.Graphics.OpenGL
                 glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 
                 var log = glGetProgramInfoLog(program, logLength);
-                Logger.Error($"Program validation failed: {log}");
+                Log.Error($"Program validation failed: {log}");
 
                 return false;
             }

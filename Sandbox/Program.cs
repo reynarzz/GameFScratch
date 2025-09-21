@@ -17,7 +17,9 @@ namespace Sandbox
                 Console.WriteLine(t.Name);
             }
 
-            new Engine.Engine().Init();
+            var init = new Engine.Engine();
+            init.Initialize();
+            init.Run();
         }
     }
 }

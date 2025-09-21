@@ -12,6 +12,7 @@ namespace Engine
 
         public Scene()
         {
+            Name = "Scene";
             _rootActors = new List<Actor>();
         }
 

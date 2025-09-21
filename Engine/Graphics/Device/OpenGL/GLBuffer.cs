@@ -46,13 +46,13 @@ namespace Engine.Graphics.OpenGL
             
             if (usage == 0)
             {
-                Logger.Error("Invalid buffer draw mode");
+                Log.Error("Invalid buffer draw mode");
                 return false;
             }
 
             if (desc.Buffer == null || desc.Buffer.Length == 0)
             {
-                Logger.Error("Invalid buffer data (zero/null)");
+                Log.Error("Invalid buffer data (zero/null)");
 
                 return false;
             }

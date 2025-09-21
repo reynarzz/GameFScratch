@@ -8,8 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine
 {
-
-    public static class Logger
+    public static class Log
     {
         public enum LogLevel
         {
@@ -27,7 +26,7 @@ namespace Engine
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
         {
-            Log(LogLevel.Info, message, file, line, member);
+            LogMessage(LogLevel.Info, message, file, line, member);
         }
 
         public static void Debug(string message,
@@ -35,7 +34,7 @@ namespace Engine
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
         {
-            Log(LogLevel.Debug, message, file, line, member);
+            LogMessage(LogLevel.Debug, message, file, line, member);
         }
 
         public static void Warn(string message,
@@ -43,14 +42,14 @@ namespace Engine
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
         {
-            Log(LogLevel.Warn, message, file, line, member);
+            LogMessage(LogLevel.Warn, message, file, line, member);
         }
         public static void Error(string message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
         {
-            Log(LogLevel.Error, message, file, line, member);
+            LogMessage(LogLevel.Error, message, file, line, member);
         }
 
         public static void Success(string message,
@@ -58,10 +57,10 @@ namespace Engine
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
         {
-            Log(LogLevel.Success, message, file, line, member);
+            LogMessage(LogLevel.Success, message, file, line, member);
         }
        
-        public static void Log(LogLevel level, string message,
+        public static void LogMessage(LogLevel level, string message,
                                 string file = "",
                                 int line = 0,
                                string member = "")

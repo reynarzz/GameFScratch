@@ -23,14 +23,14 @@ namespace Engine.Graphics.OpenGL
             Bind();
             if (!_vertBuffer.Create(descriptor.VertexDesc.BufferDesc)) 
             {
-                Logger.Error("Failed to create vertex buffer.");
+                Log.Error("Failed to create vertex buffer.");
                 Unbind();
                 return false;
             }
 
             if (!_indexBuffer.Create(descriptor.IndexBuffer)) 
             {
-                Logger.Error("Failed to create index buffer.");
+                Log.Error("Failed to create index buffer.");
                 Unbind();
                 return false;
             }

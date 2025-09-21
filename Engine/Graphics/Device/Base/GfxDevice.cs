@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal class GfxDevice
+    internal abstract class GfxDevice
     {
+        //internal void Draw();
+        internal abstract void CreateGeometry(GeometryDescriptor desc);
+        internal abstract void UpdateGeometry(GeometryDescriptor desc);
     }
 }

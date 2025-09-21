@@ -43,7 +43,7 @@ namespace Engine.Graphics.OpenGL
         {
             if(_handleBinder == null)
             {
-                Logger.Error("Binder not specified in constructor, override Bind() if this was intended.");
+                Log.Error("Binder not specified in constructor, override Bind() if this was intended.");
                 return;
             }
             _handleBinder(Handle);
@@ -53,7 +53,7 @@ namespace Engine.Graphics.OpenGL
         {
             if (_handleBinder == null)
             {
-                Logger.Error("Binder not specified in constructor, override UnBind() if this was intended.");
+                Log.Error("Binder not specified in constructor, override UnBind() if this was intended.");
                 return;
             }
             _handleBinder(0);
@@ -67,7 +67,7 @@ namespace Engine.Graphics.OpenGL
 
             if (!IsInitialized)
             {
-                Logger.Error($"Could not create resource (returns false): {GetType().Name}");
+                Log.Error($"Could not create resource (returns false): {GetType().Name}");
                 DestroyHandle();
             }
 

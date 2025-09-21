@@ -10,29 +10,40 @@ using OpenGL;
 
 namespace Engine
 {
-    internal class Window
+    public class Window
     {
-        public bool IsFullScreen { get; private set; }
-        private GLFW.Window _glfwWindow;
-        private int _width = 920;
-        private int _height = 600;
+        public static bool IsFullScreen { get; private set; }
 
-        private string _windowName = "Game";
-        public string Name
+        public static int Width { get; private set; } = 920;
+        public static int Height { get; private set; } = 600;
+
+        private static string _windowName = "Game";
+        public static string Name
         {
             get => _windowName;
             set
             {
+                if (_windowName == value)
+                {
+                    return;
+                }
+
                 _windowName = value;
-                GLFW.Glfw.SetWindowTitle(_glfwWindow, _windowName);
+                GLFW.Glfw.SetWindowTitle(NativeWindow, _windowName);
             }
         }
 
-        public Window(string name, int width, int height)
+        internal static bool ShouldClose => Glfw.WindowShouldClose(NativeWindow);
+
+        public int MonitorCount => Glfw.Monitors.Length;
+
+        internal static GLFW.Window NativeWindow { get; private set; }
+
+        internal Window(string name, int width, int height)
         {
             _windowName = name;
-            _width = width;
-            _height = height;
+            Width = width;
+            Height = height;
 
             Glfw.Init();
 
@@ -42,18 +53,16 @@ namespace Engine
             Glfw.WindowHint(Hint.ContextVersionMinor, 2);
             Glfw.WindowHint(Hint.Resizable, false);
 
-
             // Create a window
-            _glfwWindow = Glfw.CreateWindow(_width, _height, name, default, default);
+            NativeWindow = Glfw.CreateWindow(Width, Height, name, default, default);
 
-
-            if (_glfwWindow == GLFW.Window.None)
+            if (NativeWindow == GLFW.Window.None)
             {
                 Console.WriteLine("Failed to create GLFW window");
                 Glfw.Terminate();
                 return;
             }
-            Glfw.MakeContextCurrent(_glfwWindow);
+            Glfw.MakeContextCurrent(NativeWindow);
 
             GL.Import(Glfw.GetProcAddress);
 
@@ -63,24 +72,16 @@ namespace Engine
             TestGeometryCreation();
             TestTextureCreation();
 
-            while (!Glfw.WindowShouldClose(_glfwWindow))
-            {
-                Glfw.PollEvents();
+        }
 
-                GL.glClearColor(0.2f, 0.2f, 0.2f, 1);
-                GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        internal void PollEvents()
+        {
+            Glfw.PollEvents();
+        }
 
-                shader.Bind();
-                geometry.Bind();
-                texture.Bind();
-                shader.SetUniform("uTexture", 0);
-
-                unsafe
-                {
-                    GL.glDrawElements(GL.GL_TRIANGLES, indices.Length, GL.GL_UNSIGNED_INT, null);
-                }
-                Glfw.SwapBuffers(_glfwWindow);
-            }
+        internal void SwapBuffers()
+        {
+            Glfw.SwapBuffers(NativeWindow);
         }
 
         private string Vertex = @"
@@ -176,7 +177,7 @@ namespace Engine
             geometry.Create(geoDesc);
         }
 
-        private void TestTextureCreation() 
+        private void TestTextureCreation()
         {
             var textureDescriptor = new TextureDescriptor();
             textureDescriptor.Width = 1;
@@ -185,17 +186,41 @@ namespace Engine
             texture.Create(textureDescriptor);
         }
 
-        public void FullScreen(bool fullscreen)
+        public static void SetWindowSize(int width, int height)
         {
-            if (IsFullScreen)
+            var mode = Glfw.GetVideoMode(Glfw.Monitors[0]);
+
+            Width = Math.Clamp(width, 1, mode.Width);
+            Height = Math.Clamp(height, 1, mode.Height);
+
+            Glfw.SetWindowSize(NativeWindow, Width, Height);
+        }
+
+        public static void SetWindowPosition(int x, int y)
+        {
+            Glfw.SetWindowPosition(NativeWindow, x, y);
+        }
+
+        public static void FullScreen(bool fullscreen, int monitorIndex = 0)
+        {
+            if (IsFullScreen == fullscreen)
+                return;
+
+            if (fullscreen)
             {
+                if (Glfw.Monitors.Length <= monitorIndex)
+                {
+                    Log.Error($"Monitor index '{monitorIndex}' is bigger than physical monitors '{Glfw.Monitors.Length}'.");
+                    return;
+                }
+
                 // Get primary monitor and video mode
-                GLFW.Monitor monitor = Glfw.Monitors[0];
+                GLFW.Monitor monitor = Glfw.Monitors[monitorIndex];
                 var mode = Glfw.GetVideoMode(monitor);
 
                 // Switch to fullscreen
                 Glfw.SetWindowMonitor(
-                    _glfwWindow,
+                    NativeWindow,
                     monitor,
                     0, 0,
                     mode.Width,
@@ -207,12 +232,12 @@ namespace Engine
             {
                 // Switch back to windowed mode
                 Glfw.SetWindowMonitor(
-                    _glfwWindow,
+                    NativeWindow,
                     GLFW.Monitor.None,
                     100,
                     100,
-                    _width,
-                    _height,
+                    Width,
+                    Height,
                     0
                 );
             }

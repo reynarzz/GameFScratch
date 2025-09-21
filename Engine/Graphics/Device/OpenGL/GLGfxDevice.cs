@@ -8,6 +8,14 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLGfxDevice : GfxDevice
     {
+        internal override void CreateGeometry(GeometryDescriptor desc)
+        {
+
+        }
+
+        internal override void UpdateGeometry(GeometryDescriptor desc)
+        {
+        }
 
     }
 }

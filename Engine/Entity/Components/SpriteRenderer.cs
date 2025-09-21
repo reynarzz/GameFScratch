@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class SceneManager
+    public class SpriteRenderer : Component
     {
-        public static Scene ActiveScene { get; internal set; } = new Scene();
+
     }
 }
