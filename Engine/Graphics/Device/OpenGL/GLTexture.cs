@@ -10,6 +10,7 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLTexture : GLGfxResource<TextureDescriptor>
     {
+        private int _slotBound = 0;
         public GLTexture() : base(glGenTexture, glDeleteTexture)
         {
             
@@ -59,12 +60,15 @@ namespace Engine.Graphics.OpenGL
 
         internal void Bind(int slot)
         {
+            Unbind();
+            _slotBound = slot;
             glActiveTexture(GL_TEXTURE0 + slot);
             glBindTexture(GL_TEXTURE_2D, Handle);
         }
 
         internal override void Unbind()
         {
+            glActiveTexture(GL_TEXTURE0 + _slotBound);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     }

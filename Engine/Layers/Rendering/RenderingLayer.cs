@@ -68,10 +68,10 @@ namespace Engine.Layers
 
                     if (tex == null)
                         break;
-                    //(tex.InternalTexture as GLTexture).Bind(i);
+                    (tex.InternalTexture as GLTexture).Bind(i);
                 }
 
-                (batch.Textures[0].InternalTexture as GLTexture).Bind(1);
+                (batch.Textures[0].InternalTexture as GLTexture).Bind(0);
                 (batch.Textures[1].InternalTexture as GLTexture).Bind(1);
                 (batch.Textures[2].InternalTexture as GLTexture).Bind(2);
 
