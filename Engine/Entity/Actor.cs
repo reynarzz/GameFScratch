@@ -104,7 +104,7 @@ namespace Engine
         {
             for (int i = 0; i < _components.Count; i++)
             {
-                if (typeof(T) == _components[i].GetType())
+                if (typeof(T).IsAssignableFrom(_components[i].GetType()))
                 {
                     return _components[i] as T;
                 }

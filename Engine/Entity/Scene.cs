@@ -53,7 +53,7 @@ namespace Engine
             actor.Scene = null;
         }
 
-        internal IReadOnlyList<T> FindAll<T>() where T : Component
+        internal List<T> FindAll<T>() where T : Component
         {
             var list = new List<T>();
 

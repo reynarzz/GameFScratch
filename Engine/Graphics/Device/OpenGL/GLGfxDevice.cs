@@ -9,33 +9,36 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLGfxDevice : GfxDevice
     {
-        private GfxDeviceInfo _gfxDeviceInfo;
+        private readonly GfxDeviceInfo _gfxDeviceInfo;
         public GLGfxDevice()
         {
+            int maxTextureUnits;
+            int maxTextureUnitsAccessInVertexShader;
 
             unsafe 
             {
-                int maxTextureUnits;
-                int maxTextureUnitsAccessInVertexShader;
                 glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
                 glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &maxTextureUnitsAccessInVertexShader);
-
-                
-                _gfxDeviceInfo.MaxTextureUnits = maxTextureUnits;
-                _gfxDeviceInfo.MaxTexAccessInVertexShader = maxTextureUnitsAccessInVertexShader;
-
-                _gfxDeviceInfo.Vendor = glGetString(GL_VENDOR);
-                _gfxDeviceInfo.Renderer = glGetString(GL_RENDERER);
-                _gfxDeviceInfo.Version = glGetString(GL_VERSION);
             }
-           
+
+            _gfxDeviceInfo.MaxHardwareTextureUnits = maxTextureUnits;
+            _gfxDeviceInfo.MaxTexAccessInVertexShader = maxTextureUnitsAccessInVertexShader;
+
+            _gfxDeviceInfo.MaxValidTextureUnits = Math.Min(_gfxDeviceInfo.MaxHardwareTextureUnits, _gfxDeviceInfo.MaxTexAccessInVertexShader);
+            _gfxDeviceInfo.Vendor = glGetString(GL_VENDOR);
+            _gfxDeviceInfo.Renderer = glGetString(GL_RENDERER);
+            _gfxDeviceInfo.Version = glGetString(GL_VERSION);
         }
 
-        internal override GfxDeviceInfo GetDeviceInfo()
+        internal override void Initialize()
         {
-            return _gfxDeviceInfo;
         }
 
+        internal override void Close()
+        {
+        }
+
+        
         internal override void Clear(ClearDeviceConfig config)
         {
             glClearColor(config.Color.x, config.Color.y, config.Color.z, config.Color.w);
@@ -57,6 +60,7 @@ namespace Engine.Graphics.OpenGL
 
             return vertexBuffer;
         }
+
         internal override GfxResource CreateIndexBuffer(BufferDataDescriptor desc)
         {
             var indexBuffer = new GLIndexBuffer();
@@ -122,6 +126,9 @@ namespace Engine.Graphics.OpenGL
             }
         }
 
-      
+        internal override GfxDeviceInfo GetDeviceInfo()
+        {
+            return _gfxDeviceInfo;
+        }
     }
 }

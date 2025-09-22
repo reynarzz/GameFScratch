@@ -15,12 +15,15 @@ namespace Engine.Rendering
         internal int BatchCount => _batches.Count;
         internal int IndicesToDraw { get; private set; }
 
-        private List<Batch> _batches;
+        private List<Batch2D> _batches;
 
         private GfxResource _sharedIndexBuffer;
 
         private const int IndicesPerQuad = 6;
         private Dictionary<BucketKey, List<Renderer2D>> _renderBuckets;
+        private BatchesPool _batchesPool;
+        private Material _pinkMaterial;
+        private Texture2D _whiteTexture;
 
         private struct BucketKey : IEquatable<BucketKey>
         {
@@ -48,6 +51,11 @@ namespace Engine.Rendering
         {
             MaxQuadsPerBatch = maxQuadsPerBatch;
             _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
+            _batchesPool = new BatchesPool();
+
+            // TODO: get actual pink material
+            _pinkMaterial = new Material();
+            _whiteTexture = new Texture2D();
         }
 
         internal void Initialize()
@@ -71,24 +79,18 @@ namespace Engine.Rendering
             _sharedIndexBuffer = GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
-        internal IReadOnlyCollection<Batch> CreateBatches(IReadOnlyList<Renderer2D> renderers)
+        internal IReadOnlyCollection<Batch2D> CreateBatches(List<Renderer2D> renderers)
         {
+            // TODO: Do frustum culling
+            renderers.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
             _renderBuckets.Clear();
 
-            for (int i = 0; i < renderers.Count; i++)
+            foreach (var renderer in renderers)
             {
-                var renderer = renderers[i];
                 if (!renderer.IsEnabled || !renderer.Actor.IsEnabled)
                 {
                     continue;
-                }
-
-                var mat = renderer.Material;
-
-                if (!mat)
-                {
-                    var pinkMaterial = new Material();
-                    mat = pinkMaterial;
                 }
 
                 var key = new BucketKey() { SortOrder = renderer.SortOrder, Material = renderer.Material };
@@ -98,96 +100,78 @@ namespace Engine.Rendering
                     _renderBuckets.Add(key, new List<Renderer2D>());
                 }
 
-                _renderBuckets[key].Add(renderers[i]);
+                _renderBuckets[key].Add(renderer);
             }
 
-            var batches = new List<Batch>();
             Log.Debug("Buckets : " + _renderBuckets.Count);
 
             foreach (var bucket in _renderBuckets.Values)
             {
-                bucket.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+                var maxBatchVertexSize = MaxQuadsPerBatch * 3;
 
-                if (bucket.Count > 0)
+                // TODO: get batch from batch pool
+                Batch2D currentBatch = null;
+
+                // TODO: split batch if max texture unit per hardware is reached for this bucket.
+                foreach (var renderer in bucket)
                 {
-                    // TODO: get batch from batch pool
-                    var batch = new Batch();
-
-                    // TODO: split batch if max texture unit per hardware is reached for this bucket.
-                    for (int i = 0; i < bucket.Count; i++)
+                    if (renderer.Mesh == null)
                     {
-                        var renderer = bucket[i];
-                        if (renderer.Mesh == null)
+                        var chunk = renderer.Sprite?.GetAtlasChunk() ?? AtlasChunk.DefaultChunk;
+                        var worldMatrix = renderer.Transform.WorldMatrix;
+                        var texture = renderer.Sprite?.Texture ?? _whiteTexture;
+                        var material = renderer.Material ?? _pinkMaterial;
+
+                        float ppu = texture.PixelPerUnit;
+                        var width = (float)chunk.Width / ppu;
+                        var height = (float)chunk.Height / ppu;
+
+                        float px = chunk.Pivot.x * width;
+                        float py = chunk.Pivot.y * height;
+
+                        var bl = new Vertex()
                         {
-                            var chunk = renderer.Sprite?.GetAtlasChunk() ?? AtlasChunk.DefaultChunk;
-                            var worldMatrix = renderer.Transform.WorldMatrix;
-                            float width = chunk.Width;
-                            float height = chunk.Height;
+                            Color = renderer.PacketColor,
+                            Position = (worldMatrix * new vec4(-px, -py, 0, 1)).xyz,
+                            UV = chunk.BLuv,
+                        };
 
-                            if (renderer.Sprite?.Texture)
-                            {
-                                float ppu = renderer.Sprite.Texture.PixelPerUnit;
-                                width = (float)chunk.Width / ppu;
-                                height = (float)chunk.Height / ppu;
-                            }
-
-                            float px = chunk.Pivot.x * width;
-                            float py = chunk.Pivot.y * height;
-
-                            // Render quad
-                            var bl = new Vertex()
-                            {
-                                Color = renderer.PacketColor,
-                                Position = (worldMatrix * new vec4(-px, -py, 0, 1)).xyz,
-                                UV = chunk.BLuv,
-                            };
-
-                            var tl = new Vertex()
-                            {
-                                Color = renderer.PacketColor,
-                                Position = (worldMatrix * new vec4(-px, height - py, 0, 1)).xyz,
-                                UV = chunk.TLuv,
-                            };
-
-                            var tr = new Vertex()
-                            {
-                                Color = renderer.PacketColor,
-                                Position = (worldMatrix * new vec4(width - px, height - py, 0, 1)).xyz,
-                                UV = chunk.TRuv,
-                            };
-
-                            var br = new Vertex()
-                            {
-                                Color = renderer.PacketColor,
-                                Position = (worldMatrix * new vec4(width - px, -py, 0, 1)).xyz,
-                                UV = chunk.BRuv,
-                            };
-                        }
-                        else
+                        var tl = new Vertex()
                         {
-                            // Render mesh
+                            Color = renderer.PacketColor,
+                            Position = (worldMatrix * new vec4(-px, height - py, 0, 1)).xyz,
+                            UV = chunk.TLuv,
+                        };
+
+                        var tr = new Vertex()
+                        {
+                            Color = renderer.PacketColor,
+                            Position = (worldMatrix * new vec4(width - px, height - py, 0, 1)).xyz,
+                            UV = chunk.TRuv,
+                        };
+
+                        var br = new Vertex()
+                        {
+                            Color = renderer.PacketColor,
+                            Position = (worldMatrix * new vec4(width - px, -py, 0, 1)).xyz,
+                            UV = chunk.BRuv,
+                        };
+
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(material, texture))
+                        {
+                            currentBatch = _batchesPool.Get(maxBatchVertexSize, material, texture);
                         }
+
+                        currentBatch.PushGeometry(material, texture);
                     }
-
-                    batches.Add(batch);
+                    else
+                    {
+                        // TODO: Populate batch with mesh data
+                    }
                 }
-
-                // TODO: create batches
-
-                // GfxDeviceManager.Current.UpdateResouce();
-
             }
 
-            // 1-Sort all by material
-
-            // If these are the same, put int same batch
-            // Material
-            // Sorting order (if a)
-
-
-            // 
-
-            return batches;
+            return _batchesPool.GetActiveBatches();
         }
     }
 }

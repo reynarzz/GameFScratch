@@ -15,16 +15,20 @@ namespace Engine.Graphics
 
     internal struct GfxDeviceInfo 
     {
-        public int MaxTexAccessInVertexShader { get; internal set; }
-        public string Vendor { get; internal set; }
-        public string Renderer { get; internal set; }
-        public string Version { get; internal set; }
+        internal int MaxTexAccessInVertexShader { get; set; }
+        internal int MaxHardwareTextureUnits { get; set; }
+        internal int MaxValidTextureUnits { get; set; }
+        internal string Vendor { get; set; }
+        internal string Renderer { get; set; }
+        internal string Version { get; set; }
         internal string DeviceName { get; set; }
-        internal int MaxTextureUnits { get; set; }
     }
 
     internal abstract class GfxDevice
     {
+        internal abstract void Initialize();
+        internal abstract void Close();
+
         internal abstract GfxDeviceInfo GetDeviceInfo();
         internal abstract void DrawIndexed(DrawMode mode, int indicesLength);
         internal abstract void Clear(ClearDeviceConfig config);
