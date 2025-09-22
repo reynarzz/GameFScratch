@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using GlmSharp;
+using GlmNet;
 
 namespace Engine
 {
     public sealed class Transform : Component
     {
+        private static mat4 IdentityM => new mat4(1.0f);
         // Local transform
-        private vec3 _localPosition = vec3.Zero;
+        private vec3 _localPosition = default;
         private quat _localRotation = quat.Identity;
         private vec3 _localScale = new vec3(1, 1, 1);
         private Transform _parent = null;
@@ -15,9 +16,9 @@ namespace Engine
         public vec3 LocalPosition
         {
             get => _localPosition;
-            set 
-            { 
-                _localPosition = value; 
+            set
+            {
+                _localPosition = value;
                 MarkDirty();
             }
         }
@@ -25,18 +26,18 @@ namespace Engine
         public quat LocalRotation
         {
             get => _localRotation;
-            set 
-            { 
-                _localRotation = value; 
-                MarkDirty(); 
+            set
+            {
+                _localRotation = value;
+                MarkDirty();
             }
         }
 
         public vec3 LocalScale
         {
             get => _localScale;
-            set 
-            { 
+            set
+            {
                 _localScale = value; MarkDirty();
             }
         }
@@ -47,7 +48,7 @@ namespace Engine
             get => _parent;
             set
             {
-                if (_parent == value) 
+                if (_parent == value)
                     return;
 
                 if (value == null)
@@ -55,7 +56,7 @@ namespace Engine
                     // register as root
                     Actor.Scene.RegisterRootActor(Actor);
                 }
-                else 
+                else
                 {
                     // unregister as root
                     Actor.Scene.UnregisterRootActor(Actor);
@@ -73,14 +74,14 @@ namespace Engine
 
         // Dirty flag and cached matrices
         private bool _isDirty = true;
-        private mat4 _cachedWorldMatrix = mat4.Identity;
-        private vec3 _cachedWorldPosition = vec3.Zero;
+        private mat4 _cachedWorldMatrix = IdentityM;
+        private vec3 _cachedWorldPosition = default;
         private quat _cachedWorldRotation = quat.Identity;
         private vec3 _cachedWorldScale = new vec3(1, 1, 1);
 
         private void MarkDirty()
         {
-            if (_isDirty) 
+            if (_isDirty)
                 return;
 
             _isDirty = true;
@@ -91,7 +92,7 @@ namespace Engine
         }
 
         // Local matrix
-        public mat4 LocalMatrix => mat4.Translate(_localPosition) * Rotate(_localRotation) * mat4.Scale(_localScale);
+        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * Rotate(_localRotation) * glm.scale(IdentityM, _localScale);
 
         // World transforms with lazy evaluation
         public mat4 WorldMatrix
@@ -115,7 +116,7 @@ namespace Engine
                 if (Parent != null)
                 {
                     mat4 parentInv = InverseTRS(Parent.WorldPosition, Parent.WorldRotation, Parent.WorldScale);
-                    LocalPosition = (parentInv * new vec4(value, 1)).xyz;
+                    LocalPosition = new vec3(parentInv * new vec4(value, 1));
                 }
                 else LocalPosition = value;
             }
@@ -132,7 +133,7 @@ namespace Engine
             {
                 if (Parent != null)
                 {
-                    LocalRotation = glm.Conjugate(Parent.WorldRotation) * value;
+                    LocalRotation = Parent.WorldRotation.Conjugate * value;
                 }
                 else
                 {
@@ -150,7 +151,7 @@ namespace Engine
             }
             set
             {
-                if (Parent != null) LocalScale = value / Parent.WorldScale;
+                if (Parent != null) LocalScale = new vec3(value.x / Parent.WorldScale.x, value.y / Parent.WorldScale.y, value.z / Parent.WorldScale.z);
                 else LocalScale = value;
             }
         }
@@ -174,7 +175,7 @@ namespace Engine
             set
             {
                 if (Parent != null)
-                    LocalRotation = glm.Conjugate(Parent.WorldRotation) * EulerToQuaternion(value);
+                    LocalRotation = Parent.WorldRotation.Conjugate * EulerToQuaternion(value);
                 else
                     LocalRotation = EulerToQuaternion(value);
             }
@@ -191,7 +192,11 @@ namespace Engine
             }
             else _cachedWorldMatrix = LocalMatrix;
 
-            _cachedWorldPosition = new vec4(_cachedWorldMatrix[3]).xyz;
+            _cachedWorldPosition = _cachedWorldPosition = new vec3(
+            _cachedWorldMatrix[3, 0],
+            _cachedWorldMatrix[3, 1],
+            _cachedWorldMatrix[3, 2]
+        );
             _cachedWorldRotation = Parent != null ? Parent.WorldRotation * LocalRotation : LocalRotation;
             _cachedWorldScale = Parent != null ? Parent.WorldScale * LocalScale : LocalScale;
 
@@ -206,24 +211,24 @@ namespace Engine
 
             float t0 = +2.0f * (q.w * q.x + q.y * q.z);
             float t1 = +1.0f - 2.0f * (q.x * q.x + ysqr);
-            euler.x = glm.Degrees((float)Math.Atan2(t0, t1));
+            euler.x = glm.degrees((float)Math.Atan2(t0, t1));
 
             float t2 = +2.0f * (q.w * q.y - q.z * q.x);
-            t2 = glm.Clamp(t2, -1.0f, 1.0f);
-            euler.y = glm.Degrees((float)Math.Asin(t2));
+            t2 = Math.Clamp(t2, -1.0f, 1.0f);
+            euler.y = glm.degrees((float)Math.Asin(t2));
 
             float t3 = +2.0f * (q.w * q.z + q.x * q.y);
             float t4 = +1.0f - 2.0f * (ysqr + q.z * q.z);
-            euler.z = glm.Degrees((float)Math.Atan2(t3, t4));
+            euler.z = glm.degrees((float)Math.Atan2(t3, t4));
 
             return euler;
         }
 
         private static quat EulerToQuaternion(vec3 euler)
         {
-            float roll = glm.Radians(euler.x);
-            float pitch = glm.Radians(euler.y);
-            float yaw = glm.Radians(euler.z);
+            float roll = glm.radians(euler.x);
+            float pitch = glm.radians(euler.y);
+            float yaw = glm.radians(euler.z);
 
             float cy = (float)Math.Cos(yaw * 0.5f);
             float sy = (float)Math.Sin(yaw * 0.5f);
@@ -249,9 +254,9 @@ namespace Engine
                 scale.z != 0 ? 1.0f / scale.z : 0
             );
 
-            mat4 scaleMat = mat4.Scale(invScale);
-            mat4 rotMat = Rotate(glm.Conjugate(rotation));
-            mat4 transMat = mat4.Translate(-position);
+            mat4 scaleMat = glm.scale(IdentityM, invScale);
+            mat4 rotMat = Rotate(rotation.Conjugate);
+            mat4 transMat = glm.translate(IdentityM, new vec3(-position.x, -position.y, -position.z));
 
             return scaleMat * rotMat * transMat;
         }
@@ -270,19 +275,31 @@ namespace Engine
             float wy = w * y;
             float wz = w * z;
 
-            mat4 result = mat4.Identity;
+            mat4 result = IdentityM;
 
-            result.m00 = 1 - 2 * (yy + zz);
-            result.m01 = 2 * (xy + wz);
-            result.m02 = 2 * (xz - wy);
+            // column 0
+            result[0, 0] = 1 - 2 * (yy + zz);
+            result[0, 1] = 2 * (xy + wz);
+            result[0, 2] = 2 * (xz - wy);
+            result[0, 3] = 0f;
 
-            result.m10 = 2 * (xy - wz);
-            result.m11 = 1 - 2 * (xx + zz);
-            result.m12 = 2 * (yz + wx);
+            // column 1
+            result[1, 0] = 2 * (xy - wz);
+            result[1, 1] = 1 - 2 * (xx + zz);
+            result[1, 2] = 2 * (yz + wx);
+            result[1, 3] = 0f;
 
-            result.m20 = 2 * (xz + wy);
-            result.m21 = 2 * (yz - wx);
-            result.m22 = 1 - 2 * (xx + yy);
+            // column 2
+            result[2, 0] = 2 * (xz + wy);
+            result[2, 1] = 2 * (yz - wx);
+            result[2, 2] = 1 - 2 * (xx + yy);
+            result[2, 3] = 0f;
+
+            // column 3 (translation)
+            result[3, 0] = 0f;
+            result[3, 1] = 0f;
+            result[3, 2] = 0f;
+            result[3, 3] = 1f;
 
             return result;
         }

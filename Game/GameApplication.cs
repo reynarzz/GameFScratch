@@ -73,26 +73,26 @@ namespace Game
             var mat3 = new Material(mainShader);
 
             var camera = new Actor<Camera>("Camera").GetComponent<Camera>();
-            camera.BackgroundColor = new GlmSharp.vec4(1, 1, 0, 1);
-            camera.Transform.WorldPosition = new GlmSharp.vec3(0, 0, 10);
+            camera.BackgroundColor = new GlmNet.vec4(1, 1, 0, 1);
+            camera.Transform.WorldPosition = new GlmNet.vec3(0, 0, 10);
             
             var actor = new Actor<SpriteRenderer>("Actor1");
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
-            actor.Transform.WorldPosition = new GlmSharp.vec3(0.1f,0, 0);
+            actor.Transform.WorldPosition = new GlmNet.vec3(0.1f,0, 0);
 
             var actor2 = new Actor<SpriteRenderer>("Actor2");
             actor2.GetComponent<SpriteRenderer>().Material = mat1;// actor.GetComponent<SpriteRenderer>().Material;
             actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
             actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
-            actor2.Transform.WorldPosition = new GlmSharp.vec3(-0.1f, 0, 0);
+            actor2.Transform.WorldPosition = new GlmNet.vec3(-0.1f, 0, 0);
 
             var actor3 = new Actor<SpriteRenderer>("Actor3");
             actor3.GetComponent<SpriteRenderer>().Material = mat1;
             actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
-            actor3.Transform.WorldPosition = new GlmSharp.vec3(0, 0.1f, 0);
-            actor3.Transform.LocalEulerAngles = new GlmSharp.vec3(0, 0, 45);
+            actor3.Transform.WorldPosition = new GlmNet.vec3(0, 0.1f, 0);
+            actor3.Transform.LocalEulerAngles = new GlmNet.vec3(0, 0, 45);
             Log.Success("Game Layer");
         }
 

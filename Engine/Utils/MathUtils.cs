@@ -1,4 +1,4 @@
-﻿using GlmSharp;
+﻿using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace Engine.Utils
     {
         public static mat4 InvertCameraTransform(mat4 model)
         {
-            mat4 view = mat4.Identity;
+            mat4 view = mat4.identity();
 
             // Transpose the 3x3 rotation (upper-left 3x3)
             view[0, 0] = model[0, 0];
@@ -43,7 +43,7 @@ namespace Engine.Utils
 
         public static mat4 Ortho(float left, float right, float bottom, float top, float near, float far)
         {
-            mat4 result = mat4.Identity;
+            mat4 result = mat4.identity();
 
             result[0, 0] = 2.0f / (right - left);
             result[1, 1] = 2.0f / (top - bottom);
@@ -59,7 +59,7 @@ namespace Engine.Utils
         public static mat4 Perspective(float fovY, float aspect, float near, float far)
         {
             float f = 1.0f / (float)Math.Tan(fovY / 2.0f);
-            mat4 result = mat4.Identity;
+            mat4 result = mat4.identity();
 
             result[0, 0] = f / aspect;
             result[1, 1] = f;

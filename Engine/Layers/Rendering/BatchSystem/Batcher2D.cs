@@ -1,6 +1,6 @@
 ﻿using Engine.Graphics;
 using Engine.Utils;
-using GlmSharp;
+using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -136,28 +136,28 @@ namespace Engine.Rendering
                         var v0 = new Vertex()
                         {
                             Color = renderer.PacketColor,
-                            Position = (worldMatrix * new vec4(-px, -py, 0, 1)).xyz,
+                            Position = new vec3(worldMatrix * new vec4(-px, -py, 0, 1)),
                             UV = chunk.BottomLeftUV,
                         };
 
                         var v1 = new Vertex()
                         {
                             Color = renderer.PacketColor,
-                            Position = (worldMatrix * new vec4(-px, height - py, 0, 1)).xyz,
+                            Position = new vec3(worldMatrix * new vec4(-px, height - py, 0, 1)),
                             UV = chunk.TopLeftUV,
                         };
 
                         var v2 = new Vertex()
                         {
                             Color = renderer.PacketColor,
-                            Position = (worldMatrix * new vec4(width - px, height - py, 0, 1)).xyz,
+                            Position = new vec3(worldMatrix * new vec4(width - px, height - py, 0, 1)),
                             UV = chunk.TopRightUV,
                         };
 
                         var v3 = new Vertex()
                         {
                             Color = renderer.PacketColor,
-                            Position = (worldMatrix * new vec4(width - px, -py, 0, 1)).xyz,
+                            Position = new vec3(worldMatrix * new vec4(width - px, -py, 0, 1)),
                             UV = chunk.BottomRightUV,
                         };
 
