@@ -82,7 +82,6 @@ namespace Engine.Rendering
         internal IReadOnlyCollection<Batch2D> CreateBatches(List<Renderer2D> renderers)
         {
             // TODO: Do frustum culling
-            renderers.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
 
             _renderBuckets.Clear();
 
@@ -105,8 +104,11 @@ namespace Engine.Rendering
 
             Log.Debug("Buckets : " + _renderBuckets.Count);
 
-            foreach (var bucket in _renderBuckets.Values)
+            // TODO: improve performance of order by sorting, is allocating every frame
+            foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))
             {
+                // bucket.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
                 var maxBatchVertexSize = MaxQuadsPerBatch * 3;
 
                 // TODO: get batch from batch pool

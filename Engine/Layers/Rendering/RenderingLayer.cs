@@ -44,15 +44,9 @@ namespace Engine.Layers
 
             var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>());
 
-            for (int i = 0; i < batches.Count; i++)
+            foreach (var batch in batches)
             {
-                // Sort first by sortingOrder, then by transform's z
-
-                // - Multiply the four vertex of quad with the worldMatrix
-                // spriteRenderers[i].Transform.WorldMatrix;
-                // Geometries will be created by the batcher
-                // var geometry = renderers[i].GetGeometry();
-                
+                // TODO: draw batch
 
                 //GfxDeviceManager.Current.DrawIndexed();
             }
