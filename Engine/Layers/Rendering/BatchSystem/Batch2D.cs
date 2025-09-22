@@ -29,18 +29,14 @@ namespace Engine.Rendering
             MaxVertexSize = maxVertexSize;
             _verticesData = new Vertex[MaxVertexSize];
             Textures = new Texture[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
-            _geoDescriptor = new GeometryDescriptor()
-            {
-                VertexDesc = new VertexDataDescriptor() { BufferDesc = new BufferDataDescriptor() }
-            };
-
+           
             // Create geometry buffer for this batch
-            var geoDesc = new GeometryDescriptor();
+            _geoDescriptor = new GeometryDescriptor();
             var vertexDesc = new VertexDataDescriptor();
             vertexDesc.BufferDesc = new BufferDataDescriptor();
             vertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<Vertex>(new Vertex[maxVertexSize]).ToArray();
             vertexDesc.BufferDesc.Usage = BufferUsage.Static;
-            geoDesc.SharedIndexBuffer = sharedIndexBuffer;
+            _geoDescriptor.SharedIndexBuffer = sharedIndexBuffer;
 
             unsafe
             {
@@ -52,10 +48,10 @@ namespace Engine.Rendering
                     new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 6 },  // Color
                     new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 7 },  // TextureIndex
                 };
-                geoDesc.VertexDesc = vertexDesc;
+                _geoDescriptor.VertexDesc = vertexDesc;
             }
 
-            Geometry = GfxDeviceManager.Current.CreateGeometry(geoDesc);
+            Geometry = GfxDeviceManager.Current.CreateGeometry(_geoDescriptor);
         }
 
         internal void Initialize()
@@ -116,7 +112,6 @@ namespace Engine.Rendering
             var vertDataDescriptor = _geoDescriptor.VertexDesc.BufferDesc;
             vertDataDescriptor.Offset = 0;
             vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
-
 
             GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);
 

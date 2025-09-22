@@ -40,6 +40,8 @@ namespace Engine
         {
             OrthoConfig = new() { OrthographicSize = 32 };
             PerspectiveConfig = new() { Fov = 60.0f, AspectRatio = 1 };
+
+            UpdateOrthographic();
         }
 
         private void UpdateOrthographic()

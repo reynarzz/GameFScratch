@@ -24,7 +24,7 @@ namespace Game
             actor.GetComponent<Camera>().BackgroundColor = new GlmSharp.vec4(1, 1, 0, 1);
             actor.GetComponent<SpriteRenderer>().Material = new Material();
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
-
+            
             var actor2 = new Actor<SpriteRenderer>("Actor2");
             actor2.GetComponent<SpriteRenderer>().Material = new Material();// actor.GetComponent<SpriteRenderer>().Material;
             actor2.GetComponent<SpriteRenderer>().SortOrder = 3;

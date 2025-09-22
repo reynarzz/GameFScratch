@@ -107,7 +107,7 @@ namespace Engine.Rendering
                 _renderBuckets[key].Add(renderer);
             }
 
-              Log.Debug("Buckets : " + _renderBuckets.Count);
+            Log.Debug("Buckets : " + _renderBuckets.Count);
 
             // TODO: improve performance of order by sorting, is allocating every frame
             foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))

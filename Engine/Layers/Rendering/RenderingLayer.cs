@@ -30,7 +30,7 @@ namespace Engine.Layers
 
         internal override void UpdateLayer()
         {
-            if (!_mainCamera) 
+            if (!_mainCamera)
             {
                 _mainCamera = SceneManager.ActiveScene.Find<Camera>();
             }
@@ -55,6 +55,7 @@ namespace Engine.Layers
                 // batch.Geometry;
                 // batch.Material;
                 // batch.Textures;
+                // var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
 
                 // Draw
                 // GfxDeviceManager.Current.DrawIndexed(,);
