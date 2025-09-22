@@ -9,11 +9,18 @@ namespace Engine.Rendering
 {
     internal class BatchesPool
     {
+        private readonly GfxResource _sharedIndexBuffer;
+
+        public BatchesPool(GfxResource sharedIndexBuffer)
+        {
+            _sharedIndexBuffer = sharedIndexBuffer;
+        }
+
         internal Batch2D Get(int maxVertexSize, Material material, Texture texture, GfxResource indexBuffer = null)
         {
             // TODO: find min that can fit this maxVertexSize, and has this indexBuffer, if no available, create one.
             //GfxDeviceManager.Current.CreateIndexBuffer();
-            var batch = new Batch2D(maxVertexSize);
+            var batch = new Batch2D(maxVertexSize, _sharedIndexBuffer);
 
             // Initialize to clear any old states.
             batch.Initialize();

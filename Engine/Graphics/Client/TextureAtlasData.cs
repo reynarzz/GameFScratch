@@ -12,10 +12,10 @@ namespace Engine
         public static AtlasChunk DefaultChunk = new AtlasChunk()
         {
             Pivot = new vec2(0.5f, 0.5f),
-            BLuv = new vec2(0, 0),
-            TLuv = new vec2(0, 1),
-            TRuv = new vec2(1, 1),
-            BRuv = new vec2(0, 1),
+            BottomLeftUV = new vec2(0, 0),
+            TopLeftUV = new vec2(0, 1),
+            TopRightUV = new vec2(1, 1),
+            BottomRightUV = new vec2(0, 1),
             Width = 1,
             Height = 1,
         };
@@ -23,10 +23,10 @@ namespace Engine
         public vec2 Pivot { get; set; }
 
         // Uv's for quad vertices.
-        public vec2 BLuv { get; set; }
-        public vec2 TLuv { get; set; }
-        public vec2 TRuv { get; set; }
-        public vec2 BRuv { get; set; }
+        public vec2 BottomLeftUV { get; set; }
+        public vec2 TopLeftUV { get; set; }
+        public vec2 TopRightUV { get; set; }
+        public vec2 BottomRightUV { get; set; }
 
         public int Width { get; set; }
         public int Height { get; set; }

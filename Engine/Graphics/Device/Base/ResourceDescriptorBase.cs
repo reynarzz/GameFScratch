@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal interface IResourceDescriptor
+    internal class ResourceDescriptorBase
     {
     }
 }

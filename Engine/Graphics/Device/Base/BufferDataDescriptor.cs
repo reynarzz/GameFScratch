@@ -14,11 +14,13 @@ namespace Engine.Graphics
         Stream,
     }
 
-    internal class BufferDataDescriptor : IResourceDescriptor
+    internal unsafe class BufferDataDescriptor : ResourceDescriptorBase
     {
         internal int Count { get; set; }
         internal int Offset { get; set; }
-        internal byte[] Buffer { get; set; }
+
+        internal byte[] Buffer;
+
         internal BufferUsage Usage { get; set; }
     }
 }

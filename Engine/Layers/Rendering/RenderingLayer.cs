@@ -13,6 +13,7 @@ namespace Engine.Layers
         private List<Renderer> _renderers;
 
         private Batcher2D _batcher2d;
+        private Camera _mainCamera = null;
 
         public RenderingLayer()
         {
@@ -29,26 +30,34 @@ namespace Engine.Layers
 
         internal override void UpdateLayer()
         {
-            var camera = SceneManager.ActiveScene.Find<Camera>();
+            if (!_mainCamera) 
+            {
+                _mainCamera = SceneManager.ActiveScene.Find<Camera>();
+            }
 
-            if (!camera)
+            if (!_mainCamera || !_mainCamera.IsEnabled)
             {
                 Log.Error("No cameras found in scene.");
-
                 GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = new GlmSharp.vec4(1, 0, 1, 1) });
                 return;
             }
 
             // Clear screen
-            GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = camera.BackgroundColor });
+            GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
 
             var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>());
 
             foreach (var batch in batches)
             {
-                // TODO: draw batch
+                batch.Flush();
 
-                //GfxDeviceManager.Current.DrawIndexed();
+                // TODO: Bind these
+                // batch.Geometry;
+                // batch.Material;
+                // batch.Textures;
+
+                // Draw
+                // GfxDeviceManager.Current.DrawIndexed(,);
             }
         }
     }

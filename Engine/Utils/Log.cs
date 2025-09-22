@@ -65,6 +65,7 @@ namespace Engine
                                 int line = 0,
                                string member = "")
         {
+#if DEBUG
             lock (_lock) // thread-safe color changes
             {
                 var prevColor = Console.ForegroundColor;
@@ -77,6 +78,7 @@ namespace Engine
 
                 Console.ForegroundColor = prevColor;
             }
+#endif
         }
 
         private static ConsoleColor LevelToColor(LogLevel level)

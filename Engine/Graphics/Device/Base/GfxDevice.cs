@@ -38,7 +38,9 @@ namespace Engine.Graphics
         internal abstract GfxResource CreateIndexBuffer(BufferDataDescriptor desc);
         internal abstract GfxResource CreateVertexBuffer(VertexDataDescriptor desc);
 
-        internal abstract void UpdateResouce(GfxResource resource, IResourceDescriptor desc);
+        internal abstract void UpdateGeometry(GfxResource resource, GeometryDescriptor desc);
+
+        internal abstract void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc);
         internal abstract void SetPipelineFeatures(PipelineFeatures features);
     }
 }

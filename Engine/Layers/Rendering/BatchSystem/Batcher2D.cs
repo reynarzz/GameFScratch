@@ -51,11 +51,12 @@ namespace Engine.Rendering
         {
             MaxQuadsPerBatch = maxQuadsPerBatch;
             _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
-            _batchesPool = new BatchesPool();
 
             // TODO: get actual pink material
             _pinkMaterial = new Material();
             _whiteTexture = new Texture2D();
+
+            Initialize();
         }
 
         internal void Initialize()
@@ -74,9 +75,11 @@ namespace Engine.Rendering
 
             var desc = new BufferDataDescriptor();
             desc.Usage = BufferUsage.Dynamic;
+
             desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
 
             _sharedIndexBuffer = GfxDeviceManager.Current.CreateIndexBuffer(desc);
+            _batchesPool = new BatchesPool(_sharedIndexBuffer);
         }
 
         internal IReadOnlyCollection<Batch2D> CreateBatches(List<Renderer2D> renderers)
@@ -131,40 +134,40 @@ namespace Engine.Rendering
                         float px = chunk.Pivot.x * width;
                         float py = chunk.Pivot.y * height;
 
-                        var bl = new Vertex()
+                        var v0 = new Vertex()
                         {
                             Color = renderer.PacketColor,
                             Position = (worldMatrix * new vec4(-px, -py, 0, 1)).xyz,
-                            UV = chunk.BLuv,
+                            UV = chunk.BottomLeftUV,
                         };
 
-                        var tl = new Vertex()
+                        var v1 = new Vertex()
                         {
                             Color = renderer.PacketColor,
                             Position = (worldMatrix * new vec4(-px, height - py, 0, 1)).xyz,
-                            UV = chunk.TLuv,
+                            UV = chunk.TopLeftUV,
                         };
 
-                        var tr = new Vertex()
+                        var v2 = new Vertex()
                         {
                             Color = renderer.PacketColor,
                             Position = (worldMatrix * new vec4(width - px, height - py, 0, 1)).xyz,
-                            UV = chunk.TRuv,
+                            UV = chunk.TopRightUV,
                         };
 
-                        var br = new Vertex()
+                        var v3 = new Vertex()
                         {
                             Color = renderer.PacketColor,
                             Position = (worldMatrix * new vec4(width - px, -py, 0, 1)).xyz,
-                            UV = chunk.BRuv,
+                            UV = chunk.BottomRightUV,
                         };
 
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(material, texture))
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(4, material, texture))
                         {
                             currentBatch = _batchesPool.Get(maxBatchVertexSize, material, texture);
                         }
 
-                        currentBatch.PushGeometry(material, texture);
+                        currentBatch.PushGeometry(material, texture, 6, v0, v1, v2, v3);
                     }
                     else
                     {

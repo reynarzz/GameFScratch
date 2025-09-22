@@ -15,7 +15,7 @@ namespace Engine.Graphics.OpenGL
             int maxTextureUnits;
             int maxTextureUnitsAccessInVertexShader;
 
-            unsafe 
+            unsafe
             {
                 glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
                 glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &maxTextureUnitsAccessInVertexShader);
@@ -38,7 +38,7 @@ namespace Engine.Graphics.OpenGL
         {
         }
 
-        
+
         internal override void Clear(ClearDeviceConfig config)
         {
             glClearColor(config.Color.x, config.Color.y, config.Color.z, config.Color.w);
@@ -94,7 +94,7 @@ namespace Engine.Graphics.OpenGL
                 _ => 0
             };
 
-            if(glMode == 0)
+            if (glMode == 0)
             {
                 Log.Error($"Draw mode unsupported: {mode}");
                 return;
@@ -112,15 +112,15 @@ namespace Engine.Graphics.OpenGL
             {
                 glEnable(GL_BLEND);
             }
-            else 
+            else
             {
                 glDisable(GL_BLEND);
             }
         }
 
-        internal override void UpdateResouce(GfxResource resource, IResourceDescriptor desc)
+        internal override void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc)
         {
-            if(resource as GLGeometry != null)
+            if (resource as GLGeometry != null)
             {
                 (resource as GLGeometry).UpdateResource(desc as GeometryDescriptor);
             }
@@ -129,6 +129,11 @@ namespace Engine.Graphics.OpenGL
         internal override GfxDeviceInfo GetDeviceInfo()
         {
             return _gfxDeviceInfo;
+        }
+
+        internal override void UpdateGeometry(GfxResource resource, GeometryDescriptor desc)
+        {
+            (resource as GLGeometry).UpdateResource(desc);
         }
     }
 }

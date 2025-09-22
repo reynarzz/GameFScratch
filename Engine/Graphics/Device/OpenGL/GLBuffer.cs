@@ -9,21 +9,6 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLBuffer : GLGfxResource<BufferDataDescriptor>
     {
-        //internal enum GLBufferTarget : int
-        //{
-        //    GL_ARRAY_BUFFER = 0x8892, 
-        //    GL_ELEMENT_ARRAY_BUFFER = 0x8893,
-        //    GL_COPY_READ_BUFFER = 0x8F36,
-        //    GL_COPY_WRITE_BUFFER = 0x8F37,
-        //    GL_PIXEL_PACK_BUFFER = 0x88EB,
-        //    GL_PIXEL_UNPACK_BUFFER = 0x88EC,
-        //    GL_SHADER_STORAGE_BUFFER = 0x90D2,
-        //    GL_UNIFORM_BUFFER = 0x8A11,
-        //    GL_TRANSFORM_FEEDBACK_BUFFER = 0x8C8E,
-        //    GL_TEXTURE_BUFFER = 0x8C2A,
-        //    GL_DISPATCH_INDIRECT_BUFFER = 0x90EE,
-        //    GL_DRAW_INDIRECT_BUFFER = 0x8F3F
-        //}
         protected int Target { get; private set; }
 
         public GLBuffer(int target) : base(glGenBuffer,
@@ -43,7 +28,7 @@ namespace Engine.Graphics.OpenGL
                 BufferUsage.Invalid => 0,
                 _ => 0
             };
-            
+
             if (usage == 0)
             {
                 Log.Error("Invalid buffer draw mode");
@@ -56,11 +41,12 @@ namespace Engine.Graphics.OpenGL
 
                 return false;
             }
-            
+
             Bind();
-            unsafe 
+
+            unsafe
             {
-                fixed (byte* data = desc.Buffer) 
+                fixed (byte* data = desc.Buffer)
                 {
                     glBufferData(Target, desc.Buffer.Length, data, usage);
                 }
@@ -78,7 +64,7 @@ namespace Engine.Graphics.OpenGL
                 fixed (byte* data = desc.Buffer)
                 {
                     glBufferSubData(Target, desc.Offset, desc.Buffer.Length, data);
-                } 
+                }
             }
             Unbind();
         }

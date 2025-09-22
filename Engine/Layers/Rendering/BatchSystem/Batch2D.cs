@@ -2,52 +2,133 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Engine.Rendering
 {
-    internal class Batch2D
+    internal class Batch2D : IDisposable
     {
         public int MaxVertexSize { get; }
 
         internal Material Material { get; private set; }
-        internal GfxResource Geometry { get; private set; }
+        internal GfxResource Geometry { get; }
         internal Texture[] Textures { get; }
 
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
-        public bool Flushed { get; set; } = false;
+        internal bool IsFlushed { get; private set; } = false;
+
         private bool HasMaxTextureUnitsFilled => _textureUsePointer > GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits;
         private int _textureUsePointer = 0;
+        private GeometryDescriptor _geoDescriptor;
+        private Vertex[] _verticesData;
 
-        public Batch2D(int maxVertexSize)
+        internal Batch2D(int maxVertexSize, GfxResource sharedIndexBuffer)
         {
             MaxVertexSize = maxVertexSize;
+            _verticesData = new Vertex[MaxVertexSize];
             Textures = new Texture[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
+            _geoDescriptor = new GeometryDescriptor()
+            {
+                VertexDesc = new VertexDataDescriptor() { BufferDesc = new BufferDataDescriptor() }
+            };
+
+            // Create geometry buffer for this batch
+            var geoDesc = new GeometryDescriptor();
+            var vertexDesc = new VertexDataDescriptor();
+            vertexDesc.BufferDesc = new BufferDataDescriptor();
+            vertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<Vertex>(new Vertex[maxVertexSize]).ToArray();
+            vertexDesc.BufferDesc.Usage = BufferUsage.Static;
+            geoDesc.SharedIndexBuffer = sharedIndexBuffer;
+
+            unsafe
+            {
+                vertexDesc.Attribs = new()
+                {
+                    new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = 0 },                 // Position
+                    new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 3 }, // UV
+                    new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 5 }, // Normals
+                    new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 6 },  // Color
+                    new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 7 },  // TextureIndex
+                };
+                geoDesc.VertexDesc = vertexDesc;
+            }
+
+            Geometry = GfxDeviceManager.Current.CreateGeometry(geoDesc);
         }
 
-        public bool PushGeometry(Material material, Texture texture)
+        internal void Initialize()
         {
-            // If fits in terms of vertices and has at least a texture slot available for the sprite
-            var canAddGeometry = true;
-            return canAddGeometry;
-        }
-
-        public void Initialize()
-        {
-            Flushed = false;
+            IsFlushed = false;
             VertexCount = 0;
+            IndexCount = 0;
             _textureUsePointer = 0;
+
+            for (int i = 0; i < Textures.Length; i++)
+            {
+                Textures[i] = null;
+            }
         }
 
-        public void Flush()
+        internal void PushGeometry(Material material, Texture texture, int indicesCount, params Vertex[] vertices)
         {
-            Flushed = true;
+            if (!Material)
+            {
+                Material = material;
+            }
+
+            var currentTex = Textures[_textureUsePointer];
+            if (!currentTex && currentTex != texture)
+            {
+                _textureUsePointer++;
+            }
+
+            // Adds texture to a empty slot
+            Textures[_textureUsePointer] = texture;
+
+            // Copies vertices data
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                _verticesData[VertexCount + i] = vertices[i];
+            }
+
+
+            VertexCount += vertices.Length;
+            IndexCount += indicesCount;
+
+            // Log.Info($"Verts: {VertexCount}, indices: {IndexCount}");
         }
 
-        internal bool CanPushGeometry(Material material, Texture texture)
+        /// <summary>
+        /// Will push geometry immediatelly to gpu.
+        /// </summary>
+        internal void PushGeometryImmediate(Material material, Texture texture, int indicesCount, params Vertex[] vertices)
         {
+            // TODO: 
+        }
+
+        internal void Flush()
+        {
+            var vertDataDescriptor = _geoDescriptor.VertexDesc.BufferDesc;
+            vertDataDescriptor.Offset = 0; 
+            vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
+
+
+            GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);
+
+            IsFlushed = true;
+        }
+
+        internal bool CanPushGeometry(int vertexCount, Material material, Texture texture)
+        {
+            if (vertexCount + VertexCount > MaxVertexSize)
+            {
+                return false;
+            }
+
             if (!HasMaxTextureUnitsFilled)
             {
                 return Material == material;
@@ -59,6 +140,11 @@ namespace Engine.Rendering
             }
 
             return false;
+        }
+
+        public void Dispose()
+        {
+            Geometry.Dispose();
         }
     }
 }

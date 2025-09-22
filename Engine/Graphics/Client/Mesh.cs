@@ -13,11 +13,9 @@ namespace Engine
     {
         public vec3 Position;
         public vec2 UV;
-        public vec2 Normals;
-        public uint Color;
-
-        // TODO: Will be used in the future when I implement the texture bin packer,
-        //public int TextureIndex { get; set; }
+        public vec3 Normals;
+        public ColorPacketRGBA Color;
+        public int TextureIndex;
     }
 
     public class Mesh : EObject
