@@ -58,6 +58,7 @@ namespace Engine.Rendering
             // TODO: get actual pink material
             _pinkMaterial = new Material(Tests.GetShaderPink());
             _whiteTexture = new Texture2D(1, 1, 4, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF});
+            _whiteTexture.PixelPerUnit = 1;
 
             Initialize();
         }
@@ -77,8 +78,7 @@ namespace Engine.Rendering
             }
 
             var desc = new BufferDataDescriptor();
-            desc.Usage = BufferUsage.Dynamic;
-
+            desc.Usage = BufferUsage.Static;
             desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
 
             _sharedIndexBuffer = GfxDeviceManager.Current.CreateIndexBuffer(desc);

@@ -44,7 +44,7 @@ namespace Engine.Rendering
             var vertexDesc = new VertexDataDescriptor();
             vertexDesc.BufferDesc = new BufferDataDescriptor();
             vertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<Vertex>(new Vertex[maxVertexSize]).ToArray();
-            vertexDesc.BufferDesc.Usage = BufferUsage.Static;
+            vertexDesc.BufferDesc.Usage = BufferUsage.Dynamic;
             _geoDescriptor.SharedIndexBuffer = sharedIndexBuffer;
 
             unsafe
@@ -54,8 +54,8 @@ namespace Engine.Rendering
                     new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = 0 },                 // Position
                     new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 3 }, // UV
                     new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 5 }, // Normals
-                    new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 6 },  // Color
-                    new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 7 },  // TextureIndex
+                    new() { Count = 1, Normalized = false, Type = GfxValueType.Uint,  Stride = sizeof(Vertex), Offset = sizeof(uint)  * 8 },  // Color
+                    new() { Count = 1, Normalized = false, Type = GfxValueType.Int,   Stride = sizeof(Vertex), Offset = sizeof(int)   * 9 },  // TextureIndex
                 };
                 _geoDescriptor.VertexDesc = vertexDesc;
             }
@@ -68,6 +68,7 @@ namespace Engine.Rendering
             IsFlushed = false;
             VertexCount = 0;
             IndexCount = 0;
+            Material = null;
 
             for (int i = 0; i < Textures.Length; i++)
             {
@@ -82,16 +83,19 @@ namespace Engine.Rendering
                 Material = material;
             }
 
+            int textureIndex = 0;
             // Adds texture to a empty slot
             for (int i = 0; i < Textures.Length; i++)
             {
                 if (Textures[i] == texture)
                 {
+                    textureIndex = i;
                     break;
                 }
                 else if (Textures[i] == null)
                 {
                     Textures[i] = texture;
+                    textureIndex = i;
                     break;
                 }
             }
@@ -99,13 +103,12 @@ namespace Engine.Rendering
             // Copies vertices data
             for (int i = 0; i < vertices.Length; i++)
             {
+                vertices[i].TextureIndex = textureIndex;
                 _verticesData[VertexCount + i] = vertices[i];
             }
 
             VertexCount += vertices.Length;
             IndexCount += indicesCount;
-
-            // Log.Info($"Verts: {VertexCount}, indices: {IndexCount}");
         }
 
         /// <summary>

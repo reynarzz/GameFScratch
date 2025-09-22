@@ -57,8 +57,16 @@ namespace Engine.Graphics.OpenGL
             {
                 var attrib = descriptor.VertexDesc.Attribs[(int)i];
 
+                if(attrib.Type == GfxValueType.Int || attrib.Type == GfxValueType.Uint)
+                {
+                    glVertexAttribIPointer(i, attrib.Count, attrib.Type.ToGL(), attrib.Stride, attrib.Offset);
+                }
+                else
+                {
+                    glVertexAttribPointer(i, attrib.Count, attrib.Type.ToGL(), attrib.Normalized, attrib.Stride, attrib.Offset);
+                }
+
                 glEnableVertexAttribArray(i);
-                glVertexAttribPointer(i, attrib.Count, attrib.Type.ToGL(), attrib.Normalized, attrib.Stride, attrib.Offset);
             }
 
             Unbind();

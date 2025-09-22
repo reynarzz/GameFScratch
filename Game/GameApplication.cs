@@ -40,7 +40,9 @@ namespace Game
 
         public string SpriteFragmentShader = $@"
         #version 330 core
+
         uniform sampler2D uTextures[{32}];
+        
         in vec2 vUV;
         in vec4 vColor;
         
@@ -53,7 +55,6 @@ namespace Game
         }}";
 
      
-
         public override void Initialize()
         {
             var sprite1 = new Sprite();
@@ -78,22 +79,22 @@ namespace Game
             camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 5;
             camera.Transform.WorldPosition = new GlmNet.vec3(0, 0, -12);
-            Log.Info(camera.Transform.WorldMatrix);
 
-            var actor = new Actor<SpriteRenderer>("Actor1");
+            var actor = new Actor<SpriteRenderer, RotateTest>("Actor1");
             actor.GetComponent<SpriteRenderer>().Material = mat1;
-            actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
+            //actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
+            //actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2,0, 0);
-
+            
             var actor2 = new Actor<SpriteRenderer>("Actor2");
-            actor2.GetComponent<SpriteRenderer>().Material = mat1;// actor.GetComponent<SpriteRenderer>().Material;
-            actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
+            actor2.GetComponent<SpriteRenderer>().Material =  actor.GetComponent<SpriteRenderer>().Material;
+            //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
             actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
             actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
 
             var actor3 = new Actor<SpriteRenderer>("Actor3");
-            actor3.GetComponent<SpriteRenderer>().Material = mat1;
-            actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
+            actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+            //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             actor3.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
             actor3.Transform.LocalEulerAngles = new GlmNet.vec3(0, 0, 45);

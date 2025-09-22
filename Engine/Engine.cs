@@ -24,9 +24,9 @@ namespace Engine
 
         public void Run()
         {
-            var geometry = GfxDeviceManager.Current.CreateGeometry(Tests.GetTestGeometryDescriptor());
-            var shader = GfxDeviceManager.Current.CreateShader(Tests.GetTestShaderDescriptor());
-            var texture = GfxDeviceManager.Current.CreateTexture(Tests.TestTextureCreation());
+            //var geometry = GfxDeviceManager.Current.CreateGeometry(Tests.GetTestGeometryDescriptor());
+            //var shader = GfxDeviceManager.Current.CreateShader(Tests.GetTestShaderDescriptor());
+            //var texture = GfxDeviceManager.Current.CreateTexture(Tests.TestTextureCreation());
 
             while (!Window.ShouldClose)
             {

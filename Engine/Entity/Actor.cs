@@ -162,17 +162,35 @@ namespace Engine
 
         public void Update()
         {
-            // Update components
+            foreach (var comp in _components)
+            {
+                if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
+                {
+                    (comp as ScriptBehavior).OnUpdate();
+                }
+            }
         }
 
         internal void LateUpdate()
         {
-
+            foreach (var comp in _components)
+            {
+                if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
+                {
+                    (comp as ScriptBehavior).OnLateUpdate();
+                }
+            }
         }
 
         internal void FixedUpdate()
         {
-
+            foreach (var comp in _components)
+            {
+                if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
+                {
+                    (comp as ScriptBehavior).OnFixedUpdate();
+                }
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Engine;
+
 using Game;
 
 namespace Sandbox
@@ -9,7 +10,7 @@ namespace Sandbox
         private static void Main(string[] args)
         {
             var engine = new Engine.Engine();
-            engine.Initialize(typeof(GameApplication), typeof(Engine.Layers.RenderingLayer));
+            engine.Initialize(typeof(GameApplication), typeof(Engine.Layers.SceneLayer), typeof(Engine.Layers.RenderingLayer));
 
             engine.Run();
 

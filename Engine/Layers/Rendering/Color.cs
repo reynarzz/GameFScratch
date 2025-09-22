@@ -99,5 +99,10 @@ namespace Engine
         {
             return packet.Value;
         }
+
+        public static implicit operator ColorPacketRGBA(uint packet)
+        {
+            return new ColorPacketRGBA(packet);
+        }
     }
 }

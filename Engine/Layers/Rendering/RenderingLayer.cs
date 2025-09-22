@@ -64,20 +64,18 @@ namespace Engine.Layers
 
                 for (int i = 0; i < batch.Textures.Length; i++)
                 {
-                    var tex = (batch.Textures[i]);
+                    var tex = batch.Textures[i];
 
                     if (tex == null)
                         break;
-
-                    (tex.InternalTexture as GLTexture).Bind(i);
+                    //(tex.InternalTexture as GLTexture).Bind(i);
                 }
 
-                shader.SetUniform("uTextures", Batch2D.TextureSlotArray);
+                (batch.Textures[0].InternalTexture as GLTexture).Bind(1);
+                (batch.Textures[1].InternalTexture as GLTexture).Bind(1);
+                (batch.Textures[2].InternalTexture as GLTexture).Bind(2);
 
-                // TODO: Bind these
-                // batch.Geometry;
-                // batch.Material;
-                // batch.Textures;
+                shader.SetUniform("uTextures", Batch2D.TextureSlotArray);
 
                 // Draw
                 GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, batch.IndexCount);
