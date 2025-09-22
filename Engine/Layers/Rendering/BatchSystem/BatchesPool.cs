@@ -10,22 +10,35 @@ namespace Engine.Rendering
     internal class BatchesPool
     {
         private readonly GfxResource _sharedIndexBuffer;
+        private List<Batch2D> _batches;
 
         public BatchesPool(GfxResource sharedIndexBuffer)
         {
             _sharedIndexBuffer = sharedIndexBuffer;
+            _batches = new List<Batch2D>();
         }
 
-        internal Batch2D Get(int maxVertexSize, Material material, Texture texture, GfxResource indexBuffer = null)
+        internal Batch2D Get(int maxVertexSize, GfxResource indexBuffer = null)
         {
+            foreach (var batch in _batches)
+            {
+                if (batch.IsFlushed && batch.MaxVertexSize >= maxVertexSize) 
+                {
+                    batch.Initialize();
+                    return batch;
+                }
+            }
+
             // TODO: find min that can fit this maxVertexSize, and has this indexBuffer, if no available, create one.
             //GfxDeviceManager.Current.CreateIndexBuffer();
-            var batch = new Batch2D(maxVertexSize, _sharedIndexBuffer);
+            var newBatch = new Batch2D(maxVertexSize, _sharedIndexBuffer);
 
             // Initialize to clear any old states.
-            batch.Initialize();
+            newBatch.Initialize();
+            Log.Success("Create new batch");
+            _batches.Add(newBatch);
 
-            return batch;
+            return newBatch;
         }
 
         internal void ClearPool() 
@@ -33,10 +46,9 @@ namespace Engine.Rendering
             // Delete all elements
         }
 
-        internal IReadOnlyCollection<Batch2D> GetActiveBatches()
+        internal IEnumerable<Batch2D> GetActiveBatches()
         {
-            // TODO:
-            return new List<Batch2D>();
+            return _batches.Where(x => !x.IsFlushed);
         }
     }
 }

@@ -21,8 +21,6 @@ namespace Engine.Rendering
         internal int IndexCount { get; private set; }
         internal bool IsFlushed { get; private set; } = false;
 
-        private bool HasMaxTextureUnitsFilled => _textureUsePointer > GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits;
-        private int _textureUsePointer = 0;
         private GeometryDescriptor _geoDescriptor;
         private Vertex[] _verticesData;
 
@@ -65,7 +63,6 @@ namespace Engine.Rendering
             IsFlushed = false;
             VertexCount = 0;
             IndexCount = 0;
-            _textureUsePointer = 0;
 
             for (int i = 0; i < Textures.Length; i++)
             {
@@ -80,21 +77,25 @@ namespace Engine.Rendering
                 Material = material;
             }
 
-            var currentTex = Textures[_textureUsePointer];
-            if (!currentTex && currentTex != texture)
-            {
-                _textureUsePointer++;
-            }
-
             // Adds texture to a empty slot
-            Textures[_textureUsePointer] = texture;
+            for (int i = 0; i < Textures.Length; i++)
+            {
+                if (Textures[i] == texture)
+                {
+                    break;
+                }
+                else if (Textures[i] == null)
+                {
+                    Textures[i] = texture;
+                    break;
+                }
+            }
 
             // Copies vertices data
             for (int i = 0; i < vertices.Length; i++)
             {
                 _verticesData[VertexCount + i] = vertices[i];
             }
-
 
             VertexCount += vertices.Length;
             IndexCount += indicesCount;
@@ -113,7 +114,7 @@ namespace Engine.Rendering
         internal void Flush()
         {
             var vertDataDescriptor = _geoDescriptor.VertexDesc.BufferDesc;
-            vertDataDescriptor.Offset = 0; 
+            vertDataDescriptor.Offset = 0;
             vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
 
 
@@ -122,21 +123,19 @@ namespace Engine.Rendering
             IsFlushed = true;
         }
 
-        internal bool CanPushGeometry(int vertexCount, Material material, Texture texture)
+        internal bool CanPushGeometry(int vertexCount, Texture texture)
         {
             if (vertexCount + VertexCount > MaxVertexSize)
             {
                 return false;
             }
 
-            if (!HasMaxTextureUnitsFilled)
-            {
-                return Material == material;
-            }
-
             for (int i = 0; i < Textures.Length; i++)
             {
-                return Textures[i] == texture;
+                if (texture == Textures[i] || Textures[i] == null)
+                {
+                    return true;
+                }
             }
 
             return false;

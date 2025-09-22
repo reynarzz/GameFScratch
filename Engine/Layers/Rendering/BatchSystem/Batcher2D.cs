@@ -12,6 +12,8 @@ namespace Engine.Rendering
     internal class Batcher2D
     {
         internal int MaxQuadsPerBatch { get; private set; }
+        private int MaxBatchVertexSize => MaxQuadsPerBatch * 4;
+
         internal int BatchCount => _batches.Count;
         internal int IndicesToDraw { get; private set; }
 
@@ -82,7 +84,7 @@ namespace Engine.Rendering
             _batchesPool = new BatchesPool(_sharedIndexBuffer);
         }
 
-        internal IReadOnlyCollection<Batch2D> CreateBatches(List<Renderer2D> renderers)
+        internal IEnumerable<Batch2D> CreateBatches(List<Renderer2D> renderers)
         {
             // TODO: Do frustum culling
 
@@ -105,19 +107,15 @@ namespace Engine.Rendering
                 _renderBuckets[key].Add(renderer);
             }
 
-            Log.Debug("Buckets : " + _renderBuckets.Count);
+              Log.Debug("Buckets : " + _renderBuckets.Count);
 
             // TODO: improve performance of order by sorting, is allocating every frame
             foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))
             {
                 // bucket.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
 
-                var maxBatchVertexSize = MaxQuadsPerBatch * 3;
-
-                // TODO: get batch from batch pool
                 Batch2D currentBatch = null;
 
-                // TODO: split batch if max texture unit per hardware is reached for this bucket.
                 foreach (var renderer in bucket)
                 {
                     if (renderer.Mesh == null)
@@ -162,12 +160,15 @@ namespace Engine.Rendering
                             UV = chunk.BottomRightUV,
                         };
 
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(4, material, texture))
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(4, texture))
                         {
-                            currentBatch = _batchesPool.Get(maxBatchVertexSize, material, texture);
+                            currentBatch = _batchesPool.Get(MaxBatchVertexSize);
                         }
 
                         currentBatch.PushGeometry(material, texture, 6, v0, v1, v2, v3);
+
+                        Log.Debug("Render : " + renderer.Actor.Name);
+
                     }
                     else
                     {
