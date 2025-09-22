@@ -9,6 +9,6 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLVertexBuffer : GLBuffer
     {
-        internal GLVertexBuffer() : base(GL_ARRAY_BUFFER) { } 
+        internal GLVertexBuffer() : base(GL_ARRAY_BUFFER) { }
     }
 }

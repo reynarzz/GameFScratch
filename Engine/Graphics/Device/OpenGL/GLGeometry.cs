@@ -10,33 +10,42 @@ namespace Engine.Graphics.OpenGL
     internal class GLGeometry : GLGfxResource<GeometryDescriptor>
     {
         private readonly GLVertexBuffer _vertBuffer;
-        private readonly GLIndexBuffer _indexBuffer;
+        private GLIndexBuffer _indexBuffer;
 
         public GLGeometry() : base(glGenVertexArray, glDeleteVertexArray, glBindVertexArray)
         {
             _vertBuffer = new GLVertexBuffer();
-            _indexBuffer = new GLIndexBuffer();
         }
 
         protected override bool CreateResource(GeometryDescriptor descriptor)
         {
             Bind();
-            if (!_vertBuffer.Create(descriptor.VertexDesc.BufferDesc)) 
+            if (!_vertBuffer.Create(descriptor.VertexDesc.BufferDesc))
             {
                 Log.Error("Failed to create vertex buffer.");
                 Unbind();
                 return false;
             }
 
-            if (!_indexBuffer.Create(descriptor.IndexBuffer)) 
+            if (descriptor.SharedIndexBuffer == null)
             {
-                Log.Error("Failed to create index buffer.");
-                Unbind();
-                return false;
+                _indexBuffer = new GLIndexBuffer();
+
+                if (!_indexBuffer.Create(descriptor.IndexDesc))
+                {
+                    Log.Error("Failed to create index buffer.");
+                    Unbind();
+                    return false;
+                }
+
+                _indexBuffer.Bind();
             }
-            
+            else
+            {
+                (descriptor.SharedIndexBuffer as GLIndexBuffer).Bind();
+            }
+
             _vertBuffer.Bind();
-            _indexBuffer.Bind();
 
             for (uint i = 0; i < descriptor.VertexDesc.Attribs.Count; i++)
             {
@@ -54,14 +63,21 @@ namespace Engine.Graphics.OpenGL
         internal override void UpdateResource(GeometryDescriptor descriptor)
         {
             _vertBuffer.Update(descriptor.VertexDesc.BufferDesc);
-            _indexBuffer.Update(descriptor.IndexBuffer);
+
+            if (_indexBuffer != null)
+            {
+                _indexBuffer.Update(descriptor.IndexDesc);
+            }
         }
 
         protected override void FreeResource()
         {
             _vertBuffer.Dispose();
-            _indexBuffer.Dispose();
 
+            if (_indexBuffer != null)
+            {
+                _indexBuffer.Dispose();
+            }
             base.FreeResource();
         }
     }

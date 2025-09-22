@@ -6,15 +6,26 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    public enum DrawMode 
+    internal enum DrawMode 
     {
         Triangles,
         Lines,
         Points
     }
 
+    internal struct GfxDeviceInfo 
+    {
+        public int MaxTexAccessInVertexShader { get; internal set; }
+        public string Vendor { get; internal set; }
+        public string Renderer { get; internal set; }
+        public string Version { get; internal set; }
+        internal string DeviceName { get; set; }
+        internal int MaxTextureUnits { get; set; }
+    }
+
     internal abstract class GfxDevice
     {
+        internal abstract GfxDeviceInfo GetDeviceInfo();
         internal abstract void DrawIndexed(DrawMode mode, int indicesLength);
         internal abstract void Clear(ClearDeviceConfig config);
         internal abstract GfxResource CreateGeometry(GeometryDescriptor desc);

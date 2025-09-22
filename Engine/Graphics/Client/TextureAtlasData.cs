@@ -1,0 +1,58 @@
+﻿using GlmSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Engine
+{
+    public struct AtlasChunk 
+    {
+        public static AtlasChunk DefaultChunk = new AtlasChunk()
+        {
+            Pivot = new vec2(0.5f, 0.5f),
+            BLuv = new vec2(0, 0),
+            TLuv = new vec2(0, 1),
+            TRuv = new vec2(1, 1),
+            BRuv = new vec2(0, 1),
+            Width = 1,
+            Height = 1,
+        };
+
+        public vec2 Pivot { get; set; }
+
+        // Uv's for quad vertices.
+        public vec2 BLuv { get; set; }
+        public vec2 TLuv { get; set; }
+        public vec2 TRuv { get; set; }
+        public vec2 BRuv { get; set; }
+
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
+    public class TextureAtlasData
+    {
+        private AtlasChunk[] _chunks;
+      
+        public AtlasChunk GetChunk(int index) 
+        {
+            if (_chunks == null) 
+            {
+                return AtlasChunk.DefaultChunk;
+            }
+
+            var isInvalidIndex = index >= _chunks.Length;
+#if DEBUG
+            if (isInvalidIndex)
+            {
+                Log.Error($"invalid atlas chunk index: '{index}', Atlas Max: '{_chunks.Length}'");
+
+                return AtlasChunk.DefaultChunk;
+            }
+#endif
+            return _chunks[index];
+        }
+    }
+}

@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class SpriteRenderer : Renderer
+    public class SpriteRenderer : Renderer2D
     {
-        public int SortOrder { get; set; } = 0;
-
         internal override void Initialize()
         {
         }

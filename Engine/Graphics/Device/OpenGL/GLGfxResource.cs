@@ -20,7 +20,7 @@ namespace Engine.Graphics.OpenGL
         private Func<uint> _handleCreator;
 
         protected GLGfxResource(Func<uint> creator,
-                                Action<uint> deleter, 
+                                Action<uint> deleter,
                                 Action<uint> binder)
         {
             _handleCreator = creator;
@@ -41,7 +41,7 @@ namespace Engine.Graphics.OpenGL
         /// </summary>
         internal virtual void Bind()
         {
-            if(_handleBinder == null)
+            if (_handleBinder == null)
             {
                 Log.Error("Binder not specified in constructor, override Bind() if this was intended.");
                 return;
@@ -61,17 +61,24 @@ namespace Engine.Graphics.OpenGL
 
         internal bool Create(T descriptor)
         {
-            CreateHandle();
-
-            IsInitialized = CreateResource(descriptor);
-
             if (!IsInitialized)
             {
-                Log.Error($"Could not create resource (returns false): {GetType().Name}");
-                DestroyHandle();
+                CreateHandle();
+
+                IsInitialized = CreateResource(descriptor);
+
+                if (!IsInitialized)
+                {
+                    Log.Error($"Could not create resource (returns false): {GetType().Name}");
+                    DestroyHandle();
+                }
+
+                return IsInitialized;
             }
 
-            return IsInitialized;
+            Log.Warn("Can't create an already created buffer, this is not supported.");
+
+            return false;
         }
 
         internal void Update(T descriptor)

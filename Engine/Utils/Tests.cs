@@ -91,7 +91,7 @@ namespace Engine.Utils
             indexDesc.Usage = BufferUsage.Static;
             indexDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<uint>(indices).ToArray();
 
-            geoDesc.IndexBuffer = indexDesc;
+            geoDesc.IndexDesc = indexDesc;
             geoDesc.VertexDesc = vertexDesc;
 
             return geoDesc;

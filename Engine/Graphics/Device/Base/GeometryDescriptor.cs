@@ -8,24 +8,31 @@ namespace Engine.Graphics
 {
     internal class VertexAtrib
     {
-        public int Count { get; set; }
-        public GfxValueType Type { get; set; }
-        public bool Normalized { get; set; }
-        public int Stride { get; set; }
-        public int Offset { get; set; }
+        internal int Count { get; set; }
+        internal GfxValueType Type { get; set; }
+        internal bool Normalized { get; set; }
+        internal int Stride { get; set; }
+        internal int Offset { get; set; }
     }
 
     internal class VertexDataDescriptor
     {
-        public BufferDataDescriptor BufferDesc { get; set; }
-        public List<VertexAtrib> Attribs { get; set; }
+        internal BufferDataDescriptor BufferDesc { get; set; }
+        internal List<VertexAtrib> Attribs { get; set; }
     }
 
     internal class GeometryDescriptor : IResourceDescriptor
     {
-        
+        internal VertexDataDescriptor VertexDesc { get; set; }
 
-        public VertexDataDescriptor VertexDesc { get; set; }
-        public BufferDataDescriptor IndexBuffer { get; set; }
+        /// <summary>
+        /// Define an index buffer to be created
+        /// </summary>
+        internal BufferDataDescriptor IndexDesc { get; set; }
+
+        /// <summary>
+        /// Set an indexBuffer, no index buffer will be created, note: shared index buffers cannot be updated by clients.
+        /// </summary>
+        internal GfxResource SharedIndexBuffer { get; set; }
     }
 }

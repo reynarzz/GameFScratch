@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class Texture : EObject
+    public class Texture2D : Texture
     {
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-
+        public TextureAtlasData Atlas { get; } = new();
+        public int PixelPerUnit { get; set; } = 32;
     }
 }

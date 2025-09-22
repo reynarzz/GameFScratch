@@ -1,4 +1,5 @@
 ﻿using Engine.Graphics;
+using GlmSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,25 +20,15 @@ namespace Engine.Rendering
         private GfxResource _sharedIndexBuffer;
 
         private const int IndicesPerQuad = 6;
-        private Dictionary<BucketKey, List<SpriteRenderer>> _renderBuckets;
+        private Dictionary<BucketKey, List<Renderer2D>> _renderBuckets;
 
-        // TODO: implement has code
-        struct BucketKey : IEquatable<BucketKey>
+        private struct BucketKey : IEquatable<BucketKey>
         {
-            public Material Material;
-            public int SortOrder;
+            public Material Material { get; set; }
+            public int SortOrder { get; set; }
 
-            // Required for Dictionary
-            public bool Equals(BucketKey other)
-            {
-                return ReferenceEquals(Material, other.Material) && SortOrder == other.SortOrder;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is BucketKey other && Equals(other);
-            }
-
+            public bool Equals(BucketKey other) => ReferenceEquals(Material, other.Material) && SortOrder == other.SortOrder;
+            public override bool Equals(object obj) => obj is BucketKey other && Equals(other);
             public override int GetHashCode()
             {
                 unchecked
@@ -56,7 +47,7 @@ namespace Engine.Rendering
         public Batcher2D(int maxQuadsPerBatch)
         {
             MaxQuadsPerBatch = maxQuadsPerBatch;
-            _renderBuckets = new Dictionary<BucketKey, List<SpriteRenderer>>();
+            _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
         }
 
         internal void Initialize()
@@ -80,7 +71,7 @@ namespace Engine.Rendering
             _sharedIndexBuffer = GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
-        internal IReadOnlyCollection<Batch> CreateBatches(IReadOnlyList<SpriteRenderer> renderers)
+        internal IReadOnlyCollection<Batch> CreateBatches(IReadOnlyList<Renderer2D> renderers)
         {
             _renderBuckets.Clear();
 
@@ -102,10 +93,9 @@ namespace Engine.Rendering
 
                 var key = new BucketKey() { SortOrder = renderer.SortOrder, Material = renderer.Material };
 
-
                 if (!_renderBuckets.ContainsKey(key))
                 {
-                    _renderBuckets.Add(key, new List<SpriteRenderer>());
+                    _renderBuckets.Add(key, new List<Renderer2D>());
                 }
 
                 _renderBuckets[key].Add(renderers[i]);
@@ -118,20 +108,70 @@ namespace Engine.Rendering
             {
                 bucket.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
 
-
-                if(bucket.Count > 0)
+                if (bucket.Count > 0)
                 {
+                    // TODO: get batch from batch pool
                     var batch = new Batch();
 
+                    // TODO: split batch if max texture unit per hardware is reached for this bucket.
                     for (int i = 0; i < bucket.Count; i++)
                     {
                         var renderer = bucket[i];
+                        if (renderer.Mesh == null)
+                        {
+                            var chunk = renderer.Sprite?.GetAtlasChunk() ?? AtlasChunk.DefaultChunk;
+                            var worldMatrix = renderer.Transform.WorldMatrix;
+                            float width = chunk.Width;
+                            float height = chunk.Height;
 
+                            if (renderer.Sprite?.Texture)
+                            {
+                                float ppu = renderer.Sprite.Texture.PixelPerUnit;
+                                width = (float)chunk.Width / ppu;
+                                height = (float)chunk.Height / ppu;
+                            }
+
+                            float px = chunk.Pivot.x * width;
+                            float py = chunk.Pivot.y * height;
+
+                            // Render quad
+                            var bl = new Vertex()
+                            {
+                                Color = renderer.PacketColor,
+                                Position = (worldMatrix * new vec4(-px, -py, 0, 1)).xyz,
+                                UV = chunk.BLuv,
+                            };
+
+                            var tl = new Vertex()
+                            {
+                                Color = renderer.PacketColor,
+                                Position = (worldMatrix * new vec4(-px, height - py, 0, 1)).xyz,
+                                UV = chunk.TLuv,
+                            };
+
+                            var tr = new Vertex()
+                            {
+                                Color = renderer.PacketColor,
+                                Position = (worldMatrix * new vec4(width - px, height - py, 0, 1)).xyz,
+                                UV = chunk.TRuv,
+                            };
+
+                            var br = new Vertex()
+                            {
+                                Color = renderer.PacketColor,
+                                Position = (worldMatrix * new vec4(width - px, -py, 0, 1)).xyz,
+                                UV = chunk.BRuv,
+                            };
+                        }
+                        else
+                        {
+                            // Render mesh
+                        }
                     }
 
                     batches.Add(batch);
                 }
-                
+
                 // TODO: create batches
 
                 // GfxDeviceManager.Current.UpdateResouce();
