@@ -1,4 +1,5 @@
 ﻿using Engine.Graphics;
+using Engine.Utils;
 using GlmSharp;
 using System;
 using System.Collections.Generic;
@@ -55,8 +56,8 @@ namespace Engine.Rendering
             _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
 
             // TODO: get actual pink material
-            _pinkMaterial = new Material();
-            _whiteTexture = new Texture2D();
+            _pinkMaterial = new Material(Tests.GetShaderPink());
+            _whiteTexture = new Texture2D(1, 1, 4, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF});
 
             Initialize();
         }
@@ -107,7 +108,7 @@ namespace Engine.Rendering
                 _renderBuckets[key].Add(renderer);
             }
 
-            Log.Debug("Buckets : " + _renderBuckets.Count);
+            // Log.Debug("Buckets : " + _renderBuckets.Count);
 
             // TODO: improve performance of order by sorting, is allocating every frame
             foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))
@@ -167,7 +168,7 @@ namespace Engine.Rendering
 
                         currentBatch.PushGeometry(material, texture, 6, v0, v1, v2, v3);
 
-                        Log.Debug("Render : " + renderer.Actor.Name);
+                        //Log.Debug("Render : " + renderer.Actor.Name);
 
                     }
                     else

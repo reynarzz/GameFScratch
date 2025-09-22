@@ -10,6 +10,7 @@ namespace Engine.Graphics
     {
         internal int Width { get; set; }
         internal int Height { get; set; }
+        internal int Channels { get; set; }
         internal byte[] Buffer { get; set; }
     }
 }

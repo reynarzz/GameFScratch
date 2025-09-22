@@ -125,6 +125,12 @@ namespace Engine.Graphics.OpenGL
             _pendingUniforms[name] = () => glUniform1i(location, value);
         }
 
+        internal void SetUniform(string name, int[] value)
+        {
+            var location = GetLocation(name);
+            _pendingUniforms[name] = () => glUniform1iv(location, value.Length, value);
+        }
+
         internal void SetUniform(string name, vec2 value)
         {
             int location = GetLocation(name);
@@ -146,9 +152,22 @@ namespace Engine.Graphics.OpenGL
         internal void SetUniform(string name, mat4 value)
         {
             int location = GetLocation(name);
+            var Values1DColumn = new float[16]
+                {
+                    // column 0
+                    value.m00, value.m10, value.m20, value.m30,
+                    // column 1
+                    value.m01, value.m11, value.m21, value.m31,
+                    // column 2
+                        value.m02, value.m12, value.m22, value.m32,
+                    // column 3
+                        value.m03,    value.m13, value.m23, value.m33
+                };
+
             _pendingUniforms[name] = () =>
             {
-                glUniformMatrix4fv(location, 1, false, value.Values1D);
+                
+                glUniformMatrix4fv(location, 1, false, Values1DColumn);
             };
         }
 

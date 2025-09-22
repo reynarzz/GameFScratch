@@ -47,7 +47,7 @@ namespace Engine.Utils
 
             result[0, 0] = 2.0f / (right - left);
             result[1, 1] = 2.0f / (top - bottom);
-            result[2, 2] = -2.0f / (far - near);
+            result[2, 2] = 2.0f / (far - near);
 
             result[3, 0] = -(right + left) / (right - left);
             result[3, 1] = -(top + bottom) / (top - bottom);

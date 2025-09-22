@@ -46,7 +46,7 @@ namespace Engine
 
         private void UpdateOrthographic()
         {
-            float aspectRatio = Viewport.x / Viewport.y;
+            float aspectRatio = Viewport.z / Viewport.w;
 
             var size = OrthoConfig.OrthographicSize;
 

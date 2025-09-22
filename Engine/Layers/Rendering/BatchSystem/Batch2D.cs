@@ -16,7 +16,7 @@ namespace Engine.Rendering
         internal Material Material { get; private set; }
         internal GfxResource Geometry { get; }
         internal Texture[] Textures { get; }
-
+        internal static int[] TextureSlotArray { get; private set; }
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
         internal bool IsFlushed { get; private set; } = false;
@@ -29,7 +29,16 @@ namespace Engine.Rendering
             MaxVertexSize = maxVertexSize;
             _verticesData = new Vertex[MaxVertexSize];
             Textures = new Texture[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
-           
+
+            if (TextureSlotArray == null)
+            {
+                TextureSlotArray = new int[Textures.Length];
+                for (int i = 0; i < TextureSlotArray.Length; i++)
+                {
+                    TextureSlotArray[i] = i;
+                }
+            }
+
             // Create geometry buffer for this batch
             _geoDescriptor = new GeometryDescriptor();
             var vertexDesc = new VertexDataDescriptor();

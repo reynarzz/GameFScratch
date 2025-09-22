@@ -10,7 +10,6 @@ namespace Engine
     public class Sprite : EObject
     {
         public Texture2D Texture { get; set; }
-        public vec2 Pivot { get; set; }
         public int AtlasIndex { get; set; }
         public AtlasChunk GetAtlasChunk() 
         {

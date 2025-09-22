@@ -34,11 +34,11 @@ namespace Engine
 
                 _layersManager.Update();
 
-                (shader as GLShader).Bind();
-                (geometry as GLGeometry).Bind();
-                (texture as GLTexture).Bind();
+                //(shader as GLShader).Bind();
+                //(geometry as GLGeometry).Bind();
+                //(texture as GLTexture).Bind();
+                //GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, 6);
 
-                GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, 6);
                 Window.SwapBuffers();
             }
         }

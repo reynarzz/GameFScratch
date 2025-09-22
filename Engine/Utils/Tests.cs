@@ -25,6 +25,22 @@ namespace Engine.Utils
         }
         ";
 
+        private static string VertexShaderPink = @"
+          #version 330 core
+
+        layout(location = 0) in vec3 position;
+        layout(location = 1) in vec2 uv;
+
+        out vec2 fragUV;
+        uniform mat4 uVP;
+
+        void main() 
+        {
+            fragUV = uv;
+            gl_Position = uVP * vec4(position, 1.0);
+        }
+        ";
+
         private static string fragment = @"
        #version 330 core
 
@@ -33,6 +49,16 @@ namespace Engine.Utils
         void main()
         {
             color = vec4(1.0, 1.0, 1.0, 1.0); 
+        }";
+
+        private static string fragmentPink = @"
+       #version 330 core
+
+        out vec4 color;
+
+        void main()
+        {
+            color = vec4(1.0, 0.0, 1.0, 1.0); 
         }";
 
         private static string fragmentTex = @"
@@ -47,6 +73,10 @@ namespace Engine.Utils
                 color = texture(uTexture, fragUV);
             }";
 
+        internal static Shader GetShaderPink()
+        {
+            return new Shader(VertexShaderPink, fragmentPink);
+        }
 
 
         internal static ShaderDescriptor GetTestShaderDescriptor()
@@ -59,10 +89,10 @@ namespace Engine.Utils
 
         internal static unsafe GeometryDescriptor GetTestGeometryDescriptor()
         {
-            var indices = new uint[6]
+            var indices = new uint[]
             {
                0, 1, 2,
-               0, 2, 3
+               0, 2, 3, 1
             };
 
 
