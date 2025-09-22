@@ -11,13 +11,22 @@ namespace Engine
     public class Camera : Component
     {
         public mat4 Projection { get; private set; }
-        public mat4 ViewMatrix => MathUtils.InvertCameraTransform(Transform.WorldMatrix);
+        public mat4 ViewMatrix => glm.inverse(Transform.WorldMatrix);
         public int Priority { get; set; } = 0;
-        public PerspectiveConfig PerspectiveConfig { get; set; }
-        public OrthographicConfig OrthoConfig { get; set; }
-        public float NearPlane { get; set; } = 1;
+        public float NearPlane { get; set; } = 0.1f;
         public float FarPlane { get; set; } = 100;
         public vec4 BackgroundColor { get; set; } = new(1, 1, 1, 1);
+
+        private float _orthoSize;
+        public float OrthographicSize { get => _orthoSize; 
+            set 
+            {
+                _orthoSize = value;
+                UpdateOrthographic();
+            } 
+        }
+
+        public float Fov { get; set; }
 
         public vec4 _viewport;
         public vec4 Viewport
@@ -38,32 +47,36 @@ namespace Engine
 
         public Camera()
         {
-            OrthoConfig = new() { OrthographicSize = 32 };
-            PerspectiveConfig = new() { Fov = 60.0f, AspectRatio = 1 };
+            OrthographicSize = 32;
+            Fov = 60.0f;
 
             UpdateOrthographic();
+            //UpdatePerspective();
         }
 
         private void UpdateOrthographic()
         {
             float aspectRatio = Viewport.z / Viewport.w;
 
-            var size = OrthoConfig.OrthographicSize;
-
+            var size = OrthographicSize;
             Projection = MathUtils.Ortho(-size * aspectRatio, size * aspectRatio, -size, size,
                                                  NearPlane, FarPlane);
+        }
+
+        private void UpdatePerspective()
+        {
+            float aspectRatio = Viewport.z / Viewport.w;
+            Projection = MathUtils.Perspective(Fov, aspectRatio, NearPlane, FarPlane);
         }
     }
 
     public struct PerspectiveConfig
     {
-        public float Fov { get; set; }
-        public float AspectRatio { get; set; }
+       
     }
 
     public struct OrthographicConfig
     {
-        public float OrthographicSize { get; set; }
     }
 
 }

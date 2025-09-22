@@ -11,11 +11,23 @@ namespace Engine
     {
         public Texture2D Texture { get; set; }
         public int AtlasIndex { get; set; }
+
         public AtlasChunk GetAtlasChunk() 
         {
             if(Texture)
             {
-                return Texture.Atlas.GetChunk(AtlasIndex);
+                if (Texture.Atlas.HasValidChunk(AtlasIndex))
+                {
+                    return Texture.Atlas.GetChunk(AtlasIndex);
+                }
+                else
+                {
+                    var def = AtlasChunk.DefaultChunk;
+                    def.Width = Texture.Width;
+                    def.Height = Texture.Height;
+
+                    return def;
+                }
             }
 
 #if DEBUG

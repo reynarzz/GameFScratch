@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace Engine.Layers
 {
-    /*internal*/ public class RenderingLayer : LayerBase
+    /*internal*/
+    public class RenderingLayer : LayerBase
     {
         private List<Renderer> _renderers;
 
@@ -50,16 +51,18 @@ namespace Engine.Layers
 
             var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>());
 
-             var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
-            
+            var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
+
             foreach (var batch in batches)
             {
                 batch.Flush();
                 (batch.Geometry as GLGeometry).Bind();
                 var shader = batch.Material.Shader.NativeShader as GLShader;
+                shader.Bind();
+
                 shader.SetUniform("uVP", VP);
 
-                for (int i = 0; i < batch.Textures.Length; i++) 
+                for (int i = 0; i < batch.Textures.Length; i++)
                 {
                     var tex = (batch.Textures[i]);
 
@@ -70,7 +73,6 @@ namespace Engine.Layers
                 }
 
                 shader.SetUniform("uTextures", Batch2D.TextureSlotArray);
-                shader.Bind();
 
                 // TODO: Bind these
                 // batch.Geometry;
@@ -78,7 +80,7 @@ namespace Engine.Layers
                 // batch.Textures;
 
                 // Draw
-                 GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, batch.IndexCount);
+                GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, batch.IndexCount);
             }
         }
     }

@@ -10,11 +10,9 @@ namespace Engine.Graphics.OpenGL
 {
     internal class GLShader : GLGfxResource<ShaderDescriptor>
     {
-        private readonly Dictionary<string, Action> _pendingUniforms;
         private readonly Dictionary<string, int> _uniformLocations;
         public GLShader() : base(glCreateProgram, glDeleteProgram, glUseProgram)
         {
-            _pendingUniforms = new Dictionary<string, Action>();
             _uniformLocations = new Dictionary<string, int>();
         }
 
@@ -122,42 +120,44 @@ namespace Engine.Graphics.OpenGL
         internal void SetUniform(string name, int value)
         {
             var location = GetLocation(name);
-            _pendingUniforms[name] = () => glUniform1i(location, value);
+            glUniform1i(location, value);
         }
 
         internal void SetUniform(string name, int[] value)
         {
             var location = GetLocation(name);
-            _pendingUniforms[name] = () => glUniform1iv(location, value.Length, value);
+            glUniform1iv(location, value.Length, value);
         }
 
         internal void SetUniform(string name, vec2 value)
         {
             int location = GetLocation(name);
-            _pendingUniforms[name] = () => glUniform2fv(location, 1, value.to_array());
+            glUniform2fv(location, 1, value.to_array());
         }
 
         internal void SetUniform(string name, vec3 value)
         {
             int location = GetLocation(name);
-            _pendingUniforms[name] = () => glUniform3fv(location, 1, value.to_array());
+            glUniform3fv(location, 1, value.to_array());
         }
 
         internal void SetUniform(string name, vec4 value)
         {
             int location = GetLocation(name);
-            _pendingUniforms[name] = () => glUniform4fv(location, 1, value.to_array());
+            glUniform4fv(location, 1, value.to_array());
         }
 
         internal void SetUniform(string name, mat4 value)
         {
             int location = GetLocation(name);
 
-            _pendingUniforms[name] = () =>
+            unsafe
             {
-                
-                glUniformMatrix4fv(location, 1, false, value.to_array());
-            };
+                fixed(float* m = value.to_array())
+                {
+                    glUniformMatrix4fv(location, 1, false, m);
+                }
+            }
         }
 
         // Tries to find the location for 'name', if found, the location will be cached.
@@ -172,18 +172,6 @@ namespace Engine.Graphics.OpenGL
             _uniformLocations.Add(name, location);
 
             return location;
-        }
-
-        internal override void Bind()
-        {
-            base.Bind();
-
-            foreach (var uniformFunc in _pendingUniforms.Values)
-            {
-                uniformFunc();
-            }
-
-            _pendingUniforms.Clear();
         }
     }
 }

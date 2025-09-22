@@ -35,7 +35,16 @@ namespace Engine
     public class TextureAtlasData
     {
         private AtlasChunk[] _chunks;
-      
+
+        public TextureAtlasData()
+        {
+        }
+
+        public bool HasValidChunk(int chunkIndex)
+        {
+            return _chunks != null && _chunks.Length > chunkIndex;
+        }
+
         public AtlasChunk GetChunk(int index) 
         {
             if (_chunks == null) 

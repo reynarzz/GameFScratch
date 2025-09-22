@@ -45,13 +45,12 @@ namespace Engine.Utils
         {
             mat4 result = mat4.identity();
 
-            result[0, 0] = 2.0f / (right - left);
-            result[1, 1] = 2.0f / (top - bottom);
-            result[2, 2] = 2.0f / (far - near);
-
-            result[3, 0] = -(right + left) / (right - left);
-            result[3, 1] = -(top + bottom) / (top - bottom);
-            result[3, 2] = -(far + near) / (far - near);
+            result[0, 0] = 2.0f / (right - left);  // X scale
+            result[1, 1] = 2.0f / (top - bottom);  // Y scale
+            result[2, 2] = 2.0f / (far - near);    // Z scale, forward-positive
+            result[3, 0] = -(right + left) / (right - left);   // X translation
+            result[3, 1] = -(top + bottom) / (top - bottom);   // Y translation
+            result[3, 2] = -(far + near) / (far - near);       // Z translation
 
             return result;
         }
@@ -64,8 +63,8 @@ namespace Engine.Utils
             result[0, 0] = f / aspect;
             result[1, 1] = f;
             result[2, 2] = (far + near) / (near - far);
-            result[2, 3] = -1.0f;
-            result[3, 2] = (2.0f * far * near) / (near - far);
+            result[2, 3] = -1;
+            result[3, 2] = (2 * far * near) / (near - far);
 
             return result;
         }
