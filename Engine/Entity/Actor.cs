@@ -43,29 +43,25 @@ namespace Engine
         {
             if (!IsValidComponent(type))
             {
-                return null;
-            }
-            return (Component)Activator.CreateInstance(type);
-        }
-
-        public T AddComponent<T>() where T : Component
-        {
-            if (!IsValidComponent(typeof(T)))
-            {
                 return default;
             }
 
-            if(typeof(T) == typeof(Transform) && _components.Count > 0)
+            if (type == typeof(Transform) && _components.Count > 0)
             {
-                return Transform as T;
+                return Transform ;
             }
 
-            var component = Activator.CreateInstance<T>();
+            var component = Activator.CreateInstance(type) as Component;
             component.Actor = this;
             _components.Add(component);
 
             component.OnInitialize();
-            return component as T;
+            return component;
+        }
+
+        public T AddComponent<T>() where T : Component
+        {
+            return AddComponent(typeof(T)) as T;
         }
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
