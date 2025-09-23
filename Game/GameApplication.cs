@@ -107,7 +107,7 @@ namespace Game
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             actor3.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
-            actor3.Transform.LocalEulerAngles = new GlmNet.vec3(0, 0, 45);
+            actor3.Transform.GetComponent<RigidBody2D>().WorldEulerAngles = new GlmNet.vec3(0, 0, 45);
             Log.Success("Game Layer");
         }
 

@@ -120,6 +120,32 @@ namespace Engine
             }
         }
 
+        public vec3 WorldEulerAngles 
+        {
+            get => Transform.WorldEulerAngles;
+            set 
+            {
+                B2Bodies.b2Body_SetTransform(_bodyId, B2Bodies.b2Body_GetPosition(_bodyId), value.z.ToB2Rot());
+            } 
+        }
+
+        public quat WorldRotation
+        {
+            get => Transform.WorldRotation;
+            set
+            {
+                B2Bodies.b2Body_SetTransform(_bodyId, B2Bodies.b2Body_GetPosition(_bodyId), value.QuatToB2Rot());
+            }
+        }
+
+        public vec3 WorldPosition
+        {
+            get => Transform.WorldPosition;
+            set
+            {
+                B2Bodies.b2Body_SetTransform(_bodyId, new B2Vec2(value.x, value.y), B2Bodies.b2Body_GetRotation(_bodyId));
+            }
+        }
 
         internal override void OnInitialize()
         {
