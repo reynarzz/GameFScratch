@@ -5,6 +5,15 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Box2D.NET;
+using static Box2D.NET.B2Joints;
+using static Box2D.NET.B2Ids;
+using static Box2D.NET.B2Types;
+using static Box2D.NET.B2MathFunction;
+using static Box2D.NET.B2Bodies;
+using static Box2D.NET.B2Shapes;
+using static Box2D.NET.B2Worlds;
+using static Box2D.NET.B2Diagnostics;
+using GlmNet;
 
 namespace Engine.Layers
 {
@@ -17,6 +26,7 @@ namespace Engine.Layers
 
         private B2DebugDraw _debugDraw;
         private B2BodyId _bodyTest;
+        private B2BodyId _floorTest;
 
         public override void Initialize()
         {
@@ -25,7 +35,7 @@ namespace Engine.Layers
             _debugDraw = new B2DebugDraw();
             _debugDraw.context = this;
 
-            B2WorldDef worldDef = new B2WorldDef();
+            B2WorldDef worldDef = b2DefaultWorldDef();
             worldDef.gravity = new B2Vec2(0, -9.8f);
             
             _worldID = B2Worlds.b2CreateWorld(ref worldDef);
@@ -34,7 +44,7 @@ namespace Engine.Layers
             B2BodyDef bodyDef = default;
             bodyDef.type = B2BodyType.b2_dynamicBody;
             bodyDef.position = new B2Vec2(0.0f, 0.0f);
-            bodyDef.rotation = new B2Rot(2.0f, 1.0f);
+            bodyDef.rotation = B2MathFunction.b2Rot_identity;
             bodyDef.name = "guid value";
             bodyDef.isBullet = false;
             bodyDef.fixedRotation = false;
@@ -44,19 +54,34 @@ namespace Engine.Layers
             
             _bodyTest = B2Bodies.b2CreateBody(_worldID, ref bodyDef);
 
+            B2BodyDef floorBodyDef = new B2BodyDef();
+            floorBodyDef.type = B2BodyType.b2_kinematicBody;
+            floorBodyDef.isAwake = true;
+            floorBodyDef.isEnabled = true;
+            floorBodyDef.position = new B2Vec2(0, -10);
+            floorBodyDef.rotation = B2MathFunction.b2Rot_identity;
+            floorBodyDef.enableSleep = false;
+
+            _floorTest = B2Bodies.b2CreateBody(_worldID, ref floorBodyDef);
+
             B2ShapeDef shapeDef = default;
             shapeDef.isSensor = false;
-            shapeDef.enableSensorEvents = true;
-            shapeDef.enableHitEvents = true;
-            shapeDef.enableContactEvents = true;
+            shapeDef.invokeContactCreation = true;
+            //shapeDef.enableHitEvents = true;
+            //shapeDef.enableContactEvents = true;
             shapeDef.density = 1;
             shapeDef.updateBodyMass = true;
+            shapeDef.filter = b2DefaultFilter();
+
             //B2Polygon poly = default;
             //poly.vertices = new B2FixedArray8<B2Vec2>();
             //poly.vertices[0] = new B2Vec2();
 
             var boxPoly = B2Geometries.b2MakeBox(0.5f, 0.5f);
             var shapeId = B2Shapes.b2CreatePolygonShape(_bodyTest, ref shapeDef, ref boxPoly);
+
+            var floorBox = B2Geometries.b2MakeBox(2f, 1f);
+            var floorShapeId = B2Shapes.b2CreatePolygonShape(_floorTest, ref shapeDef, ref floorBox);
             // B2Geometries.b2RayCastPolygon();
         }
 
@@ -66,7 +91,7 @@ namespace Engine.Layers
 
         internal override void UpdateLayer()
         {
-            var deltaTime = 0.16f; // implementation TODO:
+            var deltaTime = 0.0036f; // implementation TODO:
             accumulator += deltaTime; // time since last frame
             var scripts = SceneManager.ActiveScene.FindAll<ScriptBehavior>();
 
@@ -82,7 +107,17 @@ namespace Engine.Layers
             }
 
             var position = B2Bodies.b2Body_GetPosition(_bodyTest);
+            var rotSc = B2Bodies.b2Body_GetRotation(_bodyTest);
+
+            var angle = MathF.Atan2(rotSc.s, rotSc.c);
+            vec3 zAxis = new vec3(0f, 0f, 1f); 
+            quat worldRotation = quat.FromAxisAngle(zAxis, angle);
+
+            var position2 = B2Bodies.b2Body_GetPosition(_floorTest);
+          
+
             Log.Info($"({position.X}, {position.Y})");
+           // Log.Info($"({position2.X}, {position2.Y})");
 
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
             float alpha = accumulator / fixedTimeStep;
