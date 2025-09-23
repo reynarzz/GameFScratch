@@ -107,9 +107,9 @@ namespace Engine.Layers
             }
 
             var position = B2Bodies.b2Body_GetPosition(_bodyTest);
-            var rotSc = B2Bodies.b2Body_GetRotation(_bodyTest);
-
-            var angle = MathF.Atan2(rotSc.s, rotSc.c);
+            var rotSinCos = B2Bodies.b2Body_GetRotation(_bodyTest);
+            
+            var angle = MathF.Atan2(rotSinCos.s, rotSinCos.c);
             vec3 zAxis = new vec3(0f, 0f, 1f); 
             quat worldRotation = quat.FromAxisAngle(zAxis, angle);
 
