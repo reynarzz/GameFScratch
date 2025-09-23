@@ -78,14 +78,19 @@ namespace Game
             camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 5;
             camera.Transform.WorldPosition = new GlmNet.vec3(0, 0, -12);
-        
+
+            //var defChunk = sprite1.GetAtlasChunk();
+            //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
+            //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
+
             var actor = new Actor<SpriteRenderer, RotateTest>("Actor1");
             actor.GetComponent<SpriteRenderer>().Material = mat1;
-            //actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
+            actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
+
             //actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
-            //for (int i = 0; i < 5000; i++)
+            for (int i = 0; i < 33; i++)
             {
                 var actor2 = new Actor<SpriteRenderer>("Actor2");
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;

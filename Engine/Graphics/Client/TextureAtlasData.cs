@@ -35,9 +35,18 @@ namespace Engine
     public class TextureAtlasData
     {
         private AtlasChunk[] _chunks;
+        public int ChunksCount => _chunks.Length;
 
         public TextureAtlasData()
         {
+            var defaultChunk = AtlasChunk.DefaultChunk;
+            defaultChunk.Width = 0;
+            defaultChunk.Height = 0;
+
+            _chunks = new AtlasChunk[1]
+            {
+                defaultChunk
+            };
         }
 
         public bool HasValidChunk(int chunkIndex)
@@ -62,6 +71,11 @@ namespace Engine
             }
 #endif
             return _chunks[index];
+        }
+
+        public void UpdateChunk(int index, AtlasChunk chunk)
+        {
+            _chunks[index] = chunk;
         }
     }
 }

@@ -12,22 +12,19 @@ namespace Engine
         public Texture2D Texture { get; set; }
         public int AtlasIndex { get; set; }
 
-        public AtlasChunk GetAtlasChunk() 
+        public AtlasChunk GetAtlasChunk()
         {
-            if(Texture)
+            if (Texture)
             {
-                if (Texture.Atlas.HasValidChunk(AtlasIndex))
-                {
-                    return Texture.Atlas.GetChunk(AtlasIndex);
-                }
-                else
-                {
-                    var def = AtlasChunk.DefaultChunk;
-                    def.Width = Texture.Width;
-                    def.Height = Texture.Height;
+                var chunk = Texture.Atlas.GetChunk(AtlasIndex);
 
-                    return def;
+                if (chunk.Width == 0 && chunk.Height == 0)
+                {
+                    chunk.Width = Texture.Width;
+                    chunk.Height = Texture.Height;
                 }
+
+                return chunk;
             }
 
 #if DEBUG
