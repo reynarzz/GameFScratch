@@ -87,5 +87,10 @@ namespace Engine
         {
             return Actor.GetComponents<T>();
         }
+
+        internal virtual void OnInitialize() 
+        {
+        
+        }
     }
 }

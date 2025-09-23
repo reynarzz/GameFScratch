@@ -1,4 +1,5 @@
-﻿using GlmNet;
+﻿using Box2D.NET;
+using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,5 +69,30 @@ namespace Engine.Utils
 
             return result;
         }
+
+        internal static B2Rot QuatToB2Rot(this quat q)
+        {
+            float angle = MathF.Atan2(2f * (q.w * q.z + q.x * q.y),
+                                      1f - 2f * (q.y * q.y + q.z * q.z));
+            return new B2Rot(MathF.Cos(angle), MathF.Sin(angle));
+        }
+
+        internal static quat B2RotToQuat(this B2Rot rot)
+        {
+            var angle = MathF.Atan2(rot.s, rot.c);
+            vec3 zAxis = new vec3(0f, 0f, 1f);
+            return quat.FromAxisAngle(zAxis, angle);
+        }
+
+        internal static B2Vec2 ToB2Vec2(this vec2 vec)
+        {
+            return new B2Vec2(vec.x, vec.y);
+        }
+
+        internal static vec2 ToVec2(this B2Vec2 vec)
+        {
+            return new vec2(vec.X, vec.Y);
+        }
+
     }
 }

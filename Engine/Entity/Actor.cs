@@ -60,10 +60,11 @@ namespace Engine
                 return Transform as T;
             }
 
-            var component = AddComponent(typeof(T));
+            var component = Activator.CreateInstance<T>();
             component.Actor = this;
             _components.Add(component);
 
+            component.OnInitialize();
             return component as T;
         }
 

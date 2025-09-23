@@ -11,7 +11,6 @@
     <Folder Include="Graphics\Device\Null\" />
     <Folder Include="IO\" />
     <Folder Include="Layers\Input\" />
-    <Folder Include="Layers\Time\" />
     <Folder Include="Scene\" />
   </ItemGroup>
 

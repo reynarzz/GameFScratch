@@ -13,7 +13,7 @@ namespace Game
 
         public override void OnUpdate()
         {
-            angle += 0.5f;
+            angle += Time.DeltaTime * 50;
             Transform.LocalEulerAngles = new GlmNet.vec3(0, 0, angle);
         }
     }

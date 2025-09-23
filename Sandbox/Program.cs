@@ -11,7 +11,8 @@ namespace Sandbox
         private static void Main(string[] args)
         {
             var engine = new Engine.Engine();
-            engine.Initialize(typeof(GameApplication), 
+            engine.Initialize(typeof(TimeLayer),
+                              typeof(GameApplication), 
                               typeof(SceneLayer),
                               typeof(PhysicsLayer),
                               typeof(RenderingLayer));

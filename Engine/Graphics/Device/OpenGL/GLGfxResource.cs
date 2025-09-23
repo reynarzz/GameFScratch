@@ -103,6 +103,7 @@ namespace Engine.Graphics.OpenGL
             Handle = 0;
         }
 
+        
         protected override void FreeResource()
         {
             if (IsInitialized)
@@ -110,6 +111,11 @@ namespace Engine.Graphics.OpenGL
                 DestroyHandle();
                 IsInitialized = false;
             }
+        }
+
+        ~GLGfxResource()
+        {
+            FreeResource();
         }
     }
 }
