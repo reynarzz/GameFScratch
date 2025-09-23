@@ -45,10 +45,9 @@ namespace Engine
             {
                 return default;
             }
-
-            if (type == typeof(Transform) && _components.Count > 0)
+            else if (type.IsAssignableFrom(typeof(Transform)) && _components.Count > 0)
             {
-                return Transform ;
+                return Transform;
             }
 
             var component = Activator.CreateInstance(type) as Component;
@@ -75,7 +74,7 @@ namespace Engine
                                                 where T3 : Component
         {
             AddComponent<T1, T2>();
-            AddComponent<T2>();
+            AddComponent<T3>();
         }
 
         public void AddComponent<T1, T2, T3, T4>() where T1 : Component

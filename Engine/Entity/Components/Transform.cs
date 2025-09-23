@@ -4,7 +4,7 @@ using GlmNet;
 
 namespace Engine
 {
-    public sealed class Transform : Component
+    public class Transform : Component
     {
         public IReadOnlyList<Transform> Children => _children.AsReadOnly();
 

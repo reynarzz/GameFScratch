@@ -9,7 +9,7 @@ using GlmNet;
 
 namespace Engine
 {
-    public enum RigidBody2DType
+    public enum Body2DType
     {
         Static,
         Kinematic,
@@ -25,7 +25,7 @@ namespace Engine
     public class RigidBody2D : Component
     {
         private B2BodyId _bodyId;
-        private RigidBody2DType _bodyType = RigidBody2DType.Dynamic;
+        private Body2DType _bodyType = Body2DType.Dynamic;
         private bool _isContinuos = false;
         private bool _canSleep = false;
         private bool _autoMass = false;
@@ -34,11 +34,92 @@ namespace Engine
 
         private B2ShapeId _defaultShapeId;
 
-        public vec2 velocity
+        public vec2 Velocity
         {
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
+
+
+        public bool CanSleep
+        {
+            get => _canSleep;
+            set
+            {
+                if (_canSleep == value)
+                    return;
+                _canSleep = value;
+
+                B2Bodies.b2Body_EnableSleep(_bodyId, _canSleep);
+            }
+        }
+
+        public bool IsAutoMass
+        {
+            get => _autoMass;
+            set
+            {
+                if (_autoMass == value)
+                    return;
+
+                _autoMass = value;
+                Mass = _autoMassValue;
+            }
+        }
+
+        public float Mass
+        {
+            get => _autoMassValue;
+            set
+            {
+                if (_autoMass)
+                    return;
+
+                _autoMassValue = value;
+
+                var currentMassData = B2Bodies.b2Body_GetMassData(_bodyId);
+                currentMassData.mass = _autoMassValue;
+                B2Bodies.b2Body_SetMassData(_bodyId, currentMassData);
+            }
+        }
+
+        public bool LockZRotation
+        {
+            get => _isZRotationLocked;
+            set
+            {
+                if (_isZRotationLocked == value)
+                    return;
+
+                B2Bodies.b2Body_SetFixedRotation(_bodyId, value);
+            }
+        }
+
+
+        public Body2DType BodyType
+        {
+            get => _bodyType;
+            set
+            {
+                if (_bodyType == value) return;
+                _bodyType = value;
+
+                B2Bodies.b2Body_SetType(_bodyId, (B2BodyType)_bodyType);
+            }
+        }
+
+        public bool IsContinuos
+        {
+            get => _isContinuos;
+            set
+            {
+                if (_isContinuos == value) return;
+                _isContinuos = value;
+
+                B2Bodies.b2Body_SetBullet(_bodyId, _isContinuos);
+            }
+        }
+
 
         internal override void OnInitialize()
         {
@@ -58,18 +139,25 @@ namespace Engine
 
             _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
 
-            B2ShapeDef shapeDef = default;
-            shapeDef.density = 1;
-            shapeDef.enableContactEvents = false;
-            shapeDef.enableHitEvents = true;
-            shapeDef.enableSensorEvents = false;
-            shapeDef.isSensor = false;
-            shapeDef.filter.groupIndex = 0;
-            shapeDef.filter.maskBits = 0;
-            shapeDef.updateBodyMass = true;
+            var colliders = GetComponents<Collider2D>();
+            foreach (var collider in colliders)
+            {
+                collider.RigidBody = this;
+                collider.Create(_bodyId);
+            }
 
-            var defSquare = B2Geometries.b2MakeSquare(0.1f);
-            _defaultShapeId = B2Shapes.b2CreatePolygonShape(_bodyId, ref shapeDef, ref defSquare);
+            //B2ShapeDef shapeDef = default;
+            //shapeDef.density = 1;
+            //shapeDef.enableContactEvents = true;
+            //shapeDef.enableHitEvents = false;
+            //shapeDef.enableSensorEvents = false;
+            //shapeDef.isSensor = false;
+            //shapeDef.filter.groupIndex = 0;
+            //shapeDef.filter.maskBits = 0;
+            //shapeDef.updateBodyMass = true;
+
+            //var defSquare = B2Geometries.b2MakeSquare(0.1f);
+            //_defaultShapeId = B2Shapes.b2CreatePolygonShape(_bodyId, ref shapeDef, ref defSquare);
         }
 
         internal void UpdateBody()
@@ -78,18 +166,6 @@ namespace Engine
 
             Transform.WorldPosition = new vec3(position.X, position.Y, Transform.WorldPosition.z);
             Transform.WorldRotation = B2Bodies.b2Body_GetRotation(_bodyId).B2RotToQuat();
-        }
-
-        public void SetBodyType(RigidBody2DType type)
-        {
-            _bodyType = type;
-            B2Bodies.b2Body_SetType(_bodyId, (B2BodyType)type);
-        }
-
-        public void SetIsContinuos(bool isContinuos)
-        {
-            _isContinuos = isContinuos;
-            B2Bodies.b2Body_SetBullet(_bodyId, isContinuos);
         }
 
         public void AddForce(vec2 force, ForceMode2D mode)
@@ -124,47 +200,17 @@ namespace Engine
             }
         }
 
-        public void CanSleep(bool sleep)
-        {
-            _canSleep = sleep;
-            B2Bodies.b2Body_EnableSleep(_bodyId, sleep);
-        }
-
-        public void AutoMass(bool autoMass)
-        {
-            _autoMass = autoMass;
-
-            if (!autoMass)
-            {
-                SetMass(_autoMassValue);
-            }
-        }
-
-        public void SetMass(float mass)
-        {
-            _autoMassValue = mass;
-
-            if (_autoMass)
-            {
-                var currentMassData = B2Bodies.b2Body_GetMassData(_bodyId);
-                currentMassData.mass = mass;
-                B2Bodies.b2Body_SetMassData(_bodyId, currentMassData);
-            }
-        }
-
-        public void LockZRotation(bool lockZ)
-        {
-            _isZRotationLocked = lockZ;
-            B2Bodies.b2Body_SetFixedRotation(_bodyId, lockZ);
-        }
-
         internal void AddCollider(Collider2D collider)
         {
-            B2Shapes.b2DestroyShape(_defaultShapeId, true);
-            
+            collider.Create(_bodyId);
         }
 
-        internal void RemoveCollider(Collider2D collider)
+        internal void UpdateCollider(Collider2D collider)
+        {
+            collider.Create(_bodyId);
+        }
+
+        internal void RemoveCollider(B2ShapeId shapeID)
         {
 
         }

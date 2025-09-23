@@ -90,7 +90,6 @@ namespace Engine
 
         internal virtual void OnInitialize() 
         {
-        
         }
     }
 }
