@@ -6,12 +6,23 @@ namespace Engine
 {
     public sealed class Transform : Component
     {
+        public IReadOnlyList<Transform> Children => _children.AsReadOnly();
+
         private static mat4 IdentityM => new mat4(1.0f);
         // Local transform
         private vec3 _localPosition = default;
         private quat _localRotation = quat.Identity;
         private vec3 _localScale = new vec3(1, 1, 1);
         private Transform _parent = null;
+
+        private readonly List<Transform> _children = new List<Transform>();
+
+        // Dirty flag and cached matrices
+        private bool _isDirty = true;
+        private mat4 _cachedWorldMatrix = IdentityM;
+        private vec3 _cachedWorldPosition = default;
+        private quat _cachedWorldRotation = quat.Identity;
+        private vec3 _cachedWorldScale = new vec3(1, 1, 1);
 
         public vec3 LocalPosition
         {
@@ -73,16 +84,6 @@ namespace Engine
                 MarkDirty();
             }
         }
-
-        private readonly List<Transform> _children = new List<Transform>();
-        public IReadOnlyList<Transform> Children => _children.AsReadOnly();
-
-        // Dirty flag and cached matrices
-        private bool _isDirty = true;
-        private mat4 _cachedWorldMatrix = IdentityM;
-        private vec3 _cachedWorldPosition = default;
-        private quat _cachedWorldRotation = quat.Identity;
-        private vec3 _cachedWorldScale = new vec3(1, 1, 1);
 
         private void MarkDirty()
         {

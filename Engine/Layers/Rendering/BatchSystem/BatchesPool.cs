@@ -35,7 +35,7 @@ namespace Engine.Rendering
 
             // Initialize to clear any old states.
             newBatch.Initialize();
-            Log.Success("Create new batch");
+            Log.Info("Create new batch");
             _batches.Add(newBatch);
 
             return newBatch;

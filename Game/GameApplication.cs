@@ -87,10 +87,10 @@ namespace Game
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
 
-            //actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
+            // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
-            for (int i = 0; i < 33; i++)
+            // (int i = 0; i < 33; i++)
             {
                 var actor2 = new Actor<SpriteRenderer>("Actor2");
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;

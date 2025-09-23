@@ -20,7 +20,7 @@ namespace Engine.Layers
 
         public RenderingLayer()
         {
-            _batcher2d = new Batcher2D(777);
+            _batcher2d = new Batcher2D(1000);
         }
 
         public override void Initialize()
@@ -58,13 +58,11 @@ namespace Engine.Layers
                 (batch.Geometry as GLGeometry).Bind();
                 var shader = batch.Material.Shader.NativeShader as GLShader;
                 shader.Bind();
-
                 shader.SetUniform("uVP", VP);
 
                 for (int i = 0; i < batch.Textures.Length; i++)
                 {
                     var tex = batch.Textures[i];
-
                     if (tex == null)
                         break;
                     (tex.NativeTexture as GLTexture).Bind(i);
