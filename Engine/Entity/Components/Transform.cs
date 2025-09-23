@@ -51,20 +51,25 @@ namespace Engine
                 if (_parent == value)
                     return;
 
+                // Save current world transform
+                vec3 oldWorldPos = WorldPosition;
+                quat oldWorldRot = WorldRotation;
+                vec3 oldWorldScale = WorldScale;
+
                 if (value == null)
-                {
-                    // register as root
                     Actor.Scene.RegisterRootActor(Actor);
-                }
                 else
-                {
-                    // unregister as root
                     Actor.Scene.UnregisterRootActor(Actor);
 
-                }
                 _parent?._children.Remove(this);
                 _parent = value;
                 _parent?._children.Add(this);
+
+                // Restore world transform
+                WorldPosition = oldWorldPos;
+                WorldRotation = oldWorldRot;
+                WorldScale = oldWorldScale;
+
                 MarkDirty();
             }
         }

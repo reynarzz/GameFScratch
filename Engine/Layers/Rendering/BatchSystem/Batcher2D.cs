@@ -55,7 +55,6 @@ namespace Engine.Rendering
             MaxQuadsPerBatch = maxQuadsPerBatch;
             _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
 
-            // TODO: get actual pink material
             _pinkMaterial = new Material(Tests.GetShaderPink());
             _whiteTexture = new Texture2D(1, 1, 4, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF});
             _whiteTexture.PixelPerUnit = 1;
@@ -108,13 +107,9 @@ namespace Engine.Rendering
                 _renderBuckets[key].Add(renderer);
             }
 
-            // Log.Debug("Buckets : " + _renderBuckets.Count);
-
             // TODO: improve performance of order by sorting, is allocating every frame
             foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))
             {
-                // bucket.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
-
                 Batch2D currentBatch = null;
 
                 foreach (var renderer in bucket)
@@ -158,7 +153,7 @@ namespace Engine.Rendering
                         {
                             Color = renderer.PacketColor,
                             Position = new vec3(worldMatrix * new vec4(width - px, -py, 0, 1)),
-                            UV = chunk.BottomRightUV,
+                            UV = chunk.BottomRightUV
                         };
 
                         if (currentBatch == null || !currentBatch.CanPushGeometry(4, texture))
@@ -167,9 +162,6 @@ namespace Engine.Rendering
                         }
 
                         currentBatch.PushGeometry(material, texture, 6, v0, v1, v2, v3);
-
-                        //Log.Debug("Render : " + renderer.Actor.Name);
-
                     }
                     else
                     {

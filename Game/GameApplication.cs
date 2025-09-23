@@ -15,12 +15,12 @@ namespace Game
         layout(location = 2) in vec3 normals;
         layout(location = 3) in uint color; 
         layout(location = 4) in int texIndex; 
-
+        
         out vec2 fragUV;
         flat out int fragTexIndex;            // flat = no interpolation between vertices
         out vec4 vColor;
         uniform mat4 uVP;
-
+        
         vec4 unpackColor(uint c) 
         {
             float r = float((c >> 24) & 0xFFu) / 255.0;
@@ -29,7 +29,7 @@ namespace Game
             float a = float( c        & 0xFFu) / 255.0;
             return vec4(r,g,b,a);
         }
-
+        
         void main() 
         {
             fragUV = uv;
@@ -40,21 +40,20 @@ namespace Game
 
         public string SpriteFragmentShader = $@"
         #version 330 core
-
-        uniform sampler2D uTextures[{32}];
         
+        uniform sampler2D uTextures[{32}];
         in vec2 vUV;
         in vec4 vColor;
         
-        flat in int texIndex;
+        flat in int fragTexIndex;
         out vec4 fragColor;
-
-        void main() 
+        
+        void main()
         {{
-            fragColor = texture(uTextures[texIndex], vUV) * vColor;
+            fragColor = texture(uTextures[fragTexIndex], vUV) * vColor;
         }}";
 
-     
+        
         public override void Initialize()
         {
             var sprite1 = new Sprite();
@@ -79,19 +78,25 @@ namespace Game
             camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 5;
             camera.Transform.WorldPosition = new GlmNet.vec3(0, 0, -12);
-
+        
             var actor = new Actor<SpriteRenderer, RotateTest>("Actor1");
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             //actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
             //actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
-            actor.Transform.WorldPosition = new GlmNet.vec3(2,0, 0);
-            
-            var actor2 = new Actor<SpriteRenderer>("Actor2");
-            actor2.GetComponent<SpriteRenderer>().Material =  actor.GetComponent<SpriteRenderer>().Material;
-            //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
-            actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
-            actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
+            actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
+            //for (int i = 0; i < 5000; i++)
+            {
+                var actor2 = new Actor<SpriteRenderer>("Actor2");
+                actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+                //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
+                actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
+                actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
+                actor2.Transform.Parent = actor.Transform;
+                actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
+            }
+
+          
             var actor3 = new Actor<SpriteRenderer>("Actor3");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;

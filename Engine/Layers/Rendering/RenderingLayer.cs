@@ -2,17 +2,17 @@
 using Engine.Graphics.OpenGL;
 using Engine.Rendering;
 using GlmNet;
-using GlmNet;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+[assembly: InternalsVisibleTo("Sandbox")]
+
 namespace Engine.Layers
 {
-    /*internal*/
-    public class RenderingLayer : LayerBase
+    internal class RenderingLayer : LayerBase
     {
         private List<Renderer> _renderers;
 
@@ -68,12 +68,8 @@ namespace Engine.Layers
 
                     if (tex == null)
                         break;
-                    (tex.InternalTexture as GLTexture).Bind(i);
+                    (tex.NativeTexture as GLTexture).Bind(i);
                 }
-
-                (batch.Textures[0].InternalTexture as GLTexture).Bind(0);
-                (batch.Textures[1].InternalTexture as GLTexture).Bind(1);
-                (batch.Textures[2].InternalTexture as GLTexture).Bind(2);
 
                 shader.SetUniform("uTextures", Batch2D.TextureSlotArray);
 

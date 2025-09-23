@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Engine.Graphics.OpenGL;
 
 namespace Engine.Rendering
 {
@@ -72,6 +73,12 @@ namespace Engine.Rendering
 
             for (int i = 0; i < Textures.Length; i++)
             {
+                if (Textures[i] != null)
+                {
+                    // TODO: refactor here, dirty workaround for faster prototyping.
+                    (Textures[i].NativeTexture as GLTexture).Unbind();
+                }
+
                 Textures[i] = null;
             }
         }
