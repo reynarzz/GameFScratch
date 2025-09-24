@@ -69,7 +69,7 @@ namespace Engine
                 isSensor = false,
                 density = 1,
                 updateBodyMass = true,
-                material = new B2SurfaceMaterial() {  friction = 0.2f },
+                material = B2Types.b2DefaultSurfaceMaterial(),
                 filter = B2Types.b2DefaultFilter(),
                 internalValue = B2Constants.B2_SECRET_COOKIE,
                 userData = _rigid

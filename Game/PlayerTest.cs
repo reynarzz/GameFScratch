@@ -28,7 +28,15 @@ namespace Game
             }
             else 
             {
+            }
+        }
+
+        public override void OnFixedUpdate()
+        {
+            if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            {
                 GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(0, GetComponent<RigidBody2D>().Velocity.y);
+
             }
         }
     }

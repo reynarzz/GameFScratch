@@ -103,13 +103,13 @@ namespace Game
             }
 
 
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CircleCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
-            collider3.Friction = 0.1f;
+          
             rigid3.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             // rigid3.WorldPosition = new GlmNet.vec3(-1.0f, 0, 0);
             rigid3.IsAutoMass = false;
@@ -124,7 +124,7 @@ namespace Game
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             rigid4.BodyType = Body2DType.Kinematic;
             rigid4.WorldPosition = new GlmNet.vec3(0, -4, 0);
-           // rigid4.WorldEulerAngles = new GlmNet.vec3(0, 0, 45);
+            rigid4.WorldEulerAngles = new GlmNet.vec3(0, 0, 45);
             actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;
