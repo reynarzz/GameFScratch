@@ -17,6 +17,12 @@ namespace Engine
 
         private List<Component> _onAwakeComponents;
         private List<Component> _onStartComponents;
+        private static readonly Action<ScriptBehavior> _awakeAction = x => x.OnAwake();
+        private static readonly Action<ScriptBehavior> _startAction = x => x.OnStart();
+        private static readonly Action<ScriptBehavior> _updateAction = x => x.OnUpdate();
+        private static readonly Action<ScriptBehavior> _lateUpdateAction = x => x.OnLateUpdate();
+        private static readonly Action<ScriptBehavior> _fixedUpdateAction = x => x.OnFixedUpdate();
+   
 
         public Actor() : this(string.Empty, string.Empty)
         {
@@ -234,98 +240,66 @@ namespace Engine
             component.Actor = null;
             component.IsAlive = false;
         }
+
         internal void Awake()
         {
-            foreach (var component in _onAwakeComponents)
-            {
-                (component as ScriptBehavior)?.OnAwake();
-            }
-
-            if (_onAwakeComponents.Count > 0)
-            {
-                _onAwakeComponents.Clear();
-            }
+            UpdateScriptBeginEvent(_onAwakeComponents, _awakeAction);
         }
 
         internal void Start()
         {
-            foreach (var component in _onStartComponents)
-            {
-                (component as ScriptBehavior)?.OnStart();
-            }
-
-            if (_onStartComponents.Count > 0)
-            {
-                _onStartComponents.Clear();
-            }
+            UpdateScriptBeginEvent(_onStartComponents, _startAction);
         }
 
         public void Update()
         {
-            foreach (var comp in _components)
-            {
-                if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
-                {
-#if DEBUG
-                    try
-                    {
-                        (comp as ScriptBehavior).OnUpdate();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
-#else
-                    (comp as ScriptBehavior).OnUpdate();
-#endif
-                }
-            }
+            UpdateScriptsFunction(_updateAction);
         }
 
         internal void LateUpdate()
         {
-            foreach (var comp in _components)
-            {
-                if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
-                {
-#if DEBUG
-                    try
-                    {
-                        (comp as ScriptBehavior).OnLateUpdate();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
-#else
-                    (comp as ScriptBehavior).OnLateUpdate();
-#endif
-                }
-            }
+            UpdateScriptsFunction(_lateUpdateAction);
         }
 
         internal void FixedUpdate()
         {
+            UpdateScriptsFunction(_fixedUpdateAction);
+        }
+
+        private void UpdateScriptBeginEvent(List<Component> components, Action<ScriptBehavior> action)
+        {
+            for (int i = components.Count - 1; i >= 0; --i)
+            {
+                var component = components[i] as ScriptBehavior;
+                if (component && component.IsEnabled)
+                {
+                    action(component);
+                    components.Remove(component);
+                }
+            }
+        }
+        private void UpdateScriptsFunction(Action<ScriptBehavior> action)
+        {
             foreach (var comp in _components)
             {
-                if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
+                var script = comp as ScriptBehavior;
+                if (script && script.IsEnabled && script)
                 {
 #if DEBUG
                     try
                     {
-                        (comp as ScriptBehavior).OnFixedUpdate();
+                        action(script);
                     }
                     catch (Exception e)
                     {
                         Log.Error(e);
                     }
 #else
-                    (comp as ScriptBehavior).OnFixedUpdate();
+                    action(script);
 #endif
                 }
             }
         }
-
         internal void DeletePending()
         {
             if (IsPendingToDestroy)
@@ -407,7 +381,7 @@ namespace Engine
             }
         }
 
-        
+
     }
 
     public class Actor<T1> : Actor where T1 : Component
