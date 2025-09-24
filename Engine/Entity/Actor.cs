@@ -140,7 +140,7 @@ namespace Engine
             AddComponent<T5>();
         }
 
-        public T GetComponent<T>() where T : Component
+        public Component GetComponent(Type type)
         {
             if (!IsValidObject(this))
             {
@@ -148,13 +148,18 @@ namespace Engine
             }
             for (int i = 0; i < _components.Count; i++)
             {
-                if (typeof(T).IsAssignableFrom(_components[i].GetType()))
+                if (type.IsAssignableFrom(_components[i].GetType()))
                 {
-                    return _components[i] as T;
+                    return _components[i];
                 }
             }
 
             return null;
+        }
+
+        public T GetComponent<T>() where T : Component
+        {
+            return GetComponent(typeof(T)) as T;
         }
 
         public T[] GetComponents<T>() where T : Component
@@ -300,6 +305,17 @@ namespace Engine
                 }
             }
         }
+
+        public static Actor Find(string name)
+        {
+            return SceneManager.ActiveScene.FindActor(name);
+        } 
+
+        internal bool Contains(Component component)
+        {
+            return _components.Contains(component);
+        }
+
         internal void DeletePending()
         {
             if (IsPendingToDestroy)

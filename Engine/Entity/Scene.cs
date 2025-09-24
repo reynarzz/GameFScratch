@@ -8,8 +8,31 @@ namespace Engine
 {
     public class Scene : EObject
     {
+        internal interface IMatcher<T, TComparer>
+        {
+            T Invoke(Actor actor, TComparer comparer);
+        }
+
+        private struct ComponentMatcher<T> : IMatcher<T, object> where T : Component
+        {
+            public T Invoke(Actor actor, object comparer) => actor.GetComponent<T>();
+        }
+
+        public struct ActorMatcher : IMatcher<Actor, string>
+        {
+            public Actor Invoke(Actor actor, string comparer)
+            {
+                if (actor.Name.Equals(comparer))
+                {
+                    return actor;
+                }
+                return null;
+            }
+        }
+
         private List<Actor> _rootActors;
 
+        private readonly Func<Component, Component> _findComponent;
         public Scene()
         {
             Name = "Scene";
@@ -51,17 +74,24 @@ namespace Engine
             }
         }
 
-        internal List<T> FindAll<T>() where T : Component
+        internal List<T> FindAll<T>() where T: Component
+        {
+            return FindAll<T, ComponentMatcher<T>, object>(null);
+        }
+
+        private List<T> FindAll<T, TMatcher, TComparer>(TComparer comparer) where T : EObject 
+                                                                            where TMatcher : struct, IMatcher<T, TComparer>
         {
             var list = new List<T>();
+            var matcher = default(TMatcher);
 
             void Find(Actor actor)
             {
-                var comp = actor.GetComponent<T>();
+                var result = matcher.Invoke(actor, comparer);
 
-                if (comp && comp.IsAlive) 
+                if (result && result.IsAlive)
                 {
-                    list.Add(comp);
+                    list.Add(result);
                 }
 
                 for (int i = 0; i < actor.Transform.Children.Count; i++)
@@ -77,81 +107,94 @@ namespace Engine
 
             return list;
         }
-        
-        internal T Find<T>() where T : Component
+
+        internal T FindComponent<T>() where T : Component
         {
+            return Find<T, ComponentMatcher<T>, object>(null);
+        }
+
+        internal Actor FindActor(string name)
+        {
+            return Find<Actor, ActorMatcher, string>(name);
+        }
+
+        internal T Find<T, TMatcher, IComparer>(IComparer comparer) where TMatcher : struct, IMatcher<T, IComparer> 
+                                                                    where T : EObject
+        {
+            var matcher = default(TMatcher);
+
             T Find(Actor actor)
             {
-                var comp = actor.GetComponent<T>();
+                var result = matcher.Invoke(actor, comparer);
 
-                if (comp)
+                if (result)
                 {
-                    return comp;
+                    return result;
                 }
 
                 for (int i = 0; i < actor.Transform.Children.Count; i++)
                 {
                     var found = Find(actor.Transform.Children[i].Actor);
 
-                    if (found) 
+                    if (found)
                     {
                         return found;
                     }
                 }
 
-                return null;
+                return default;
             }
 
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                var comp = Find(_rootActors[i]);
+                var value = Find(_rootActors[i]);
 
-                if (comp)
+                if (value)
                 {
-                    return comp;
+                    return value;
                 }
             }
 
-            return null;
+            return default;
         }
 
         internal void Awake()
         {
-            foreach (var actor in _rootActors)
+            for (int i = 0; i < _rootActors.Count; i++)
             {
-                actor.Awake();
+                _rootActors[i].Awake();
             }
         }
 
         internal void Start()
         {
-            foreach (var actor in _rootActors)
+            for (int i = 0; i < _rootActors.Count; i++)
             {
-                actor.Start();
+                _rootActors[i].Start();
             }
         }
 
         internal void Update()
         {
-            foreach (var actor in _rootActors)
+            for (int i = 0; i < _rootActors.Count; i++)
             {
-                actor.Update();
+                _rootActors[i].Update();
             }
         }
 
         internal void LateUpdate()
         {
-            foreach (var actor in _rootActors)
+            for (int i = 0; i < _rootActors.Count; i++)
             {
-                actor.LateUpdate();
+                _rootActors[i].LateUpdate();
             }
         }
 
         internal void FixedUpdate()
         {
-            foreach (var actor in _rootActors)
+            for (int i = 0; i < _rootActors.Count; i++)
             {
-                actor.FixedUpdate();
+                _rootActors[i].FixedUpdate();
             }
         }
 

@@ -13,18 +13,16 @@ namespace Engine.Layers
 {
     internal class RenderingLayer : LayerBase
     {
-        private List<Renderer> _renderers;
-
         private Batcher2D _batcher2d;
         private Camera _mainCamera = null;
 
         public RenderingLayer()
         {
-            _batcher2d = new Batcher2D(1000);
         }
 
         public override void Initialize()
         {
+            _batcher2d = new Batcher2D(1000);
         }
 
         public override void Close()
@@ -35,7 +33,7 @@ namespace Engine.Layers
         {
             if (!_mainCamera)
             {
-                _mainCamera = SceneManager.ActiveScene.Find<Camera>();
+                _mainCamera = SceneManager.ActiveScene.FindComponent<Camera>();
             }
 
             if (!_mainCamera || !_mainCamera.IsEnabled)

@@ -120,7 +120,8 @@ namespace Game
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
             rigid3.IsAutoMass = false;
-             // Actor.Destroy(camera.Actor);
+            // Actor.Destroy(camera.Actor);
+            var cam = Actor.Find("Camera");
 
             if (camera)
             {

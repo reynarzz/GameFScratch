@@ -16,6 +16,7 @@ namespace Game
         public override void OnStart()
         {
             Log.Info("Start");
+            new Actor<RotateTest>();
         }
 
         public override void OnUpdate()
