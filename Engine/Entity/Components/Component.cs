@@ -13,7 +13,7 @@ namespace Engine
         {
             get
             {
-                if (!IsValidObject(Actor))
+                if (!IsValidObject(Actor) || !IsValidObject(this))
                 {
                     return null;
                 }
@@ -46,6 +46,7 @@ namespace Engine
             }
         }
 
+        internal virtual void OnInitialize() { }
         public virtual void OnEnabled() { }
         public virtual void OnDisabled() { }
         public virtual void OnDestroy() { }
@@ -135,8 +136,5 @@ namespace Engine
 
 
 
-        internal virtual void OnInitialize()
-        {
-        }
     }
 }

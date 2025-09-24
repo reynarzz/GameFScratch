@@ -9,6 +9,15 @@ namespace Game
 {
     internal class PlayerTest : ScriptBehavior
     {
+        public override void OnAwake()
+        {
+            Log.Info("Awake");
+        }
+        public override void OnStart()
+        {
+            Log.Info("Start");
+        }
+
         public override void OnUpdate()
         {
             GetComponent<RigidBody2D>().IsContinuos = true;

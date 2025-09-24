@@ -22,18 +22,20 @@ namespace Engine.Layers
         {
             for (int i = _layers.Length - 1; i >= 0; i--)
             {
-#if DEBUG
-                try
-                {
-                    _layers[i].Initialize();
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e);
-                }
-#else
                 _layers[i].Initialize();
-#endif
+
+//#if DEBUG
+//                try
+//                {
+//                    _layers[i].Initialize();
+//                }
+//                catch (Exception e)
+//                {
+//                    Log.Error(e);
+//                }
+//#else
+//                _layers[i].Initialize();
+//#endif
             }
         }
 

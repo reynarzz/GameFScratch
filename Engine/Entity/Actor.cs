@@ -15,6 +15,9 @@ namespace Engine
 
         private List<Component> _pendingToDeleteComponents;
 
+        private List<Component> _onAwakeComponents;
+        private List<Component> _onStartComponents;
+
         public Actor() : this(string.Empty, string.Empty)
         {
         }
@@ -35,7 +38,12 @@ namespace Engine
             }
 
             _components = new List<Component>();
+            _onAwakeComponents = new List<Component>();
+            _onStartComponents = new List<Component>();
             _pendingToDeleteComponents = new List<Component>();
+
+
+
             Transform = AddComponent<Transform>();
 
             Scene = SceneManager.ActiveScene;
@@ -61,6 +69,8 @@ namespace Engine
             var component = Activator.CreateInstance(type) as Component;
             component.Actor = this;
             _components.Add(component);
+            _onAwakeComponents.Add(component);
+            _onStartComponents.Add(component);
 
             component.OnInitialize();
             return component;
@@ -176,7 +186,24 @@ namespace Engine
                 return;
             }
 
+            void PendingToDestroyNotify(Actor actor)
+            {
+                // Notify children components
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    PendingToDestroyNotify(actor.Transform.Children[i].Actor);
+                }
+
+                // Notify own components
+                for (int i = actor._components.Count - 1; i >= 0; i--)
+                {
+                    actor._components[i].IsPendingToDestroy = true;
+                }
+            }
+
             actor.IsPendingToDestroy = true;
+
+            PendingToDestroyNotify(actor);
         }
 
         public static void Destroy(Component component)
@@ -201,8 +228,36 @@ namespace Engine
             }
 
             component.Actor._components.Remove(component);
+            component.Actor._onStartComponents.Remove(component);
+            component.Actor._onAwakeComponents.Remove(component);
+
             component.Actor = null;
             component.IsAlive = false;
+        }
+        internal void Awake()
+        {
+            foreach (var component in _onAwakeComponents)
+            {
+                (component as ScriptBehavior)?.OnAwake();
+            }
+
+            if (_onAwakeComponents.Count > 0)
+            {
+                _onAwakeComponents.Clear();
+            }
+        }
+
+        internal void Start()
+        {
+            foreach (var component in _onStartComponents)
+            {
+                (component as ScriptBehavior)?.OnStart();
+            }
+
+            if (_onStartComponents.Count > 0)
+            {
+                _onStartComponents.Clear();
+            }
         }
 
         public void Update()
@@ -330,7 +385,7 @@ namespace Engine
 #if DEBUG
                     try
                     {
-                        if (component)
+                        if (component != null)
                         {
                             component.OnDestroy();
                         }
@@ -340,7 +395,7 @@ namespace Engine
                         Log.Error(e);
                     }
 #else
-                    if (component)
+                    if (component != null)
                     {
                         component.OnDestroy();
                     }
@@ -351,6 +406,8 @@ namespace Engine
                 _pendingToDeleteComponents.Clear();
             }
         }
+
+        
     }
 
     public class Actor<T1> : Actor where T1 : Component

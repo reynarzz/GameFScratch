@@ -69,14 +69,4 @@ namespace Engine
             Projection = MathUtils.Perspective(Fov, aspectRatio, NearPlane, FarPlane);
         }
     }
-
-    public struct PerspectiveConfig
-    {
-       
-    }
-
-    public struct OrthographicConfig
-    {
-    }
-
 }

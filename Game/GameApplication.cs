@@ -120,10 +120,12 @@ namespace Game
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
             rigid3.IsAutoMass = false;
-            //rigid3.Mass = 1;
-            // Actor.Destroy(camera);
+              Actor.Destroy(camera.Actor);
 
-            camera.GetComponent<CameraFollow>().Target = actor3.Transform;
+            if (camera)
+            {
+                camera.GetComponent<CameraFollow>().Target = actor3.Transform;
+            }
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Floor");
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
             boxCollider.Size = new GlmNet.vec2(15, 1);

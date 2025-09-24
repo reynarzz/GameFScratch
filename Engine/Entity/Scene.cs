@@ -84,7 +84,7 @@ namespace Engine
             {
                 var comp = actor.GetComponent<T>();
 
-                if (comp && comp.IsAlive)
+                if (comp)
                 {
                     return comp;
                 }
@@ -113,6 +113,22 @@ namespace Engine
             }
 
             return null;
+        }
+
+        internal void Awake()
+        {
+            foreach (var actor in _rootActors)
+            {
+                actor.Awake();
+            }
+        }
+
+        internal void Start()
+        {
+            foreach (var actor in _rootActors)
+            {
+                actor.Start();
+            }
         }
 
         internal void Update()
