@@ -55,7 +55,9 @@ namespace Game
 
         // TODO:
         // Adjust transform's isDirty flag, so its value can last the whole frame. (.ChangedThisFrameTODO)
-
+        // Implement layerMask
+        // Implement physics: collision functions (OnCollisionEnter2D, OnTriggerEnter2D, etc...)
+        // Implement physics: raycast, boxcast, circle cast.
 
         public override void Initialize()
         {
