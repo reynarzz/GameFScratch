@@ -67,11 +67,6 @@ namespace Engine
             Glfw.SwapInterval(1);
         }
 
-        internal static void PollEvents()
-        {
-            Glfw.PollEvents();
-        }
-
         internal static void SwapBuffers()
         {
             Glfw.SwapBuffers(NativeWindow);

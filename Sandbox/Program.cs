@@ -12,6 +12,7 @@ namespace Sandbox
         {
             var engine = new Engine.Engine();
             engine.Initialize(typeof(TimeLayer),
+                              typeof(Input),
                               typeof(GameApplication), 
                               typeof(SceneLayer),
                               typeof(PhysicsLayer),

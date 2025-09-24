@@ -23,7 +23,7 @@ namespace Engine
 
         public vec2 Offset { get; set; } = new vec2();
         public float RotationOffset { get; set; } = 0;
-        internal B2ShapeId ShapeID { get; private set; }
+        internal B2ShapeId ShapeID { get; private set; } = new B2ShapeId(-1, 0, 0);
         private B2ShapeDef _shapeDef;
 
         private bool _isTrigger = false;
@@ -70,10 +70,8 @@ namespace Engine
 
         internal void Create(B2BodyId bodyId)
         {
-            // B2Shapes.b2DestroyShape(ShapeID, _rigid.IsAutoMass);
-
+            DestroyShape();
             var polygon = CreateShape();
-
             ShapeID = B2Shapes.b2CreatePolygonShape(bodyId, ref _shapeDef, ref polygon);
         }
 
@@ -86,6 +84,16 @@ namespace Engine
             if (_rigid)
             {
                 _rigid.RemoveCollider(ShapeID);
+                DestroyShape();
+            }
+        }
+
+        private void DestroyShape()
+        {
+            if (ShapeID.index1 >= 0)
+            {
+                B2Shapes.b2DestroyShape(ShapeID, _rigid.IsAutoMass);
+                ShapeID = new B2ShapeId(-1, 0, 0);
             }
         }
     }

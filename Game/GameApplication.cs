@@ -74,7 +74,7 @@ namespace Game
             var mat2 = new Material(mainShader);
             var mat3 = new Material(mainShader);
 
-            var camera = new Actor<Camera>("Camera").GetComponent<Camera>();
+            var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 5;
             camera.Transform.WorldPosition = new GlmNet.vec3(0, 0, -12);
@@ -97,17 +97,32 @@ namespace Game
                 //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
                 actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
                 actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
-                actor2.Transform.Parent = actor.Transform;
+                //actor2.Transform.Parent = actor.Transform;
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
             
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Actor3");
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Actor3");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
-            actor3.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
-            actor3.Transform.GetComponent<RigidBody2D>().WorldEulerAngles = new GlmNet.vec3(0, 0, 45);
+            actor3.Transform.GetComponent<RigidBody2D>().WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
+            actor3.Transform.GetComponent<RigidBody2D>().WorldPosition = new GlmNet.vec3(-1.0f, 0, 0);
+            actor3.Transform.GetComponent<RigidBody2D>().IsAutoMass = true;
+
+
+            camera.GetComponent<CameraFollow>().Target = actor3.Transform;
+            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Actor3");
+            var boxCollider = actor4.GetComponent<BoxCollider2D>();
+            boxCollider.Size = new GlmNet.vec2(3, 1);
+            var rigid4 = actor4.GetComponent<RigidBody2D>();
+            rigid4.BodyType = Body2DType.Kinematic;
+            rigid4.WorldPosition = new GlmNet.vec3(0, -4, 0);
+            actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+            //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
+            actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;
+            actor4.Transform.LocalScale = new GlmNet.vec3(3, 1, 1);
+
             Log.Success("Game Layer");
         }
 

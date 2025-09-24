@@ -14,10 +14,7 @@ namespace Engine
         private vec2 _size = new vec2(1, 1);
         public vec2 Size 
         {
-            get 
-            {
-                return _size;
-            }
+            get => _size;
             set
             {
                 _size = value;

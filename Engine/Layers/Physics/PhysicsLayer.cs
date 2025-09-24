@@ -34,62 +34,58 @@ namespace Engine.Layers
             _debugDraw.context = this;
 
 
-            B2BodyDef bodyDef = default;
-            bodyDef.type = B2BodyType.b2_dynamicBody;
-            bodyDef.position = new B2Vec2(0.0f, 0.0f);
-            bodyDef.rotation = B2MathFunction.b2Rot_identity;
-            bodyDef.name = "guid value";
-            bodyDef.isBullet = false;
-            bodyDef.fixedRotation = false;
-            bodyDef.isAwake = true;
-            bodyDef.gravityScale = 1;
-            bodyDef.isEnabled = true;
+            //B2BodyDef bodyDef = default;
+            //bodyDef.type = B2BodyType.b2_dynamicBody;
+            //bodyDef.position = new B2Vec2(0.0f, 0.0f);
+            //bodyDef.rotation = B2MathFunction.b2Rot_identity;
+            //bodyDef.name = "guid value";
+            //bodyDef.isBullet = false;
+            //bodyDef.fixedRotation = false;
+            //bodyDef.isAwake = true;
+            //bodyDef.gravityScale = 1;
+            //bodyDef.isEnabled = true;
 
-            _bodyTest = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
+            //_bodyTest = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
 
-            B2BodyDef floorBodyDef = new B2BodyDef();
-            floorBodyDef.type = B2BodyType.b2_kinematicBody;
-            floorBodyDef.isAwake = true;
-            floorBodyDef.isEnabled = true;
-            floorBodyDef.position = new B2Vec2(0, -5);
-            floorBodyDef.rotation = B2MathFunction.b2Rot_identity;
-            floorBodyDef.enableSleep = false;
+            //B2BodyDef floorBodyDef = new B2BodyDef();
+            //floorBodyDef.type = B2BodyType.b2_kinematicBody;
+            //floorBodyDef.isAwake = true;
+            //floorBodyDef.isEnabled = true;
+            //floorBodyDef.position = new B2Vec2(0, -5);
+            //floorBodyDef.rotation = B2MathFunction.b2Rot_identity;
+            //floorBodyDef.enableSleep = false;
 
-            _floorTest = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref floorBodyDef);
+            //_floorTest = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref floorBodyDef);
 
-            B2ShapeDef shapeDef = default;
-            shapeDef.isSensor = false;
-            shapeDef.invokeContactCreation = true;
-            //shapeDef.enableHitEvents = true;
-            shapeDef.enableContactEvents = true;
-            shapeDef.density = 1;
-            shapeDef.updateBodyMass = true;
-            shapeDef.filter = b2DefaultFilter();
+            //B2ShapeDef shapeDef = default;
+            //shapeDef.isSensor = false;
+            //shapeDef.invokeContactCreation = true;
+            ////shapeDef.enableHitEvents = true;
+            //shapeDef.enableContactEvents = true;
+            //shapeDef.density = 1;
+            //shapeDef.updateBodyMass = true;
+            //shapeDef.filter = b2DefaultFilter();
             
-            //B2Polygon poly = default;
-            //poly.vertices = new B2FixedArray8<B2Vec2>();
-            //poly.vertices[0] = new B2Vec2();
+            //var boxPoly = B2Geometries.b2MakeBox(0.5f, 0.5f);
+            //var shapeId = B2Shapes.b2CreatePolygonShape(_bodyTest, ref shapeDef, ref boxPoly);
 
-            var boxPoly = B2Geometries.b2MakeBox(0.5f, 0.5f);
-            var shapeId = B2Shapes.b2CreatePolygonShape(_bodyTest, ref shapeDef, ref boxPoly);
+            //var floorBox = B2Geometries.b2MakeBox(2f, 1f);
+            //var floorShapeId = B2Shapes.b2CreatePolygonShape(_floorTest, ref shapeDef, ref floorBox);
 
-            var floorBox = B2Geometries.b2MakeBox(2f, 1f);
-            var floorShapeId = B2Shapes.b2CreatePolygonShape(_floorTest, ref shapeDef, ref floorBox);
+            //ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
 
-            ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
+            //B2Filter playerFilter = default;
+            //playerFilter.categoryBits = player;
+            //playerFilter.maskBits = enemy1 | enemy2 | floor; // which category can collide with
 
-            B2Filter playerFilter = default;
-            playerFilter.categoryBits = player;
-            playerFilter.maskBits = enemy1 | enemy2 | floor; // which category can collide with
+            //B2Filter floorFilter = default;
+            //floorFilter.categoryBits = floor;
+            //floorFilter.maskBits = enemy1 | enemy2 | player; // which category can collide with
+            //floorFilter.maskBits &= ~player; // remove bit
+            //floorFilter.maskBits |= player; // add bit
 
-            B2Filter floorFilter = default;
-            floorFilter.categoryBits = floor;
-            floorFilter.maskBits = enemy1 | enemy2 | player; // which category can collide with
-            floorFilter.maskBits &= ~player; // remove bit
-            floorFilter.maskBits |= player; // add bit
-
-            B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
-            B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
+            //B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
+            //B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
 
             B2QueryFilter castFilter = default;
             castFilter.categoryBits = 0;
@@ -143,19 +139,6 @@ namespace Engine.Layers
             {
                 rigidbody.UpdateBody();
             }
-
-            var position = B2Bodies.b2Body_GetPosition(_bodyTest);
-            var rotSinCos = B2Bodies.b2Body_GetRotation(_bodyTest);
-
-            var angle = MathF.Atan2(rotSinCos.s, rotSinCos.c);
-            vec3 zAxis = new vec3(0f, 0f, 1f);
-            quat worldRotation = quat.FromAxisAngle(zAxis, angle);
-
-            var position2 = B2Bodies.b2Body_GetPosition(_floorTest);
-
-            if(!_isContactReached)
-            Log.Info($"({position.X}, {position.Y})");
-            // Log.Info($"({position2.X}, {position2.Y})");
 
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
             float alpha = accumulator / fixedTimeStep;

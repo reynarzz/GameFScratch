@@ -30,8 +30,6 @@ namespace Engine
 
             while (!Window.ShouldClose)
             {
-                Window.PollEvents();
-
                 _layersManager.Update();
 
                 //(shader as GLShader).Bind();

@@ -40,7 +40,6 @@ namespace Engine
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
 
-
         public bool CanSleep
         {
             get => _canSleep;
@@ -90,11 +89,9 @@ namespace Engine
             {
                 if (_isZRotationLocked == value)
                     return;
-
                 B2Bodies.b2Body_SetFixedRotation(_bodyId, value);
             }
         }
-
 
         public Body2DType BodyType
         {
@@ -115,7 +112,6 @@ namespace Engine
             {
                 if (_isContinuos == value) return;
                 _isContinuos = value;
-
                 B2Bodies.b2Body_SetBullet(_bodyId, _isContinuos);
             }
         }
@@ -125,7 +121,7 @@ namespace Engine
             get => Transform.WorldEulerAngles;
             set 
             {
-                B2Bodies.b2Body_SetTransform(_bodyId, B2Bodies.b2Body_GetPosition(_bodyId), value.z.ToB2Rot());
+                B2Bodies.b2Body_SetTransform(_bodyId, B2Bodies.b2Body_GetPosition(_bodyId), glm.radians(value.z).ToB2Rot());
             } 
         }
 
