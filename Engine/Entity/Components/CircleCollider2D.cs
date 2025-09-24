@@ -10,7 +10,7 @@ namespace Engine
 {
     public class CircleCollider2D : Collider2D
     {
-        private float _radius = 1.0f;
+        private float _radius = 0.5f;
         public float Radius
         {
             get => _radius;

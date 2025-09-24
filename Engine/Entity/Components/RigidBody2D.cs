@@ -28,7 +28,7 @@ namespace Engine
         private Body2DType _bodyType = Body2DType.Dynamic;
         private bool _isContinuos = false;
         private bool _canSleep = false;
-        private bool _isAutoMass = true;
+        private bool _isAutoMass = false;
         private float _userMassValue = 1.0f;
         private bool _isZRotationLocked = false;
 
@@ -162,9 +162,9 @@ namespace Engine
             bodyDef.isAwake = true;
             bodyDef.isEnabled = true;
             bodyDef.gravityScale = 1;
-
-            _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
             
+            _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
+
             var colliders = GetComponents<Collider2D>();
             foreach (var collider in colliders)
             {
@@ -229,11 +229,14 @@ namespace Engine
         internal void AddCollider(Collider2D collider)
         {
             collider.Create(_bodyId);
+            Mass = _userMassValue;
         }
 
         internal void UpdateCollider(Collider2D collider)
         {
             collider.Create(_bodyId);
+            Mass = _userMassValue;
+
         }
 
         internal void RemoveCollider(B2ShapeId shapeID)
