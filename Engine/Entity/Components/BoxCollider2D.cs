@@ -12,19 +12,42 @@ namespace Engine
     public class BoxCollider2D : Collider2D
     {
         private vec2 _size = new vec2(1, 1);
+        private float _cornerRadius = 0;
+
         public vec2 Size 
         {
             get => _size;
             set
             {
                 _size = value;
-                RigidBody.UpdateCollider(this);
+                RigidBody?.UpdateCollider(this);
             }
         }
 
-        protected override B2Polygon CreateShape()
+        public float CornerRadius
         {
-            return B2Geometries.b2MakeOffsetBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot());
+            get => _cornerRadius;
+            set
+            {
+                _cornerRadius = value;
+                RigidBody?.UpdateCollider(this);
+            }
+        }
+
+        protected override B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        {
+            B2Polygon polygon = default;
+
+            if(_cornerRadius > 0.001)
+            {
+                polygon = B2Geometries.b2MakeOffsetRoundedBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot(), _cornerRadius);
+            }
+            else
+            {
+                polygon = B2Geometries.b2MakeOffsetBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot());
+            }
+
+            return B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
         }
     }
 }

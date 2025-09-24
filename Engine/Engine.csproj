@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Box2D.NET" Version="3.1.1.557" />
     <PackageReference Include="glfw-net" Version="3.3.1" />
     <PackageReference Include="GlmNet" Version="0.7.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />

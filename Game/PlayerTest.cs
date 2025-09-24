@@ -12,6 +12,7 @@ namespace Game
         public override void OnUpdate()
         {
             GetComponent<RigidBody2D>().IsContinuos = true;
+      
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 GetComponent<RigidBody2D>()?.AddForce(new GlmNet.vec2(0, 4), ForceMode2D.Impulse);

@@ -11,6 +11,9 @@ namespace Engine
     public abstract class Collider2D : Component
     {
         private RigidBody2D _rigid;
+        private vec2 _offset = new vec2(0, 0);
+        private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
+
         internal RigidBody2D RigidBody
         {
             get => _rigid;
@@ -21,9 +24,18 @@ namespace Engine
             }
         }
 
-        public vec2 Offset { get; set; } = new vec2();
+        public vec2 Offset
+        {
+            get => _offset;
+            set
+            {
+                _offset = value;
+                RigidBody?.UpdateCollider(this);
+            }
+        }
+
         public float RotationOffset { get; set; } = 0;
-        internal B2ShapeId ShapeID { get; private set; } = new B2ShapeId(-1, 0, 0);
+        internal B2ShapeId ShapeID { get; private set; } = InvalidShapeID;
         private B2ShapeDef _shapeDef;
 
         private bool _isTrigger = false;
@@ -39,10 +51,7 @@ namespace Engine
 
                 _isTrigger = value;
                 _shapeDef.isSensor = value;
-                if (RigidBody)
-                {
-                    RigidBody.UpdateCollider(this);
-                }
+                RigidBody?.UpdateCollider(this);
             }
         }
 
@@ -50,32 +59,34 @@ namespace Engine
         {
             _rigid = GetComponent<RigidBody2D>();
 
+            _shapeDef = B2Types.b2DefaultShapeDef();
+            _shapeDef.userData = _rigid;
             _shapeDef = new B2ShapeDef()
             {
                 enableContactEvents = true,
-                density = 1,
                 enableSensorEvents = false,
                 enableHitEvents = true,
+                updateBodyMass = true,
+                material = new B2SurfaceMaterial() {  friction = 0.6f },
+                enablePreSolveEvents = false,
+                invokeContactCreation = true,
+                isSensor = false,
+                density = 1,
                 filter = B2Types.b2DefaultFilter(),
-                userData = null,
-                updateBodyMass = true
+                userData = _rigid,
+                internalValue = 1152023
             };
 
-            if (_rigid)
-            {
-                _shapeDef.userData = _rigid;
-                _rigid.AddCollider(this);
-            }
+            _rigid?.AddCollider(this);
         }
 
         internal void Create(B2BodyId bodyId)
         {
             DestroyShape();
-            var polygon = CreateShape();
-            ShapeID = B2Shapes.b2CreatePolygonShape(bodyId, ref _shapeDef, ref polygon);
+            ShapeID = CreateShape(bodyId, _shapeDef);
         }
 
-        protected abstract B2Polygon CreateShape();
+        protected abstract B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef);
 
         public override void OnDestroy()
         {
@@ -93,7 +104,7 @@ namespace Engine
             if (ShapeID.index1 >= 0)
             {
                 B2Shapes.b2DestroyShape(ShapeID, _rigid.IsAutoMass);
-                ShapeID = new B2ShapeId(-1, 0, 0);
+                ShapeID = InvalidShapeID;
             }
         }
     }

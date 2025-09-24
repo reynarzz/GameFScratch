@@ -53,7 +53,7 @@ namespace Game
             fragColor = texture(uTextures[fragTexIndex], vUV) * vColor;
         }}";
 
-        
+
         public override void Initialize()
         {
             var sprite1 = new Sprite();
@@ -86,6 +86,7 @@ namespace Game
             var actor = new Actor<SpriteRenderer, RotateTest>("Actor1");
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
+            actor.GetComponent<SpriteRenderer>().SortOrder = 2;
 
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
@@ -101,14 +102,16 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Actor3");
+
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CircleCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
-            actor3.Transform.GetComponent<RigidBody2D>().WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            actor3.Transform.GetComponent<RigidBody2D>().WorldPosition = new GlmNet.vec3(-1.0f, 0, 0);
-            actor3.Transform.GetComponent<RigidBody2D>().IsAutoMass = true;
+            var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
+            //rigid3.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
+           // rigid3.WorldPosition = new GlmNet.vec3(-1.0f, 0, 0);
+            rigid3.IsAutoMass = false;
+            rigid3.Mass = 100;
 
 
             camera.GetComponent<CameraFollow>().Target = actor3.Transform;
@@ -118,6 +121,7 @@ namespace Game
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             rigid4.BodyType = Body2DType.Kinematic;
             rigid4.WorldPosition = new GlmNet.vec3(0, -4, 0);
+            rigid4.WorldEulerAngles = new GlmNet.vec3(0, 0, 30);
             actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;

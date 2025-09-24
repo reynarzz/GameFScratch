@@ -15,6 +15,7 @@ using static Box2D.NET.B2Worlds;
 using static Box2D.NET.B2Diagnostics;
 using static Box2D.NET.B2Contacts;
 using GlmNet;
+using Engine.Graphics;
 
 namespace Engine.Layers
 {
@@ -28,49 +29,34 @@ namespace Engine.Layers
 
         public override void Initialize()
         {
-            //_world = new World(new Box2DX.Collision.AABB() { LowerBound = new Box2DX.Common.Vec2()});
+            _debugDraw = new B2DebugDraw()
+            {
+                context = null,
 
-            _debugDraw = new B2DebugDraw();
-            _debugDraw.context = this;
+                DrawPolygonFcn = Box2DDraw.DrawPolygon,
+                DrawSolidPolygonFcn = Box2DDraw.DrawSolidPolygon,
+                DrawCircleFcn = Box2DDraw.DrawCircle,
+                DrawSolidCircleFcn = Box2DDraw.DrawSolidCircle,
+                DrawSolidCapsuleFcn = Box2DDraw.DrawSolidCapsule,
+                DrawSegmentFcn = Box2DDraw.DrawSegment,
+                DrawTransformFcn = Box2DDraw.DrawTransform,
+                DrawPointFcn = Box2DDraw.DrawPoint,
+                DrawStringFcn = Box2DDraw.DrawString,
 
-
-            //B2BodyDef bodyDef = default;
-            //bodyDef.type = B2BodyType.b2_dynamicBody;
-            //bodyDef.position = new B2Vec2(0.0f, 0.0f);
-            //bodyDef.rotation = B2MathFunction.b2Rot_identity;
-            //bodyDef.name = "guid value";
-            //bodyDef.isBullet = false;
-            //bodyDef.fixedRotation = false;
-            //bodyDef.isAwake = true;
-            //bodyDef.gravityScale = 1;
-            //bodyDef.isEnabled = true;
-
-            //_bodyTest = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
-
-            //B2BodyDef floorBodyDef = new B2BodyDef();
-            //floorBodyDef.type = B2BodyType.b2_kinematicBody;
-            //floorBodyDef.isAwake = true;
-            //floorBodyDef.isEnabled = true;
-            //floorBodyDef.position = new B2Vec2(0, -5);
-            //floorBodyDef.rotation = B2MathFunction.b2Rot_identity;
-            //floorBodyDef.enableSleep = false;
-
-            //_floorTest = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref floorBodyDef);
-
-            //B2ShapeDef shapeDef = default;
-            //shapeDef.isSensor = false;
-            //shapeDef.invokeContactCreation = true;
-            ////shapeDef.enableHitEvents = true;
-            //shapeDef.enableContactEvents = true;
-            //shapeDef.density = 1;
-            //shapeDef.updateBodyMass = true;
-            //shapeDef.filter = b2DefaultFilter();
-            
-            //var boxPoly = B2Geometries.b2MakeBox(0.5f, 0.5f);
-            //var shapeId = B2Shapes.b2CreatePolygonShape(_bodyTest, ref shapeDef, ref boxPoly);
-
-            //var floorBox = B2Geometries.b2MakeBox(2f, 1f);
-            //var floorShapeId = B2Shapes.b2CreatePolygonShape(_floorTest, ref shapeDef, ref floorBox);
+                drawShapes = false,
+                drawJoints = false,
+                drawJointExtras = false,
+                drawBounds = false,
+                drawMass = false,
+                drawBodyNames = false,
+                drawContacts = false,
+                drawGraphColors = false,
+                drawContactNormals = false,
+                drawContactImpulses = false,
+                drawContactFeatures = false,
+                drawFrictionImpulses = false,
+                drawIslands = false,
+            };
 
             //ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
 
@@ -110,10 +96,9 @@ namespace Engine.Layers
         private bool _isContactReached = false;
 
 
-        // In your game loop:
         float accumulator = 0f;
         float fixedTimeStep = 1.0f / 60.0f;
-        
+
         internal override void UpdateLayer()
         {
             // var deltaTime = 0.0036f; //Time.DeltaTime;
@@ -140,6 +125,8 @@ namespace Engine.Layers
                 rigidbody.UpdateBody();
             }
 
+            B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);
+
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
             float alpha = accumulator / fixedTimeStep;
 
@@ -153,14 +140,14 @@ namespace Engine.Layers
             for (int i = 0; i < events.beginCount; ++i)
             {
                 B2ContactBeginTouchEvent evt = events.beginEvents[i];
-                        
+
                 B2Shapes.b2Shape_GetUserData(evt.shapeIdA);
                 // evt.manifold.points[];
                 _isContactReached = true;
                 Log.Debug("contact");
                 //m_contactId = events.beginEvents[i].contactId;
             }
-            
+
             for (int i = 0; i < events.endCount; ++i)
             {
                 //if (B2_ID_EQUALS(m_contactId, events.endEvents[i].contactId))
@@ -176,7 +163,7 @@ namespace Engine.Layers
             {
                 var sensorA = sensorEvents.beginEvents[i].sensorShapeId;
                 var visitorB = sensorEvents.beginEvents[i].visitorShapeId;
-                
+
                 B2Shapes.b2Shape_GetUserData(sensorA);
 
             }

@@ -28,8 +28,8 @@ namespace Engine
         private Body2DType _bodyType = Body2DType.Dynamic;
         private bool _isContinuos = false;
         private bool _canSleep = false;
-        private bool _autoMass = false;
-        private float _autoMassValue = 1.0f;
+        private bool _isAutoMass = true;
+        private float _userMassValue = 1.0f;
         private bool _isZRotationLocked = false;
 
         private B2ShapeId _defaultShapeId;
@@ -55,29 +55,26 @@ namespace Engine
 
         public bool IsAutoMass
         {
-            get => _autoMass;
+            get => _isAutoMass;
             set
             {
-                if (_autoMass == value)
-                    return;
-
-                _autoMass = value;
-                Mass = _autoMassValue;
+                _isAutoMass = value;
+                Mass = _userMassValue;
             }
         }
 
         public float Mass
         {
-            get => _autoMassValue;
+            get => _userMassValue;
             set
             {
-                if (_autoMass)
+                if (!_isAutoMass)
                     return;
 
-                _autoMassValue = value;
+                _userMassValue = value;
 
                 var currentMassData = B2Bodies.b2Body_GetMassData(_bodyId);
-                currentMassData.mass = _autoMassValue;
+                currentMassData.mass = _userMassValue;
                 B2Bodies.b2Body_SetMassData(_bodyId, currentMassData);
             }
         }
@@ -89,7 +86,8 @@ namespace Engine
             {
                 if (_isZRotationLocked == value)
                     return;
-                B2Bodies.b2Body_SetFixedRotation(_bodyId, value);
+
+                B2Bodies.b2Body_SetMotionLocks(_bodyId, new B2MotionLocks() { angularZ = value });
             }
         }
 
@@ -154,10 +152,10 @@ namespace Engine
             bodyDef.rotation = worldRot.QuatToB2Rot();
             bodyDef.name = GetID().ToString();
             bodyDef.isBullet = false;
-            bodyDef.fixedRotation = false;
             bodyDef.isAwake = true;
             bodyDef.isEnabled = true;
             bodyDef.gravityScale = 1;
+            bodyDef.internalValue = 1152023;
 
             _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
 
