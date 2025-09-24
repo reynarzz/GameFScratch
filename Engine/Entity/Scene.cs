@@ -49,8 +49,6 @@ namespace Engine
             {
                 UnregisterRootActor(actor);
             }
-
-            actor.Scene = null;
         }
 
         internal List<T> FindAll<T>() where T : Component
@@ -138,6 +136,14 @@ namespace Engine
             foreach (var actor in _rootActors)
             {
                 actor.FixedUpdate();
+            }
+        }
+
+        internal void DeletePending()
+        {
+            for (int i = _rootActors.Count - 1; i >= 0; --i)
+            {
+                _rootActors[i].DeletePending();
             }
         }
     }

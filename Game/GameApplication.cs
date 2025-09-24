@@ -82,7 +82,6 @@ namespace Game
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 5;
-            camera.Transform.WorldPosition = new GlmNet.vec3(0, 0, -12);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -115,22 +114,25 @@ namespace Game
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
+            camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldRotation.x,
+                                                                actor3.Transform.WorldRotation.y, -12);
 
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
             rigid3.IsAutoMass = false;
             //rigid3.Mass = 1;
+            Actor.Destroy(camera);
 
             camera.GetComponent<CameraFollow>().Target = actor3.Transform;
-            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Actor3");
+            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Floor");
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
             boxCollider.Size = new GlmNet.vec2(15, 1);
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             rigid4.BodyType = Body2DType.Kinematic;
             rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -4, 0);
-            rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 25);
-            actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+            rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 20);
+            actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>()?.Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;
             actor4.Transform.LocalScale = new GlmNet.vec3(15, 1, 1);

@@ -19,8 +19,8 @@ namespace Engine
 
         // Dirty flag and cached matrices
         private bool _isDirty = true;
-        private bool _changedThisFrame = false;
-        internal bool ChangedThisFrameTODO => _changedThisFrame;
+        internal event Action<Transform> OnChanged;
+
         private mat4 _cachedWorldMatrix = IdentityM;
         private vec3 _cachedWorldPosition = default;
         private quat _cachedWorldRotation = quat.Identity;
@@ -93,7 +93,7 @@ namespace Engine
                 return;
 
             _isDirty = true;
-            _changedThisFrame = true;
+            OnChanged?.Invoke(this);
             foreach (var child in _children)
             {
                 child.MarkDirty();

@@ -18,8 +18,11 @@ namespace Engine.Layers
 
         internal override void UpdateLayer()
         {
+
             SceneManager.ActiveScene.Update();
             SceneManager.ActiveScene.LateUpdate();
+            SceneManager.ActiveScene.DeletePending();
+
         }
     }
 }

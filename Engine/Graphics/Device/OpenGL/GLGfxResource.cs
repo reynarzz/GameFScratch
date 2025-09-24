@@ -99,11 +99,11 @@ namespace Engine.Graphics.OpenGL
 
         private void DestroyHandle()
         {
-            _handleDeleter(Handle);
+            _handleDeleter?.Invoke(Handle);
             Handle = 0;
         }
 
-        
+
         protected override void FreeResource()
         {
             if (IsInitialized)
@@ -115,7 +115,8 @@ namespace Engine.Graphics.OpenGL
 
         ~GLGfxResource()
         {
-            FreeResource();
+            // This triggers an error
+            // FreeResource();
         }
     }
 }

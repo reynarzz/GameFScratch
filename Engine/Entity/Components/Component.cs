@@ -9,7 +9,18 @@ namespace Engine
     public abstract class Component : EObject
     {
         public Actor Actor { get; internal set; }
-        public Transform Transform => Actor.Transform;
+        public Transform Transform
+        {
+            get
+            {
+                if (!IsValidObject(Actor))
+                {
+                    return null;
+                }
+
+                return Actor.Transform;
+            }
+        }
 
         private bool _isEnabled = true;
         public bool IsEnabled
@@ -41,16 +52,28 @@ namespace Engine
 
         public Component AddComponent(Type type)
         {
+            if (!IsValidObject(Actor))
+            {
+                return null;
+            }
             return Actor.AddComponent(type);
         }
 
         public T AddComponent<T>() where T : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return null;
+            }
             return Actor.AddComponent<T>();
         }
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return;
+            }
             Actor.AddComponent<T1, T2>();
         }
 
@@ -58,6 +81,10 @@ namespace Engine
                                                 where T2 : Component
                                                 where T3 : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return;
+            }
             Actor.AddComponent<T1, T2, T3>();
         }
 
@@ -66,6 +93,10 @@ namespace Engine
                                                     where T3 : Component
                                                     where T4 : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return;
+            }
             Actor.AddComponent<T1, T2, T3, T4>();
         }
 
@@ -75,20 +106,36 @@ namespace Engine
                                                         where T4 : Component
                                                         where T5 : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return;
+            }
             Actor.AddComponent<T1, T2, T3, T4, T5>();
         }
 
         public T GetComponent<T>() where T : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return null;
+            }
+
             return Actor.GetComponent<T>();
         }
 
         public T[] GetComponents<T>() where T : Component
         {
+            if (!IsValidObject(Actor))
+            {
+                return null;
+            }
+
             return Actor.GetComponents<T>();
         }
 
-        internal virtual void OnInitialize() 
+
+
+        internal virtual void OnInitialize()
         {
         }
     }

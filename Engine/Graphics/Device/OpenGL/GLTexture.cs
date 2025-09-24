@@ -13,7 +13,6 @@ namespace Engine.Graphics.OpenGL
         private int _slotBound = 0;
         public GLTexture() : base(glGenTexture, glDeleteTexture)
         {
-            
         }
 
         protected unsafe override bool CreateResource(TextureDescriptor descriptor)

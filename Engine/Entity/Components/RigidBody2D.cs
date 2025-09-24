@@ -31,6 +31,7 @@ namespace Engine
         private bool _isAutoMass = false;
         private float _userMassValue = 1.0f;
         private bool _isZRotationLocked = false;
+        private bool _shouldUpdatePreTransformation = false;
 
         private B2ShapeId _defaultShapeId;
 
@@ -120,7 +121,7 @@ namespace Engine
                 B2Bodies.b2Body_SetBullet(_bodyId, _isContinuos);
             }
         }
-
+        
         internal override void OnInitialize()
         {
             var worldPos = Transform.WorldPosition;
@@ -145,6 +146,8 @@ namespace Engine
                 collider.Create(_bodyId);
             }
 
+            Transform.OnChanged += OnTransformChanged;
+
             //B2ShapeDef shapeDef = default;
             //shapeDef.density = 1;
             //shapeDef.enableContactEvents = true;
@@ -161,8 +164,9 @@ namespace Engine
 
         internal void PreUpdateBody()
         {
-            if (Transform.ChangedThisFrameTODO)
+            if (_shouldUpdatePreTransformation)
             {
+                _shouldUpdatePreTransformation = false;
                 B2Bodies.b2Body_SetTransform(_bodyId, Transform.WorldPosition.ToB2Vec2(), Transform.WorldRotation.QuatToB2Rot());
             }
         }
@@ -220,11 +224,20 @@ namespace Engine
 
         }
 
-        internal void RemoveCollider(B2ShapeId shapeID)
+        private void OnTransformChanged(Transform transform)
         {
-
+            _shouldUpdatePreTransformation = true;
         }
 
+        internal void RemoveCollider(B2ShapeId shapeID)
+        {
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            Transform.OnChanged -= OnTransformChanged;
+        }
         
     }
 }

@@ -13,6 +13,8 @@ namespace Engine
         public Scene Scene { get; internal set; }
         public bool IsEnabled { get; internal set; } = true;
 
+        private List<Component> _pendingToDeleteComponents;
+
         public Actor() : this(string.Empty, string.Empty)
         {
         }
@@ -33,6 +35,7 @@ namespace Engine
             }
 
             _components = new List<Component>();
+            _pendingToDeleteComponents = new List<Component>();
             Transform = AddComponent<Transform>();
 
             Scene = SceneManager.ActiveScene;
@@ -125,8 +128,8 @@ namespace Engine
 
         private bool IsValidComponent(Type component)
         {
-            return component != null && 
-                   component.IsClass && 
+            return component != null &&
+                   component.IsClass &&
                    typeof(Component).IsAssignableFrom(component) &&
                    typeof(Component) != component;
 
@@ -134,18 +137,31 @@ namespace Engine
 
         public static void Destroy(Actor actor)
         {
-            if (actor == null || actor.IsAlive)
+            if (!actor || !actor.IsAlive || actor.IsPendingToDestroy)
             {
                 Console.WriteLine("Trying to destroy null or non alive actor.");
                 return;
             }
-            actor.IsAlive = false;
-            actor.Scene.RemoveActor(actor);
+
+            actor.IsPendingToDestroy = true;
         }
 
         public static void Destroy(Component component)
         {
-            if (component == null || component.IsAlive)
+            if (component && !component.IsPendingToDestroy)
+            {
+                component.IsPendingToDestroy = true;
+                component.Actor._pendingToDeleteComponents.Add(component);
+            }
+            else
+            {
+                Log.Info("Can't destroy and already destroyed component");
+            }
+        }
+
+        private static void DestroyComponentNoNotify(Component component)
+        {
+            if (!component || !component.IsAlive)
             {
                 Console.WriteLine("Trying to destroy null or non alive component.");
                 return;
@@ -162,7 +178,18 @@ namespace Engine
             {
                 if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
                 {
+#if DEBUG
+                    try
+                    {
+                        (comp as ScriptBehavior).OnUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+#else
                     (comp as ScriptBehavior).OnUpdate();
+#endif
                 }
             }
         }
@@ -173,7 +200,18 @@ namespace Engine
             {
                 if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
                 {
+#if DEBUG
+                    try
+                    {
+                        (comp as ScriptBehavior).OnLateUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+#else
                     (comp as ScriptBehavior).OnLateUpdate();
+#endif
                 }
             }
         }
@@ -184,8 +222,94 @@ namespace Engine
             {
                 if (comp as ScriptBehavior && comp.IsEnabled && comp.IsAlive)
                 {
+#if DEBUG
+                    try
+                    {
+                        (comp as ScriptBehavior).OnFixedUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+#else
                     (comp as ScriptBehavior).OnFixedUpdate();
+#endif
                 }
+            }
+        }
+
+        internal void DeletePending()
+        {
+            if (IsPendingToDestroy)
+            {
+                void OnDestroyEventNotify(Actor actor)
+                {
+                    // Notify children components
+                    for (int i = 0; i < actor.Transform.Children.Count; i++)
+                    {
+                        OnDestroyEventNotify(actor.Transform.Children[i].Actor);
+                    }
+
+                    // Notify own components
+                    for (int i = actor._components.Count - 1; i >= 0; i--)
+                    {
+#if DEBUG
+                        try
+                        {
+                            actor._components[i].OnDestroy();
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(e);
+                        }
+#else
+                        actor._components[i].OnDestroy();
+#endif
+                    }
+                }
+
+                void OnCleanUpChildren(Actor actor)
+                {
+                    for (int i = actor._components.Count - 1; i >= 0; i--)
+                    {
+                        DestroyComponentNoNotify(actor._components[i]);
+                    }
+
+                    for (int i = 0; i < actor.Transform.Children.Count; i++)
+                    {
+                        OnCleanUpChildren(actor.Transform.Children[i].Actor);
+                    }
+
+                    actor.IsAlive = false;
+                    actor.Scene.RemoveActor(actor);
+                    actor.Scene = null;
+                }
+
+                OnDestroyEventNotify(this);
+                OnCleanUpChildren(this);
+            }
+
+            if (_pendingToDeleteComponents.Count > 0)
+            {
+                for (int i = _pendingToDeleteComponents.Count - 1; i >= 0; --i)
+                {
+                    var component = _pendingToDeleteComponents[i];
+#if DEBUG
+                    try
+                    {
+                        component?.OnDestroy();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+#else
+                    component?.OnDestroy();
+#endif
+                    DestroyComponentNoNotify(component);
+                }
+
+                _pendingToDeleteComponents.Clear();
             }
         }
     }

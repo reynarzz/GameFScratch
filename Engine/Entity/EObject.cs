@@ -15,6 +15,7 @@ namespace Engine
         private Guid _guid;
 
         internal bool IsAlive { get; set; } = true;
+        internal bool IsPendingToDestroy { get; set; } = false;
 
         public EObject()
         {
@@ -49,7 +50,23 @@ namespace Engine
 
         public static implicit operator bool(EObject obj)
         {
-            return obj != null && obj.IsAlive && obj._guid != Guid.Empty;
+            return obj != null && obj.IsAlive && !obj.IsPendingToDestroy && obj._guid != Guid.Empty;
+        }
+
+        protected bool IsValidObject(EObject obj)
+        {
+            if (!obj)
+            {
+                Log.Error("Can't use already deleted object");
+                return false;
+            }
+
+            return true;
+        }
+
+        ~EObject()
+        {
+            Log.Info($"Destroyed object: ({GetType().Name}), name: {Name}");
         }
     }
 }
