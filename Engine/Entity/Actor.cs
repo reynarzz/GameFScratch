@@ -44,6 +44,11 @@ namespace Engine
 
         public Component AddComponent(Type type)
         {
+            if (!IsValidObject(this))
+            {
+                return null;
+            }
+
             if (!IsValidComponent(type))
             {
                 return default;
@@ -63,11 +68,19 @@ namespace Engine
 
         public T AddComponent<T>() where T : Component
         {
+            if (!IsValidObject(this))
+            {
+                return null;
+            }
             return AddComponent(typeof(T)) as T;
         }
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
         {
+            if (!IsValidObject(this))
+            {
+                return;
+            }
             AddComponent<T1>();
             AddComponent<T2>();
         }
@@ -76,6 +89,10 @@ namespace Engine
                                                 where T2 : Component
                                                 where T3 : Component
         {
+            if (!IsValidObject(this))
+            {
+                return;
+            }
             AddComponent<T1, T2>();
             AddComponent<T3>();
         }
@@ -85,6 +102,10 @@ namespace Engine
                                                     where T3 : Component
                                                     where T4 : Component
         {
+            if (!IsValidObject(this))
+            {
+                return;
+            }
             AddComponent<T1, T2, T3>();
             AddComponent<T4>();
         }
@@ -95,12 +116,20 @@ namespace Engine
                                                         where T4 : Component
                                                         where T5 : Component
         {
+            if (!IsValidObject(this))
+            {
+                return;
+            }
             AddComponent<T1, T2, T3, T4>();
             AddComponent<T5>();
         }
 
         public T GetComponent<T>() where T : Component
         {
+            if (!IsValidObject(this))
+            {
+                return null;
+            }
             for (int i = 0; i < _components.Count; i++)
             {
                 if (typeof(T).IsAssignableFrom(_components[i].GetType()))
@@ -114,6 +143,10 @@ namespace Engine
 
         public T[] GetComponents<T>() where T : Component
         {
+            if (!IsValidObject(this))
+            {
+                return null;
+            }
             var components = new List<T>();
             for (int i = 0; i < _components.Count; i++)
             {
@@ -137,9 +170,9 @@ namespace Engine
 
         public static void Destroy(Actor actor)
         {
-            if (!actor || !actor.IsAlive || actor.IsPendingToDestroy)
+            if (actor == null || !actor.IsAlive || actor.IsPendingToDestroy)
             {
-                Console.WriteLine("Trying to destroy null or non alive actor.");
+                Console.WriteLine("Can't destroy invalid actor.");
                 return;
             }
 
@@ -161,9 +194,9 @@ namespace Engine
 
         private static void DestroyComponentNoNotify(Component component)
         {
-            if (!component || !component.IsAlive)
+            if (component == null || !component.IsAlive)
             {
-                Console.WriteLine("Trying to destroy null or non alive component.");
+                Log.Error($"Can't destroy and already destroyed component. {component.GetType().Name}");
                 return;
             }
 
@@ -297,14 +330,20 @@ namespace Engine
 #if DEBUG
                     try
                     {
-                        component?.OnDestroy();
+                        if (component)
+                        {
+                            component.OnDestroy();
+                        }
                     }
                     catch (Exception e)
                     {
                         Log.Error(e);
                     }
 #else
-                    component?.OnDestroy();
+                    if (component)
+                    {
+                        component.OnDestroy();
+                    }
 #endif
                     DestroyComponentNoNotify(component);
                 }

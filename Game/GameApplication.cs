@@ -121,7 +121,7 @@ namespace Game
             rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
             rigid3.IsAutoMass = false;
             //rigid3.Mass = 1;
-            Actor.Destroy(camera);
+            // Actor.Destroy(camera);
 
             camera.GetComponent<CameraFollow>().Target = actor3.Transform;
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Floor");

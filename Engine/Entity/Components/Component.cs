@@ -52,7 +52,7 @@ namespace Engine
 
         public Component AddComponent(Type type)
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return null;
             }
@@ -61,7 +61,7 @@ namespace Engine
 
         public T AddComponent<T>() where T : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return null;
             }
@@ -70,7 +70,7 @@ namespace Engine
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return;
             }
@@ -81,7 +81,7 @@ namespace Engine
                                                 where T2 : Component
                                                 where T3 : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return;
             }
@@ -93,7 +93,7 @@ namespace Engine
                                                     where T3 : Component
                                                     where T4 : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return;
             }
@@ -106,7 +106,7 @@ namespace Engine
                                                         where T4 : Component
                                                         where T5 : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return;
             }
@@ -115,7 +115,7 @@ namespace Engine
 
         public T GetComponent<T>() where T : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return null;
             }
@@ -125,7 +125,7 @@ namespace Engine
 
         public T[] GetComponents<T>() where T : Component
         {
-            if (!IsValidObject(Actor))
+            if (!IsValidObject(Actor) || !IsValidObject(this))
             {
                 return null;
             }

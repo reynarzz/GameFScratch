@@ -20,9 +20,20 @@ namespace Engine.Layers
 
         internal void Initialize()
         {
-            for (int i = _layers.Length-1; i >= 0; i--)
+            for (int i = _layers.Length - 1; i >= 0; i--)
             {
+#if DEBUG
+                try
+                {
+                    _layers[i].Initialize();
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+#else
                 _layers[i].Initialize();
+#endif
             }
         }
 
@@ -34,7 +45,7 @@ namespace Engine.Layers
             }
         }
 
-        internal void PublishEvent(LayerEvent currentEvent) 
+        internal void PublishEvent(LayerEvent currentEvent)
         {
             for (int i = 0; i < _layers.Length; i++)
             {

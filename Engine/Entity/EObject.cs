@@ -57,7 +57,16 @@ namespace Engine
         {
             if (!obj)
             {
-                Log.Error("Can't use already deleted object");
+#if DEBUG
+                try
+                {
+                    Log.Error($"Can't use already deleted object: {obj.GetType().Name}");
+                }
+                catch (Exception)
+                {
+                    Log.Error($"Can't use already deleted object");
+                }
+#endif
                 return false;
             }
 
