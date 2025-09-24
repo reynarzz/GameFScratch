@@ -21,7 +21,5 @@ namespace Engine
         {
             return _tex[index];
         }
-
-        
     }
 }

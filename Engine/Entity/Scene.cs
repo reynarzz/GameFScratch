@@ -56,9 +56,8 @@ namespace Engine
 
         internal void AddActor(Actor actor)
         {
-            // explicitly add a new root actor
             actor.Scene = this;
-            actor.Transform.Parent = null; // ensures it’s root
+            actor.Transform.Parent = null; 
             RegisterRootActor(actor);
         }
 

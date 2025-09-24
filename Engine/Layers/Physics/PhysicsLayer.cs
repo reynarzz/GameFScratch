@@ -72,6 +72,8 @@ namespace Engine.Layers
 
             //B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
             //B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
+            
+            B2Worlds.b2World_SetCustomFilterCallback(PhysicWorld.WorldID, CustomFilter, null);
 
             B2QueryFilter castFilter = default;
             castFilter.categoryBits = 0;
@@ -91,6 +93,14 @@ namespace Engine.Layers
 
 
             return fraction; // Stop at the first hit
+        }
+
+        private bool CustomFilter(B2ShapeId shapeIdA, B2ShapeId shapeIdB, object context)
+        {
+            B2Shapes.b2Shape_GetUserData(shapeIdA);
+            B2Shapes.b2Shape_GetUserData(shapeIdB);
+
+            return false;
         }
 
         private bool _isContactReached = false;

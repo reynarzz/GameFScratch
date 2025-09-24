@@ -54,9 +54,8 @@ namespace Game
         }}";
 
         // TODO:
-        // Adjust transform's isDirty flag, so its value can last the whole frame. (.ChangedThisFrameTODO)
-        // Implement layerMask
         // Implement physics: collision functions (OnCollisionEnter2D, OnTriggerEnter2D, etc...)
+        // Implement layerMask
         // Implement physics: raycast, boxcast, circle cast.
 
         public override void Initialize()
@@ -108,7 +107,7 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest>("Player");
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
@@ -127,18 +126,27 @@ namespace Game
             {
                 camera.GetComponent<CameraFollow>().Target = actor3.Transform;
             }
-            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Floor");
-            var boxCollider = actor4.GetComponent<BoxCollider2D>();
-            boxCollider.Size = new GlmNet.vec2(15, 1);
+
+
+            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PolygonCollider2D>("Floor");
+
+
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
+            var boxCollider = actor4.GetComponent<BoxCollider2D>();
+
+            // For some reason kinematic body fall here,  if I put Size above, it works normal 
             rigid4.BodyType = Body2DType.Kinematic;
+
+            boxCollider.Size = new GlmNet.vec2(15, 1); // What size do that affect the body type?
+
             rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -4, 0);
             rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 20);
+            actor4.Transform.LocalScale = new GlmNet.vec3(15, 1, 1);
+
             actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>()?.Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;
-            actor4.Transform.LocalScale = new GlmNet.vec3(15, 1, 1);
 
             Log.Success("Game Layer");
         }

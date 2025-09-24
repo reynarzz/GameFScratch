@@ -76,7 +76,7 @@ namespace Engine
             get => _userMassValue;
             set
             {
-                if (_isAutoMass)
+                if (_isAutoMass || _bodyType != Body2DType.Dynamic)
                     return;
 
                 _userMassValue = value;
@@ -104,7 +104,7 @@ namespace Engine
             get => _bodyType;
             set
             {
-                if (_bodyType == value) return;
+               // if (_bodyType == value) return;
                 _bodyType = value;
 
                 B2Bodies.b2Body_SetType(_bodyId, (B2BodyType)_bodyType);
@@ -136,7 +136,8 @@ namespace Engine
             bodyDef.isAwake = true;
             bodyDef.isEnabled = true;
             bodyDef.gravityScale = 1;
-            
+            bodyDef.enableSleep = false;
+
             _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
 
             var colliders = GetComponents<Collider2D>();
@@ -221,7 +222,6 @@ namespace Engine
         {
             collider.Create(_bodyId);
             Mass = _userMassValue;
-
         }
 
         private void OnTransformChanged(Transform transform)

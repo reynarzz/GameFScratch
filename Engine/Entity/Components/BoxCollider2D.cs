@@ -34,6 +34,15 @@ namespace Engine
             }
         }
 
+        internal override void OnInitialize()
+        {
+            // TODO: instead of using the scale, use the bounds of the sprite
+            var scale = Transform.WorldScale;
+            _size = new vec2(scale.x, scale.y);
+
+            base.OnInitialize();
+        }
+
         protected override B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
             B2Polygon polygon = default;

@@ -72,10 +72,11 @@ namespace Engine
 
             return true;
         }
-
+#if DEBUG
         ~EObject()
         {
             Log.Info($"Destroyed object: ({GetType().Name}), name: {Name}");
         }
+#endif
     }
 }
