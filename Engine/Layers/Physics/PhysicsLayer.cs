@@ -127,8 +127,6 @@ namespace Engine.Layers
                 }
             }
 
-            
-
             foreach (var rigidbody in rigidBodies)
             {
                 rigidbody.PostUpdateBody();

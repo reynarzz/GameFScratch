@@ -161,7 +161,7 @@ namespace Engine
 
         internal void PreUpdateBody()
         {
-            if (Transform.IsDirty)
+            if (Transform.ChangedThisFrameTODO)
             {
                 B2Bodies.b2Body_SetTransform(_bodyId, Transform.WorldPosition.ToB2Vec2(), Transform.WorldRotation.QuatToB2Rot());
             }

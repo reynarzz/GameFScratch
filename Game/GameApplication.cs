@@ -53,6 +53,9 @@ namespace Game
             fragColor = texture(uTextures[fragTexIndex], vUV) * vColor;
         }}";
 
+        // TODO:
+        // Adjust transform's isDirty flag, so its value can last the whole frame. (.ChangedThisFrameTODO)
+
 
         public override void Initialize()
         {
@@ -83,7 +86,8 @@ namespace Game
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
 
-            var actor = new Actor<SpriteRenderer, RotateTest>("Actor1");
+            var actor = new Actor<SpriteRenderer, RotateTest, RigidBody2D, BoxCollider2D>("Actor1");
+            actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
             actor.GetComponent<SpriteRenderer>().SortOrder = 2;
