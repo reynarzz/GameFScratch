@@ -104,11 +104,13 @@ namespace Engine.Layers
             // var deltaTime = 0.0036f; //Time.DeltaTime;
             var deltaTime = Time.DeltaTime;
             accumulator += deltaTime; // time since last frame
+            accumulator = Math.Min(accumulator, 0.25f); // prevent spiral
+
             var scripts = SceneManager.ActiveScene.FindAll<ScriptBehavior>();
 
             while (accumulator >= fixedTimeStep)
             {
-                B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 1);
+                B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
                 accumulator -= fixedTimeStep;
 
                 foreach (var script in scripts)

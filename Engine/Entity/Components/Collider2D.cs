@@ -59,22 +59,20 @@ namespace Engine
         {
             _rigid = GetComponent<RigidBody2D>();
 
-            _shapeDef = B2Types.b2DefaultShapeDef();
-            _shapeDef.userData = _rigid;
             _shapeDef = new B2ShapeDef()
             {
-                enableContactEvents = true,
-                enableSensorEvents = false,
-                enableHitEvents = true,
-                updateBodyMass = true,
-                material = new B2SurfaceMaterial() {  friction = 0.6f },
-                enablePreSolveEvents = false,
+                //enableContactEvents = true,
+                //enableSensorEvents = false,
+                //enableHitEvents = true,
+                // enablePreSolveEvents = false,
                 invokeContactCreation = true,
                 isSensor = false,
                 density = 1,
+                updateBodyMass = true,
+                material = new B2SurfaceMaterial() {  friction = 0.2f },
                 filter = B2Types.b2DefaultFilter(),
-                userData = _rigid,
-                internalValue = 1152023
+                internalValue = B2Constants.B2_SECRET_COOKIE,
+                userData = _rigid
             };
 
             _rigid?.AddCollider(this);
@@ -107,5 +105,15 @@ namespace Engine
                 ShapeID = InvalidShapeID;
             }
         }
+
+        
+        public float Friction 
+        { 
+            get => B2Shapes.b2Shape_GetFriction(ShapeID);
+            set
+            {
+                B2Shapes.b2Shape_SetFriction(ShapeID, value);
+            }
+        }         
     }
 }

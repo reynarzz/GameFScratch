@@ -59,7 +59,14 @@ namespace Engine
             set
             {
                 _isAutoMass = value;
-                Mass = _userMassValue;
+                if (_isAutoMass)
+                {
+                    B2Bodies.b2Body_ApplyMassFromShapes(_bodyId);
+                }
+                else
+                {
+                    Mass = _userMassValue;
+                }
             }
         }
 
@@ -68,7 +75,7 @@ namespace Engine
             get => _userMassValue;
             set
             {
-                if (!_isAutoMass)
+                if (_isAutoMass)
                     return;
 
                 _userMassValue = value;
@@ -146,7 +153,7 @@ namespace Engine
             var worldPos = Transform.WorldPosition;
             var worldRot = Transform.WorldRotation;
 
-            B2BodyDef bodyDef = default;
+            var bodyDef = B2Types.b2DefaultBodyDef();
             bodyDef.type = (B2BodyType)_bodyType;
             bodyDef.position = new B2Vec2(worldPos.x, worldPos.y);
             bodyDef.rotation = worldRot.QuatToB2Rot();
@@ -155,10 +162,9 @@ namespace Engine
             bodyDef.isAwake = true;
             bodyDef.isEnabled = true;
             bodyDef.gravityScale = 1;
-            bodyDef.internalValue = 1152023;
 
             _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
-
+            
             var colliders = GetComponents<Collider2D>();
             foreach (var collider in colliders)
             {

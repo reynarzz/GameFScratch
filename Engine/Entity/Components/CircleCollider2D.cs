@@ -10,7 +10,7 @@ namespace Engine
 {
     public class CircleCollider2D : Collider2D
     {
-        private float _radius = 1;
+        private float _radius = 1.0f;
         public float Radius
         {
             get => _radius;
@@ -29,10 +29,7 @@ namespace Engine
                 radius = _radius
             };
 
-            var shape = B2Shapes.b2CreateCircleShape(bodyId, ref shapeDef, ref circle);
-            B2Shapes.b2Shape_SetCircle(shape, ref circle);
-
-            return shape;
+            return B2Shapes.b2CreateCircleShape(bodyId, ref shapeDef, ref circle);
         }
     }
 }
