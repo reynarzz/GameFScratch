@@ -93,12 +93,13 @@ namespace Game
 
             // (int i = 0; i < 33; i++)
             {
-                var actor2 = new Actor<SpriteRenderer>("Actor2");
+                var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Actor2");
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+                actor2.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
                 //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
                 actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
                 actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
-                //actor2.Transform.Parent = actor.Transform;
+                actor2.Transform.Parent = actor.Transform;
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
@@ -109,11 +110,10 @@ namespace Game
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
 
-            rigid3.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            rigid3.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
+            rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
+            rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
             rigid3.IsAutoMass = false;
             //rigid3.Mass = 1;
-
 
             camera.GetComponent<CameraFollow>().Target = actor3.Transform;
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Actor3");
@@ -122,8 +122,8 @@ namespace Game
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             rigid4.BodyType = Body2DType.Kinematic;
-            rigid4.WorldPosition = new GlmNet.vec3(0, -4, 0);
-            rigid4.WorldEulerAngles = new GlmNet.vec3(0, 0, 25);
+            rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -4, 0);
+            rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 25);
             actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;

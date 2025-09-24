@@ -108,6 +108,14 @@ namespace Engine.Layers
 
             var scripts = SceneManager.ActiveScene.FindAll<ScriptBehavior>();
 
+            // TODO: refactor, this is for fast protoyping
+            var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>();
+
+            foreach (var rigidbody in rigidBodies)
+            {
+                rigidbody.PreUpdateBody();
+            }
+
             while (accumulator >= fixedTimeStep)
             {
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
@@ -119,12 +127,11 @@ namespace Engine.Layers
                 }
             }
 
-            // TODO: refactor, this is for fast protoyping
-            var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>();
+            
 
             foreach (var rigidbody in rigidBodies)
             {
-                rigidbody.UpdateBody();
+                rigidbody.PostUpdateBody();
             }
 
             B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);

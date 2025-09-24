@@ -89,6 +89,11 @@ namespace Engine.Utils
             return new B2Vec2(vec.x, vec.y);
         }
 
+        internal static B2Vec2 ToB2Vec2(this vec3 vec)
+        {
+            return new B2Vec2(vec.x, vec.y);
+        }
+
         internal static B2Rot ToB2Rot(this float angleRadians)
         {
             return new B2Rot(MathF.Cos(angleRadians), MathF.Sin(angleRadians));

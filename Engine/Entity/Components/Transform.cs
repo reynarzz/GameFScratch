@@ -19,6 +19,8 @@ namespace Engine
 
         // Dirty flag and cached matrices
         private bool _isDirty = true;
+        internal bool IsDirty => _isDirty;
+
         private mat4 _cachedWorldMatrix = IdentityM;
         private vec3 _cachedWorldPosition = default;
         private quat _cachedWorldRotation = quat.Identity;

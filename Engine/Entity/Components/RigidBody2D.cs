@@ -121,33 +121,6 @@ namespace Engine
             }
         }
 
-        public vec3 WorldEulerAngles 
-        {
-            get => Transform.WorldEulerAngles;
-            set 
-            {
-                B2Bodies.b2Body_SetTransform(_bodyId, B2Bodies.b2Body_GetPosition(_bodyId), glm.radians(value.z).ToB2Rot());
-            } 
-        }
-
-        public quat WorldRotation
-        {
-            get => Transform.WorldRotation;
-            set
-            {
-                B2Bodies.b2Body_SetTransform(_bodyId, B2Bodies.b2Body_GetPosition(_bodyId), value.QuatToB2Rot());
-            }
-        }
-
-        public vec3 WorldPosition
-        {
-            get => Transform.WorldPosition;
-            set
-            {
-                B2Bodies.b2Body_SetTransform(_bodyId, new B2Vec2(value.x, value.y), B2Bodies.b2Body_GetRotation(_bodyId));
-            }
-        }
-
         internal override void OnInitialize()
         {
             var worldPos = Transform.WorldPosition;
@@ -186,7 +159,15 @@ namespace Engine
             //_defaultShapeId = B2Shapes.b2CreatePolygonShape(_bodyId, ref shapeDef, ref defSquare);
         }
 
-        internal void UpdateBody()
+        internal void PreUpdateBody()
+        {
+            if (Transform.IsDirty)
+            {
+                B2Bodies.b2Body_SetTransform(_bodyId, Transform.WorldPosition.ToB2Vec2(), Transform.WorldRotation.QuatToB2Rot());
+            }
+        }
+
+        internal void PostUpdateBody()
         {
             var position = B2Bodies.b2Body_GetPosition(_bodyId);
 
@@ -243,5 +224,7 @@ namespace Engine
         {
 
         }
+
+        
     }
 }
