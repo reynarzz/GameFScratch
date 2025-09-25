@@ -259,12 +259,12 @@ namespace Engine
 
         internal void Awake()
         {
-            UpdateScriptBeginEvent(_onAwakeComponents, _awakeAction);
+            UpdateScriptBeginEvent(this, actor => actor._onAwakeComponents, _awakeAction);
         }
 
         internal void Start()
         {
-            UpdateScriptBeginEvent(_onStartComponents, _startAction);
+            UpdateScriptBeginEvent(this, actor => actor._onStartComponents, _startAction);
         }
 
         public void Update()
@@ -282,15 +282,42 @@ namespace Engine
             UpdateScriptsFunction(this, _fixedUpdateAction);
         }
 
-        private void UpdateScriptBeginEvent(List<Component> components, Action<ScriptBehavior> action)
+        private void UpdateScriptBeginEvent(Actor actor, Func<Actor, List<Component>> getPendingComponents,
+                                                         Action<ScriptBehavior> action)
         {
-            for (int i = components.Count - 1; i >= 0; --i)
+            if (actor && actor.IsEnabled)
             {
-                var component = components[i] as ScriptBehavior;
-                if (component && component.IsEnabled)
+                var components = getPendingComponents(actor);
+                var toDelete = new List<Component>();
+
+                for (int i = 0; i < components.Count; ++i)
                 {
-                    action(component);
-                    components.Remove(component);
+                    if (components[i] is ScriptBehavior component && component && component.IsEnabled)
+                    {
+#if DEBUG
+                        try
+                        {
+                            action(component);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(e);
+                        }
+#else
+                        action(component);
+#endif
+                        toDelete.Add(component);
+                    }
+                }
+
+                for (int i = 0; i < toDelete.Count; i++)
+                {
+                    components.Remove(toDelete[i]);
+                }
+
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    UpdateScriptBeginEvent(actor.Transform.Children[i].Actor, getPendingComponents, action);
                 }
             }
         }
@@ -301,8 +328,7 @@ namespace Engine
             {
                 foreach (var comp in actor._components)
                 {
-                    var script = comp as ScriptBehavior;
-                    if (script && script.IsEnabled && script)
+                    if (comp is ScriptBehavior script && script && script.IsEnabled)
                     {
 #if DEBUG
                         try

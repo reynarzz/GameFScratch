@@ -13,7 +13,7 @@ namespace Game
 
         public override void OnStart()
         {
-            Log.Info("Rotate: " + Name);    
+            Log.Info("Start Rotate: " + Name);    
         }
 
         public override void OnUpdate()
