@@ -15,6 +15,6 @@ namespace Engine
         public Material Material { get; set; }
         public Mesh Mesh { get; set; }
 
-        internal abstract void Initialize();
+        internal virtual void Initialize() { }
     }
 }

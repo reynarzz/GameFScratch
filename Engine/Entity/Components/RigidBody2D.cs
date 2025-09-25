@@ -41,6 +41,24 @@ namespace Engine
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
 
+        public override bool IsEnabled
+        {
+            get => base.IsEnabled;
+            set
+            {
+                if (value)
+                {
+                    B2Bodies.b2Body_Enable(_bodyId);
+                }
+                else
+                {
+                    B2Bodies.b2Body_Disable(_bodyId);
+                }
+
+                base.IsEnabled = value;
+            }
+        }
+
         public bool CanSleep
         {
             get => _canSleep;
@@ -104,7 +122,7 @@ namespace Engine
             get => _bodyType;
             set
             {
-               // if (_bodyType == value) return;
+                // if (_bodyType == value) return;
                 _bodyType = value;
 
                 B2Bodies.b2Body_SetType(_bodyId, (B2BodyType)_bodyType);
@@ -121,7 +139,7 @@ namespace Engine
                 B2Bodies.b2Body_SetBullet(_bodyId, _isContinuos);
             }
         }
-        
+
         internal override void OnInitialize()
         {
             var worldPos = Transform.WorldPosition;
@@ -238,6 +256,6 @@ namespace Engine
             base.OnDestroy();
             Transform.OnChanged -= OnTransformChanged;
         }
-        
+
     }
 }

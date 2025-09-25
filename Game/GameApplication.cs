@@ -99,9 +99,10 @@ namespace Game
 
             // (int i = 0; i < 33; i++)
             {
-                var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D>("Actor2");
+                var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, RotateTest>("RotatedQuad");
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
                 actor2.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
+                
                 //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
                 actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
                 actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);

@@ -33,7 +33,7 @@ namespace Engine.Layers
         {
             if (!_mainCamera)
             {
-                _mainCamera = SceneManager.ActiveScene.FindComponent<Camera>();
+                _mainCamera = SceneManager.ActiveScene.FindComponent<Camera>(addDisabled: false);
             }
 
             if (!_mainCamera || !_mainCamera.IsEnabled)
@@ -46,7 +46,7 @@ namespace Engine.Layers
             // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
 
-            var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>());
+            var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>(addDisabled: false));
 
             var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
 

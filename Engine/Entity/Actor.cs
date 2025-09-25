@@ -12,6 +12,7 @@ namespace Engine
         public Transform Transform { get; private set; }
         public Scene Scene { get; internal set; }
         public bool IsEnabled { get; internal set; } = true;
+        public string Tag { get; set; }
 
         private List<Component> _pendingToDeleteComponents;
 
@@ -22,7 +23,7 @@ namespace Engine
         private static readonly Action<ScriptBehavior> _updateAction = x => x.OnUpdate();
         private static readonly Action<ScriptBehavior> _lateUpdateAction = x => x.OnLateUpdate();
         private static readonly Action<ScriptBehavior> _fixedUpdateAction = x => x.OnFixedUpdate();
-   
+
 
         public Actor() : this(string.Empty, string.Empty)
         {
@@ -230,6 +231,16 @@ namespace Engine
             }
         }
 
+        public static IReadOnlyList<Actor> FindAllByTag(string tag)
+        {
+            return SceneManager.ActiveScene.FindActorsByTag(tag);
+        }
+
+        public static IReadOnlyList<T> FindAllByType<T>(bool findDisabled = false) where T : Component
+        {
+            return SceneManager.ActiveScene.FindAll<T>(findDisabled);
+        }
+
         private static void DestroyComponentNoNotify(Component component)
         {
             if (component == null || !component.IsAlive)
@@ -258,17 +269,17 @@ namespace Engine
 
         public void Update()
         {
-            UpdateScriptsFunction(_updateAction);
+            UpdateScriptsFunction(this, _updateAction);
         }
 
         internal void LateUpdate()
         {
-            UpdateScriptsFunction(_lateUpdateAction);
+            UpdateScriptsFunction(this, _lateUpdateAction);
         }
 
         internal void FixedUpdate()
         {
-            UpdateScriptsFunction(_fixedUpdateAction);
+            UpdateScriptsFunction(this, _fixedUpdateAction);
         }
 
         private void UpdateScriptBeginEvent(List<Component> components, Action<ScriptBehavior> action)
@@ -283,33 +294,42 @@ namespace Engine
                 }
             }
         }
-        private void UpdateScriptsFunction(Action<ScriptBehavior> action)
+
+        private void UpdateScriptsFunction(Actor actor, Action<ScriptBehavior> action)
         {
-            foreach (var comp in _components)
+            if (actor && actor.IsEnabled)
             {
-                var script = comp as ScriptBehavior;
-                if (script && script.IsEnabled && script)
+                foreach (var comp in actor._components)
                 {
+                    var script = comp as ScriptBehavior;
+                    if (script && script.IsEnabled && script)
+                    {
 #if DEBUG
-                    try
-                    {
-                        action(script);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
+                        try
+                        {
+                            action(script);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(e);
+                        }
 #else
-                    action(script);
+                        action(script);
 #endif
+                    }
+                }
+
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    UpdateScriptsFunction(actor.Transform.Children[i].Actor, action);
                 }
             }
         }
 
         public static Actor Find(string name)
         {
-            return SceneManager.ActiveScene.FindActor(name);
-        } 
+            return SceneManager.ActiveScene.FindActorByName(name);
+        }
 
         internal bool Contains(Component component)
         {

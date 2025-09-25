@@ -483,32 +483,63 @@ namespace Engine.Utils.Polygon
 
         public int GetNumberSubPolys() => subPolygons.Count;
 
-        //public void ReturnLowestLevelPolys(List<ConcavePolygon> returnArr)
-        //{
-        //    if (subPolygons.Count > 0)
-        //    {
-        //        subPolygons[0].ReturnLowestLevelPolys(returnArr);
-        //        subPolygons[1].ReturnLowestLevelPolys(returnArr);
-        //    }
-        //    else
-        //        returnArr.Add(this);
-        //}
-
-
-        public void ReturnLowestLevelPolys(List<ConcavePolygon> returnArr)
+        public void ReturnLowestLevelPolys(List<ConcavePolygon> returnArr, int maxVertices)
         {
             if (subPolygons.Count == 0)
             {
-                returnArr.Add(this);
+                if (vertices.Count <= maxVertices)
+                {
+                    returnArr.Add(this);
+                }
+                else
+                {
+                    // Split this convex polygon into smaller convex parts
+                    SplitConvexPolygonByMaxVertices(returnArr, maxVertices);
+                }
             }
             else
             {
                 foreach (var sub in subPolygons)
                 {
-                    sub.ReturnLowestLevelPolys(returnArr);
+                    sub.ReturnLowestLevelPolys(returnArr, maxVertices);
                 }
             }
         }
+
+        private void SplitConvexPolygonByMaxVertices(List<ConcavePolygon> returnArr, int maxVertices)
+        {
+            if (vertices.Count <= maxVertices)
+            {
+                returnArr.Add(this);
+                return;
+            }
+
+            // Take the first vertex as a “fan” pivot
+            PVertex pivot = vertices[0];
+
+            // Start at 1 because pivot is 0
+            for (int i = 1; i < vertices.Count - 1;)
+            {
+                // Determine how many vertices we can add to this sub-polygon
+                int remaining = vertices.Count - i;
+                int take = Math.Min(maxVertices - 1, remaining); // -1 because pivot counts once
+
+                // Collect vertices for the subpolygon (pivot + slice of the fan)
+                List<PVertex> subVerts = new List<PVertex>();
+                subVerts.Add(pivot);
+
+                for (int j = 0; j < take; j++)
+                {
+                    subVerts.Add(vertices[i + j]);
+                }
+
+                returnArr.Add(new ConcavePolygon(subVerts));
+
+                // Advance by take - 1 so next subpolygon overlaps by one vertex (to stay connected)
+                i += take - 1;
+            }
+        }
+
         public void Reset()
         {
             if (subPolygons.Count > 0)

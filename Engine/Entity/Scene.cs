@@ -13,9 +13,23 @@ namespace Engine
             T Invoke(Actor actor, TComparer comparer);
         }
 
-        private struct ComponentMatcher<T> : IMatcher<T, object> where T : Component
+        private struct ComponentMatcher<T> : IMatcher<T, bool> where T : Component
         {
-            public T Invoke(Actor actor, object comparer) => actor.GetComponent<T>();
+            public T Invoke(Actor actor, bool canAddDisabled)
+            {
+                var comp = actor.GetComponent<T>();
+
+                if (canAddDisabled)
+                {
+                    return comp;
+                }
+                else if (comp && comp.IsEnabled)
+                {
+                    return comp;
+                }
+
+                return null;
+            }
         }
 
         public struct ActorMatcher : IMatcher<Actor, string>
@@ -23,6 +37,18 @@ namespace Engine
             public Actor Invoke(Actor actor, string comparer)
             {
                 if (actor.Name.Equals(comparer))
+                {
+                    return actor;
+                }
+                return null;
+            }
+        }
+
+        public struct ActorTagMatcher : IMatcher<Actor, string>
+        {
+            public Actor Invoke(Actor actor, string comparer)
+            {
+                if (actor.Tag.Equals(comparer))
                 {
                     return actor;
                 }
@@ -57,7 +83,7 @@ namespace Engine
         internal void AddActor(Actor actor)
         {
             actor.Scene = this;
-            actor.Transform.Parent = null; 
+            actor.Transform.Parent = null;
             RegisterRootActor(actor);
         }
 
@@ -73,12 +99,27 @@ namespace Engine
             }
         }
 
-        internal List<T> FindAll<T>() where T: Component
+        internal IReadOnlyList<Actor> FindActorsByTag(string tag)
         {
-            return FindAll<T, ComponentMatcher<T>, object>(null);
+            return FindAll<Actor, ActorTagMatcher, string>(tag);
         }
 
-        private List<T> FindAll<T, TMatcher, TComparer>(TComparer comparer) where T : EObject 
+        internal T FindComponent<T>(bool addDisabled) where T : Component
+        {
+            return Find<T, ComponentMatcher<T>, bool>(addDisabled);
+        }
+
+        internal Actor FindActorByName(string name)
+        {
+            return Find<Actor, ActorMatcher, string>(name);
+        }
+
+        internal List<T> FindAll<T>(bool addDisabled) where T : Component
+        {
+            return FindAll<T, ComponentMatcher<T>, bool>(addDisabled);
+        }
+
+        private List<T> FindAll<T, TMatcher, TComparer>(TComparer comparer) where T : EObject
                                                                             where TMatcher : struct, IMatcher<T, TComparer>
         {
             var list = new List<T>();
@@ -107,17 +148,8 @@ namespace Engine
             return list;
         }
 
-        internal T FindComponent<T>() where T : Component
-        {
-            return Find<T, ComponentMatcher<T>, object>(null);
-        }
 
-        internal Actor FindActor(string name)
-        {
-            return Find<Actor, ActorMatcher, string>(name);
-        }
-
-        internal T Find<T, TMatcher, IComparer>(IComparer comparer) where TMatcher : struct, IMatcher<T, IComparer> 
+        internal T Find<T, TMatcher, IComparer>(IComparer comparer) where TMatcher : struct, IMatcher<T, IComparer>
                                                                     where T : EObject
         {
             var matcher = default(TMatcher);
@@ -161,7 +193,9 @@ namespace Engine
         {
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                _rootActors[i].Awake();
+                var actor = _rootActors[i];
+                if (actor.IsEnabled)
+                    actor.Awake();
             }
         }
 
@@ -169,7 +203,9 @@ namespace Engine
         {
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                _rootActors[i].Start();
+                var actor = _rootActors[i];
+                if (actor.IsEnabled)
+                    actor.Start();
             }
         }
 
@@ -177,7 +213,9 @@ namespace Engine
         {
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                _rootActors[i].Update();
+                var actor = _rootActors[i];
+                if (actor.IsEnabled)
+                    actor.Update();
             }
         }
 
@@ -185,7 +223,9 @@ namespace Engine
         {
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                _rootActors[i].LateUpdate();
+                var actor = _rootActors[i];
+                if (actor.IsEnabled)
+                    actor.LateUpdate();
             }
         }
 
@@ -193,7 +233,9 @@ namespace Engine
         {
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                _rootActors[i].FixedUpdate();
+                var actor = _rootActors[i];
+                if (actor.IsEnabled)
+                    actor.FixedUpdate();
             }
         }
 

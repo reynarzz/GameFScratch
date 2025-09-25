@@ -11,6 +11,11 @@ namespace Game
     {
         float angle = 0;
 
+        public override void OnStart()
+        {
+            Log.Info("Rotate: " + Name);    
+        }
+
         public override void OnUpdate()
         {
             angle += Time.DeltaTime * 50;

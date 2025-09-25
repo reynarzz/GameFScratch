@@ -12,19 +12,22 @@ namespace Game
         public override void OnAwake()
         {
             Log.Info("Awake");
+            //new Actor<RotateTest>();
+
         }
         public override void OnStart()
         {
             Log.Info("Start");
-            new Actor<RotateTest>();
+            //new Actor<RotateTest>();
         }
 
         public override void OnUpdate()
         {
             GetComponent<RigidBody2D>().IsContinuos = true;
-      
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(GetComponent<RigidBody2D>().Velocity.x, 0);
                 GetComponent<RigidBody2D>()?.AddForce(new GlmNet.vec2(0, 4), ForceMode2D.Impulse);
             }
 
@@ -36,7 +39,7 @@ namespace Game
             {
                 GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(1, GetComponent<RigidBody2D>().Velocity.y);
             }
-            else 
+            else
             {
             }
         }

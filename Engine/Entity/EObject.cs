@@ -8,7 +8,7 @@ namespace Engine
 {
     public abstract class EObject
     {
-        public string Name { get; set; }
+        public virtual string Name { get; set; } = DefaultObjectName;
 
         private const string DefaultObjectName = "Object";
 
@@ -19,7 +19,6 @@ namespace Engine
 
         public EObject()
         {
-            Name = DefaultObjectName;
             _guid = Guid.NewGuid();
         }
 

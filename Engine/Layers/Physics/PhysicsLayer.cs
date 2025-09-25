@@ -116,10 +116,10 @@ namespace Engine.Layers
             accumulator += deltaTime; // time since last frame
             accumulator = Math.Min(accumulator, 0.25f); // prevent spiral
 
-            var scripts = SceneManager.ActiveScene.FindAll<ScriptBehavior>();
+            var scripts = SceneManager.ActiveScene.FindAll<ScriptBehavior>(addDisabled: false);
 
             // TODO: refactor, this is for fast protoyping
-            var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>();
+            var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>(addDisabled: false);
 
             foreach (var rigidbody in rigidBodies)
             {

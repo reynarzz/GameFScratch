@@ -9,8 +9,5 @@ namespace Engine
 {
     public class SpriteRenderer : Renderer2D
     {
-        internal override void Initialize()
-        {
-        }
     }
 }

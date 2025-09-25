@@ -38,7 +38,7 @@ namespace Engine
             // Ear-clipping decomposition
             poly.ConvexDecomp();
             List<ConcavePolygon> earPieces = new List<ConcavePolygon>();
-            poly.ReturnLowestLevelPolys(earPieces);
+            poly.ReturnLowestLevelPolys(earPieces, 7);
 
             Log.Info($"\nEar-clipping decomposition: {earPieces.Count} convex pieces");
             for (int i = 0; i < earPieces.Count; i++)
@@ -54,7 +54,7 @@ namespace Engine
             // Bayazit decomposition
             poly.ConvexDecompBayazit();
             List<ConcavePolygon> bayazitPieces = new List<ConcavePolygon>();
-            poly.ReturnLowestLevelPolys(bayazitPieces);
+            poly.ReturnLowestLevelPolys(bayazitPieces, 7);
 
             Log.Info($"\nBayazit decomposition: {bayazitPieces.Count} convex pieces");
             for (int i = 0; i < bayazitPieces.Count; i++)

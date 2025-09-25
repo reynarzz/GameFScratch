@@ -22,8 +22,10 @@ namespace Engine
             }
         }
 
+        public override string Name { get => Actor.Name; set => Actor.Name = value; }
+
         private bool _isEnabled = true;
-        public bool IsEnabled
+        public virtual bool IsEnabled
         {
             get => _isEnabled;
             set
