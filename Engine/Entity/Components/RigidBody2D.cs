@@ -33,8 +33,6 @@ namespace Engine
         private bool _isZRotationLocked = false;
         private bool _shouldUpdatePreTransformation = false;
 
-        private B2ShapeId _defaultShapeId;
-
         public vec2 Velocity
         {
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
@@ -166,19 +164,6 @@ namespace Engine
             }
 
             Transform.OnChanged += OnTransformChanged;
-
-            //B2ShapeDef shapeDef = default;
-            //shapeDef.density = 1;
-            //shapeDef.enableContactEvents = true;
-            //shapeDef.enableHitEvents = false;
-            //shapeDef.enableSensorEvents = false;
-            //shapeDef.isSensor = false;
-            //shapeDef.filter.groupIndex = 0;
-            //shapeDef.filter.maskBits = 0;
-            //shapeDef.updateBodyMass = true;
-
-            //var defSquare = B2Geometries.b2MakeSquare(0.1f);
-            //_defaultShapeId = B2Shapes.b2CreatePolygonShape(_bodyId, ref shapeDef, ref defSquare);
         }
 
         internal void PreUpdateBody()

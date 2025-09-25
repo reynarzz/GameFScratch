@@ -59,6 +59,7 @@ namespace Game
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
         // Implement a simple file system.
+        // Tilemap (rendering, ldtk file loading, colliders)
 
         public override void Initialize()
         {
@@ -115,6 +116,7 @@ namespace Game
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
+       
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);

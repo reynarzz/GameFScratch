@@ -13,6 +13,7 @@ namespace Engine
         private RigidBody2D _rigid;
         private vec2 _offset = new vec2(0, 0);
         private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
+        private B2Filter _filter;
 
         internal RigidBody2D RigidBody
         {
@@ -21,6 +22,28 @@ namespace Engine
             {
                 _rigid = value;
                 _shapeDef.userData = value;
+            }
+        }
+
+        public override bool IsEnabled 
+        {
+            get => base.IsEnabled;
+            set
+            {
+                var canChange = value != base.IsEnabled;
+                base.IsEnabled = value;
+
+                if(canChange && B2Worlds.b2Shape_IsValid(_shapeID))
+                {
+                    if (value)
+                    {
+                        RigidBody.UpdateCollider(this);
+                    }
+                    else
+                    {
+                        DestroyShape();
+                    }
+                }
             }
         }
 
@@ -35,7 +58,7 @@ namespace Engine
         }
 
         public float RotationOffset { get; set; } = 0;
-        internal B2ShapeId ShapeID { get; private set; } = InvalidShapeID;
+        private B2ShapeId _shapeID = InvalidShapeID;
         private B2ShapeDef _shapeDef;
 
         private bool _isTrigger = false;
@@ -50,6 +73,8 @@ namespace Engine
                 }
 
                 _isTrigger = value;
+                B2Shapes.b2Shape_EnableSensorEvents(_shapeID, value);
+                B2Shapes.b2Shape_EnableContactEvents(_shapeID, !value);
                 _shapeDef.isSensor = value;
                 RigidBody?.UpdateCollider(this);
             }
@@ -58,19 +83,20 @@ namespace Engine
         internal override void OnInitialize()
         {
             _rigid = GetComponent<RigidBody2D>();
+            _filter = B2Types.b2DefaultFilter();
 
             _shapeDef = new B2ShapeDef()
             {
-                //enableContactEvents = true,
+                enableContactEvents = true,
+                enableHitEvents = true,
                 //enableSensorEvents = false,
-                //enableHitEvents = true,
                 // enablePreSolveEvents = false,
                 invokeContactCreation = true,
                 isSensor = false,
                 density = 1,
                 updateBodyMass = true,
                 material = B2Types.b2DefaultSurfaceMaterial(),
-                filter = B2Types.b2DefaultFilter(),
+                filter = _filter,
                 internalValue = B2Constants.B2_SECRET_COOKIE,
                 userData = _rigid
             };
@@ -80,8 +106,11 @@ namespace Engine
 
         internal void Create(B2BodyId bodyId)
         {
-            DestroyShape();
-            ShapeID = CreateShape(bodyId, _shapeDef);
+            if (IsEnabled)
+            {
+                DestroyShape();
+                _shapeID = CreateShape(bodyId, _shapeDef);
+            }
         }
 
         protected abstract B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef);
@@ -92,27 +121,28 @@ namespace Engine
 
             if (_rigid)
             {
-                _rigid.RemoveCollider(ShapeID);
+                _rigid.RemoveCollider(_shapeID);
                 DestroyShape();
             }
         }
 
         private void DestroyShape()
         {
-            if (ShapeID.index1 >= 0)
+            if (B2Worlds.b2Shape_IsValid(_shapeID))
             {
-                B2Shapes.b2DestroyShape(ShapeID, _rigid.IsAutoMass);
-                ShapeID = InvalidShapeID;
+                // TODO: destroy collection of shapes
+                B2Shapes.b2DestroyShape(_shapeID, _rigid.IsAutoMass);
+                
+                _shapeID = InvalidShapeID;
             }
         }
 
-        
         public float Friction 
         { 
-            get => B2Shapes.b2Shape_GetFriction(ShapeID);
+            get => B2Shapes.b2Shape_GetFriction(_shapeID);
             set
             {
-                B2Shapes.b2Shape_SetFriction(ShapeID, value);
+                B2Shapes.b2Shape_SetFriction(_shapeID, value);
             }
         }         
     }
