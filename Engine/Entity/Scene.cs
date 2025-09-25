@@ -104,9 +104,9 @@ namespace Engine
             return FindAll<Actor, ActorTagMatcher, string>(tag);
         }
 
-        internal T FindComponent<T>(bool addDisabled) where T : Component
+        internal T FindComponent<T>(bool findDisabled) where T : Component
         {
-            return Find<T, ComponentMatcher<T>, bool>(addDisabled);
+            return Find<T, ComponentMatcher<T>, bool>(findDisabled);
         }
 
         internal Actor FindActorByName(string name)
@@ -114,9 +114,9 @@ namespace Engine
             return Find<Actor, ActorMatcher, string>(name);
         }
 
-        internal List<T> FindAll<T>(bool addDisabled) where T : Component
+        internal List<T> FindAll<T>(bool findDisabled) where T : Component
         {
-            return FindAll<T, ComponentMatcher<T>, bool>(addDisabled);
+            return FindAll<T, ComponentMatcher<T>, bool>(findDisabled);
         }
 
         private List<T> FindAll<T, TMatcher, TComparer>(TComparer comparer) where T : EObject
@@ -194,7 +194,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor.IsEnabled)
+                if (actor && actor.IsEnabled)
                     actor.Awake();
             }
         }
@@ -204,7 +204,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor.IsEnabled)
+                if (actor && actor.IsEnabled)
                     actor.Start();
             }
         }
@@ -214,7 +214,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor.IsEnabled)
+                if (actor && actor.IsEnabled)
                     actor.Update();
             }
         }
@@ -224,7 +224,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor.IsEnabled)
+                if (actor && actor.IsEnabled)
                     actor.LateUpdate();
             }
         }
@@ -234,7 +234,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor.IsEnabled)
+                if (actor && actor.IsEnabled)
                     actor.FixedUpdate();
             }
         }

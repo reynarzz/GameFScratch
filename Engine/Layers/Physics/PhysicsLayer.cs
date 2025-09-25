@@ -116,10 +116,8 @@ namespace Engine.Layers
             accumulator += deltaTime; // time since last frame
             accumulator = Math.Min(accumulator, 0.25f); // prevent spiral
 
-            var scripts = SceneManager.ActiveScene.FindAll<ScriptBehavior>(addDisabled: false);
-
             // TODO: refactor, this is for fast protoyping
-            var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>(addDisabled: false);
+            var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>(findDisabled: false);
 
             foreach (var rigidbody in rigidBodies)
             {
@@ -130,11 +128,7 @@ namespace Engine.Layers
             {
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
                 accumulator -= fixedTimeStep;
-
-                foreach (var script in scripts)
-                {
-                    script.OnFixedUpdate();
-                }
+                SceneManager.ActiveScene.FixedUpdate();
             }
 
             foreach (var rigidbody in rigidBodies)
