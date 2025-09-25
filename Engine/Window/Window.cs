@@ -98,7 +98,7 @@ namespace Engine
 
                 if (Glfw.Monitors.Length <= monitorIndex)
                 {
-                    Log.Error($"Monitor index '{monitorIndex}' is bigger than physical monitors '{Glfw.Monitors.Length}'.");
+                    Debug.Error($"Monitor index '{monitorIndex}' is bigger than physical monitors '{Glfw.Monitors.Length}'.");
                     return;
                 }
 

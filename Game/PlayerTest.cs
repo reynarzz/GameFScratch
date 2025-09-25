@@ -1,4 +1,5 @@
 ﻿using Engine;
+using Engine.Layers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,13 @@ namespace Game
     {
         public override void OnAwake()
         {
-            Log.Info("Awake");
+            Debug.Info("Awake");
             //new Actor<RotateTest>();
 
         }
         public override void OnStart()
         {
-            Log.Info("Start");
+            Debug.Info("Start");
             //new Actor<RotateTest>();
         }
 
@@ -28,7 +29,7 @@ namespace Game
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(GetComponent<RigidBody2D>().Velocity.x, 0);
-                GetComponent<RigidBody2D>()?.AddForce(new GlmNet.vec2(0, 4), ForceMode2D.Impulse);
+                GetComponent<RigidBody2D>()?.AddForce(new GlmNet.vec2(0, 6), ForceMode2D.Impulse);
             }
 
             if (Input.GetKey(KeyCode.A))
@@ -51,6 +52,11 @@ namespace Game
                 //GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(0, GetComponent<RigidBody2D>().Velocity.y);
 
             }
+        }
+
+        public override void OnCollisionEnter2D(CollisionData2D collision)
+        {
+            Debug.Info("Collided with: " + "Player");
         }
     }
 }

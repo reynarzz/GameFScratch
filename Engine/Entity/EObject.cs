@@ -59,11 +59,11 @@ namespace Engine
 #if DEBUG
                 try
                 {
-                    Log.Error($"Can't use already deleted object: {obj.GetType().Name}");
+                    Debug.Error($"Can't use already deleted object: {obj.GetType().Name}");
                 }
                 catch (Exception)
                 {
-                    Log.Error($"Can't use already deleted object");
+                    Debug.Error($"Can't use already deleted object");
                 }
 #endif
                 return false;
@@ -74,7 +74,7 @@ namespace Engine
 #if DEBUG
         ~EObject()
         {
-            Log.Info($"Destroyed object: ({GetType().Name}), name: {Name}");
+            Debug.Info($"Destroyed object: ({GetType().Name}), name: {Name}");
         }
 #endif
     }

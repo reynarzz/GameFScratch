@@ -43,7 +43,7 @@ namespace Engine.Graphics.OpenGL
         {
             if (_handleBinder == null)
             {
-                Log.Error("Binder not specified in constructor, override Bind() if this was intended.");
+                Debug.Error("Binder not specified in constructor, override Bind() if this was intended.");
                 return;
             }
             _handleBinder(Handle);
@@ -53,7 +53,7 @@ namespace Engine.Graphics.OpenGL
         {
             if (_handleBinder == null)
             {
-                Log.Error("Binder not specified in constructor, override UnBind() if this was intended.");
+                Debug.Error("Binder not specified in constructor, override UnBind() if this was intended.");
                 return;
             }
             _handleBinder(0);
@@ -69,14 +69,14 @@ namespace Engine.Graphics.OpenGL
 
                 if (!IsInitialized)
                 {
-                    Log.Error($"Could not create resource (returns false): {GetType().Name}");
+                    Debug.Error($"Could not create resource (returns false): {GetType().Name}");
                     DestroyHandle();
                 }
 
                 return IsInitialized;
             }
 
-            Log.Warn("Can't create an already created buffer, this is not supported.");
+            Debug.Warn("Can't create an already created buffer, this is not supported.");
 
             return false;
         }

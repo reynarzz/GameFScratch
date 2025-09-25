@@ -9,11 +9,13 @@ namespace Engine
     public class Actor : EObject
     {
         private List<Component> _components;
+        internal IReadOnlyList<Component> Components => _components;
+
         public Transform Transform { get; private set; }
         public Scene Scene { get; internal set; }
-        public bool IsEnabled { get; internal set; } = true;
+        public bool IsEnabled { get; set; } = true;
         public string Tag { get; set; }
-
+        
         private List<Component> _pendingToDeleteComponents;
 
         private List<Component> _onAwakeComponents;
@@ -227,7 +229,7 @@ namespace Engine
             }
             else
             {
-                Log.Info("Can't destroy and already destroyed component");
+                Debug.Info("Can't destroy and already destroyed component");
             }
         }
 
@@ -245,7 +247,7 @@ namespace Engine
         {
             if (component == null || !component.IsAlive)
             {
-                Log.Error($"Can't destroy and already destroyed component. {component.GetType().Name}");
+                Debug.Error($"Can't destroy and already destroyed component. {component.GetType().Name}");
                 return;
             }
 
@@ -301,7 +303,7 @@ namespace Engine
                         }
                         catch (Exception e)
                         {
-                            Log.Error(e);
+                            Debug.Error(e);
                         }
 #else
                         action(component);
@@ -337,7 +339,7 @@ namespace Engine
                         }
                         catch (Exception e)
                         {
-                            Log.Error(e);
+                            Debug.Error(e);
                         }
 #else
                         action(script);
@@ -384,7 +386,7 @@ namespace Engine
                         }
                         catch (Exception e)
                         {
-                            Log.Error(e);
+                            Debug.Error(e);
                         }
 #else
                         actor._components[i].OnDestroy();
@@ -428,7 +430,7 @@ namespace Engine
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e);
+                        Debug.Error(e);
                     }
 #else
                     if (component != null)

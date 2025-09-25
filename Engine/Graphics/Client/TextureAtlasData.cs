@@ -65,7 +65,7 @@ namespace Engine
 #if DEBUG
             if (isInvalidIndex)
             {
-                Log.Error($"invalid atlas chunk index: '{index}', Atlas Max: '{_chunks.Length}'");
+                Debug.Error($"invalid atlas chunk index: '{index}', Atlas Max: '{_chunks.Length}'");
 
                 return AtlasChunk.DefaultChunk;
             }

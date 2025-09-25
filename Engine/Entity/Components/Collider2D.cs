@@ -10,22 +10,16 @@ namespace Engine
 {
     public abstract class Collider2D : Component
     {
-        private RigidBody2D _rigid;
         private vec2 _offset = new vec2(0, 0);
         private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
         private B2Filter _filter;
 
-        internal RigidBody2D RigidBody
-        {
-            get => _rigid;
-            set
-            {
-                _rigid = value;
-                _shapeDef.userData = value;
-            }
-        }
+        internal const int MAX_CONTACTS_PER_SHAPE = 10;
 
-        public override bool IsEnabled 
+        public RigidBody2D RigidBody { get; internal set; }
+        internal B2ContactData[] Contacts = new B2ContactData[MAX_CONTACTS_PER_SHAPE];
+
+        public override bool IsEnabled
         {
             get => base.IsEnabled;
             set
@@ -33,7 +27,7 @@ namespace Engine
                 var canChange = value != base.IsEnabled;
                 base.IsEnabled = value;
 
-                if(canChange && B2Worlds.b2Shape_IsValid(_shapeID))
+                if (canChange && B2Worlds.b2Shape_IsValid(_shapeID))
                 {
                     if (value)
                     {
@@ -46,7 +40,7 @@ namespace Engine
                 }
             }
         }
-
+        
         public vec2 Offset
         {
             get => _offset;
@@ -82,7 +76,7 @@ namespace Engine
 
         internal override void OnInitialize()
         {
-            _rigid = GetComponent<RigidBody2D>();
+            RigidBody = GetComponent<RigidBody2D>();
             _filter = B2Types.b2DefaultFilter();
 
             _shapeDef = new B2ShapeDef()
@@ -98,10 +92,10 @@ namespace Engine
                 material = B2Types.b2DefaultSurfaceMaterial(),
                 filter = _filter,
                 internalValue = B2Constants.B2_SECRET_COOKIE,
-                userData = _rigid
+                userData = this
             };
 
-            _rigid?.AddCollider(this);
+            RigidBody?.AddCollider(this);
         }
 
         internal void Create(B2BodyId bodyId)
@@ -119,9 +113,9 @@ namespace Engine
         {
             base.OnDestroy();
 
-            if (_rigid)
+            if (RigidBody)
             {
-                _rigid.RemoveCollider(_shapeID);
+                RigidBody.RemoveCollider(_shapeID);
                 DestroyShape();
             }
         }
@@ -131,19 +125,28 @@ namespace Engine
             if (B2Worlds.b2Shape_IsValid(_shapeID))
             {
                 // TODO: destroy collection of shapes
-                B2Shapes.b2DestroyShape(_shapeID, _rigid.IsAutoMass);
-                
+                B2Shapes.b2DestroyShape(_shapeID, RigidBody.IsAutoMass);
+
                 _shapeID = InvalidShapeID;
             }
         }
 
-        public float Friction 
-        { 
+        public float Friction
+        {
             get => B2Shapes.b2Shape_GetFriction(_shapeID);
             set
             {
                 B2Shapes.b2Shape_SetFriction(_shapeID, value);
             }
-        }         
+        }
+
+        public float Bounciness
+        {
+            get => B2Shapes.b2Shape_GetRestitution(_shapeID);
+            set
+            {
+                B2Shapes.b2Shape_SetRestitution(_shapeID, value);
+            }
+        }
     }
 }

@@ -116,11 +116,11 @@ namespace Game
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
-       
-            var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
+        
+                 var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
-
+            // rigid3.Actor.IsEnabled = false;
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
             rigid3.IsAutoMass = false;
@@ -151,7 +151,7 @@ namespace Game
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;
 
-            Log.Success("Game Layer");
+            Debug.Success("Game Layer");
         }
 
         public override void Close()

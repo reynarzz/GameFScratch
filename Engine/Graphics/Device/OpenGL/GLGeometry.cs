@@ -22,7 +22,7 @@ namespace Engine.Graphics.OpenGL
             Bind();
             if (!_vertBuffer.Create(descriptor.VertexDesc.BufferDesc))
             {
-                Log.Error("Failed to create vertex buffer.");
+                Debug.Error("Failed to create vertex buffer.");
                 Unbind();
                 return false;
             }
@@ -31,7 +31,7 @@ namespace Engine.Graphics.OpenGL
             {
                 if (descriptor.IndexDesc == null)
                 {
-                    Log.Error("Index descriptor is null, can't create geometry.");
+                    Debug.Error("Index descriptor is null, can't create geometry.");
                     return false;
                 }
 
@@ -39,7 +39,7 @@ namespace Engine.Graphics.OpenGL
 
                 if (!_indexBuffer.Create(descriptor.IndexDesc))
                 {
-                    Log.Error("Failed to create index buffer.");
+                    Debug.Error("Failed to create index buffer.");
                     Unbind();
                     return false;
                 }

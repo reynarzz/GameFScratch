@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using System.Runtime.CompilerServices;
+using GlmNet;
 
 namespace Engine
 {
-    public static class Log
+    public static class Debug
     {
         public enum LogLevel
         {
@@ -29,7 +30,7 @@ namespace Engine
             LogMessage(LogLevel.Info, message, file, line, member);
         }
 
-        public static void Debug(object message,
+        public static void Log(object message,
                                 [CallerFilePath] string file = "",
                                 [CallerLineNumber] int line = 0,
                                 [CallerMemberName] string member = "")
@@ -60,10 +61,10 @@ namespace Engine
             LogMessage(LogLevel.Success, message, file, line, member);
         }
         
-        public static void LogMessage(LogLevel level, object message,
+        private static void LogMessage(LogLevel level, object message,
                                 string file = "",
                                 int line = 0,
-                               string member = "")
+                                string member = "")
         {
 #if DEBUG
             lock (_lock) // thread-safe color changes
@@ -92,6 +93,31 @@ namespace Engine
                 LogLevel.Success => ConsoleColor.Green,
                 _ => ConsoleColor.White
             };
+        }
+
+        public static void DrawRay(vec3 origin, vec3 direction, Color color)
+        {
+            // TODO:
+        }
+
+        public static void DrawLine(vec3 start, vec3 end, Color color)
+        {
+
+        }
+
+        public static void DrawBox(vec3 origin, vec3 size, vec3 eulerAngles, Color color)
+        {
+
+        }
+
+        public static void DrawCircle(vec3 origin, float radius, Color color)
+        {
+
+        }
+
+        internal static void DrawGeometries()
+        {
+
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Engine
             }
 
 #if DEBUG
-            Log.Error($"Sprite: {Name}, doesn't have a texture attached, using default atlas chunk instead.");
+            Debug.Error($"Sprite: {Name}, doesn't have a texture attached, using default atlas chunk instead.");
 #endif
             return AtlasChunk.DefaultChunk;
         }

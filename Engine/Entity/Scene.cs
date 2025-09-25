@@ -23,7 +23,7 @@ namespace Engine
                 {
                     return comp;
                 }
-                else if (comp && comp.IsEnabled)
+                else if (comp && comp.IsEnabled && comp.Actor.IsEnabled)
                 {
                     return comp;
                 }

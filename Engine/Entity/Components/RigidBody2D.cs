@@ -194,7 +194,7 @@ namespace Engine
                     B2Bodies.b2Body_ApplyLinearImpulseToCenter(_bodyId, force.ToB2Vec2(), true);
                     break;
                 default:
-                    Log.Error($"ForceMode2D: '{mode}' Not implemented");
+                    Debug.Error($"ForceMode2D: '{mode}' Not implemented");
                     break;
             }
         }
@@ -210,7 +210,7 @@ namespace Engine
                     B2Bodies.b2Body_ApplyLinearImpulse(_bodyId, point.ToB2Vec2(), force.ToB2Vec2(), true);
                     break;
                 default:
-                    Log.Error($"ForceMode2D: '{mode}' Not implemented");
+                    Debug.Error($"ForceMode2D: '{mode}' Not implemented");
                     break;
             }
         }

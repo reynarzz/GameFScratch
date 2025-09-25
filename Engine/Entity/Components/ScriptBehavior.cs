@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Engine.Layers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,8 @@ namespace Engine
         public virtual void OnUpdate() { }
         public virtual void OnLateUpdate() { }
         public virtual void OnFixedUpdate() { }
+        public virtual void OnCollisionEnter2D(CollisionData2D collision) { }
+        public virtual void OnCollisionExit2D(CollisionData2D collision) { }
         public virtual void OnTriggerEnter2D() { }
         public virtual void OnTriggerExit2D() { }
     }

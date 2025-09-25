@@ -11,7 +11,6 @@ using static Box2D.NET.B2Types;
 using static Box2D.NET.B2MathFunction;
 using static Box2D.NET.B2Bodies;
 using static Box2D.NET.B2Shapes;
-using static Box2D.NET.B2Worlds;
 using static Box2D.NET.B2Diagnostics;
 using static Box2D.NET.B2Contacts;
 using GlmNet;
@@ -24,11 +23,15 @@ namespace Engine.Layers
         // Samples: https://github.com/ikpil/Box2D.NET/tree/e68c8ff1fb9da8bd87a71159b13010c25eed76f8/src/Box2D.NET.Samples/Samples
 
         private B2DebugDraw _debugDraw;
+        private ContactsDispatcher _contactDispatcher;
         private B2BodyId _bodyTest;
         private B2BodyId _floorTest;
+        private float accumulator = 0f;
+        private float fixedTimeStep = 1.0f / 60.0f;
 
         public override void Initialize()
         {
+            _contactDispatcher = new ContactsDispatcher();
             _debugDraw = new B2DebugDraw()
             {
                 context = null,
@@ -58,6 +61,7 @@ namespace Engine.Layers
                 drawIslands = false,
             };
 
+            
             //ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
 
             //B2Filter playerFilter = default;
@@ -72,7 +76,7 @@ namespace Engine.Layers
 
             //B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
             //B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
-            
+
             B2Worlds.b2World_SetCustomFilterCallback(PhysicWorld.WorldID, CustomFilter, null);
 
             B2QueryFilter castFilter = default;
@@ -103,18 +107,10 @@ namespace Engine.Layers
             return false;
         }
 
-        private bool _isContactReached = false;
-
-
-        float accumulator = 0f;
-        float fixedTimeStep = 1.0f / 60.0f;
 
         internal override void UpdateLayer()
         {
-            // var deltaTime = 0.0036f; //Time.DeltaTime;
-            var deltaTime = Time.DeltaTime;
-            accumulator += deltaTime; // time since last frame
-            accumulator = Math.Min(accumulator, 0.25f); // prevent spiral
+            accumulator = Math.Min(accumulator + Time.DeltaTime, 0.25f);
 
             // TODO: refactor, this is for fast protoyping
             var rigidBodies = SceneManager.ActiveScene.FindAll<RigidBody2D>(findDisabled: false);
@@ -126,64 +122,27 @@ namespace Engine.Layers
 
             while (accumulator >= fixedTimeStep)
             {
+                SceneManager.ActiveScene.FixedUpdate();
+
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
                 accumulator -= fixedTimeStep;
-                SceneManager.ActiveScene.FixedUpdate();
+
+                _contactDispatcher.Update();
             }
 
             foreach (var rigidbody in rigidBodies)
             {
                 rigidbody.PostUpdateBody();
             }
-
+            
             B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);
 
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
             float alpha = accumulator / fixedTimeStep;
 
-            ContactProcess();
         }
 
-        private void ContactProcess()
-        {
-            // Contacts
-            B2ContactEvents events = b2World_GetContactEvents(PhysicWorld.WorldID);
-            for (int i = 0; i < events.beginCount; ++i)
-            {
-                B2ContactBeginTouchEvent evt = events.beginEvents[i];
-
-                B2Shapes.b2Shape_GetUserData(evt.shapeIdA);
-                // evt.manifold.points[];
-                _isContactReached = true;
-                Log.Debug("contact");
-                //m_contactId = events.beginEvents[i].contactId;
-            }
-
-            for (int i = 0; i < events.endCount; ++i)
-            {
-                //if (B2_ID_EQUALS(m_contactId, events.endEvents[i].contactId))
-                //{
-                //    m_contactId = b2_nullContactId;
-                //    break;
-                //}
-            }
-
-            // Sensor
-            var sensorEvents = B2Worlds.b2World_GetSensorEvents(PhysicWorld.WorldID);
-            for (int i = 0; i < sensorEvents.beginCount; ++i)
-            {
-                var sensorA = sensorEvents.beginEvents[i].sensorShapeId;
-                var visitorB = sensorEvents.beginEvents[i].visitorShapeId;
-
-                B2Shapes.b2Shape_GetUserData(sensorA);
-
-            }
-
-            for (int i = 0; i < sensorEvents.endCount; ++i)
-            {
-
-            }
-        }
+      
 
         public override void Close()
         {

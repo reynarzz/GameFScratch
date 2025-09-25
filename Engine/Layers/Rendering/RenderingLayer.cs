@@ -38,7 +38,7 @@ namespace Engine.Layers
 
             if (!_mainCamera || !_mainCamera.IsEnabled)
             {
-                Log.Error("No cameras found in scene.");
+                Debug.Error("No cameras found in scene.");
                 GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = new vec4(1, 0, 1, 1) });
                 return;
             }
@@ -71,6 +71,8 @@ namespace Engine.Layers
                 // Draw
                 GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, batch.IndexCount);
             }
+
+            Debug.DrawGeometries();
         }
     }
 }

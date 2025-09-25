@@ -96,7 +96,7 @@ namespace Engine.Graphics.OpenGL
 
             if (glMode == 0)
             {
-                Log.Error($"Draw mode unsupported: {mode}");
+                Debug.Error($"Draw mode unsupported: {mode}");
                 return;
             }
 

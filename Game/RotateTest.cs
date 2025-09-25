@@ -13,13 +13,17 @@ namespace Game
 
         public override void OnStart()
         {
-            Log.Info("Start Rotate: " + Name);    
+            Debug.Info("Start Rotate: " + Name);    
         }
 
         public override void OnUpdate()
         {
             angle += Time.DeltaTime * 50;
             Transform.LocalEulerAngles = new GlmNet.vec3(0, 0, angle);
+        }
+
+        public override void OnFixedUpdate()
+        {
         }
     }
 }
