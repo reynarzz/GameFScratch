@@ -483,17 +483,32 @@ namespace Engine.Utils.Polygon
 
         public int GetNumberSubPolys() => subPolygons.Count;
 
+        //public void ReturnLowestLevelPolys(List<ConcavePolygon> returnArr)
+        //{
+        //    if (subPolygons.Count > 0)
+        //    {
+        //        subPolygons[0].ReturnLowestLevelPolys(returnArr);
+        //        subPolygons[1].ReturnLowestLevelPolys(returnArr);
+        //    }
+        //    else
+        //        returnArr.Add(this);
+        //}
+
+
         public void ReturnLowestLevelPolys(List<ConcavePolygon> returnArr)
         {
-            if (subPolygons.Count > 0)
+            if (subPolygons.Count == 0)
             {
-                subPolygons[0].ReturnLowestLevelPolys(returnArr);
-                subPolygons[1].ReturnLowestLevelPolys(returnArr);
+                returnArr.Add(this);
             }
             else
-                returnArr.Add(this);
+            {
+                foreach (var sub in subPolygons)
+                {
+                    sub.ReturnLowestLevelPolys(returnArr);
+                }
+            }
         }
-
         public void Reset()
         {
             if (subPolygons.Count > 0)

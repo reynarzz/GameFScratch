@@ -57,6 +57,8 @@ namespace Game
         // Implement physics: collision functions (OnCollisionEnter2D, OnTriggerEnter2D, etc...)
         // Implement layerMask
         // Implement physics: raycast, boxcast, circle cast.
+        // Implement audio
+        // Implement a simple file system.
 
         public override void Initialize()
         {
@@ -113,8 +115,8 @@ namespace Game
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
-            camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldRotation.x,
-                                                                actor3.Transform.WorldRotation.y, -12);
+            camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
+                                                                actor3.Transform.WorldPosition.y, -12);
 
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(3.0f, 2, 0);
@@ -131,14 +133,12 @@ namespace Game
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PolygonCollider2D>("Floor");
 
 
-
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
 
-            // For some reason kinematic body fall here,  if I put Size above, it works normal 
             rigid4.BodyType = Body2DType.Kinematic;
 
-            boxCollider.Size = new GlmNet.vec2(15, 1); // What size do that affect the body type?
+            boxCollider.Size = new GlmNet.vec2(15, 1);
 
             rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -4, 0);
             rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 20);

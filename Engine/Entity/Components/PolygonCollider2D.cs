@@ -15,10 +15,15 @@ namespace Engine
             List<PVertex> verts = new List<PVertex>
             {
                 new PVertex(new Vec2(0, 0)),
-                new PVertex(new Vec2(4, 0)),
-                new PVertex(new Vec2(4, 2)),
-                new PVertex(new Vec2(2, 1)), // concave VertexPolygon
-                new PVertex(new Vec2(0, 2))
+                new PVertex(new Vec2(4, 1)),
+                new PVertex(new Vec2(8, 0)),
+                new PVertex(new Vec2(6, 3)),
+                new PVertex(new Vec2(8, 6)),
+                new PVertex(new Vec2(4, 5)),
+                new PVertex(new Vec2(0, 6)),
+                new PVertex(new Vec2(2, 3)),
+                new PVertex(new Vec2(1, 2)),
+                new PVertex(new Vec2(3, 2))
             };
 
             ConcavePolygon poly = new ConcavePolygon(verts);
