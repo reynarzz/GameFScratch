@@ -60,6 +60,7 @@ namespace Game
         // Implement audio
         // Implement a simple file system.
         // Tilemap (rendering, ldtk file loading, colliders)
+        // Use Collider2D instead of shape in CollisionKey, so it can support colliders of multiples shapes.
 
         public override void Initialize()
         {

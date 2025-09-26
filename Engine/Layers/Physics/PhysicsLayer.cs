@@ -132,7 +132,10 @@ namespace Engine.Layers
 
             foreach (var rigidbody in rigidBodies)
             {
-                rigidbody.PostUpdateBody();
+                if (rigidbody)
+                {
+                    rigidbody.PostUpdateBody();
+                }
             }
             
             B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);

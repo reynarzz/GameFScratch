@@ -19,7 +19,9 @@ namespace Engine
         public virtual void OnFixedUpdate() { }
         public virtual void OnCollisionEnter2D(Collision2D collision) { }
         public virtual void OnCollisionExit2D(Collision2D collision) { }
+        public virtual void OnCollisionStay2D(Collision2D collision) { }
         public virtual void OnTriggerEnter2D(Collider2D collider) { }
+        public virtual void OnTriggerStay2D(Collider2D collider) { }
         public virtual void OnTriggerExit2D(Collider2D collider) { }
     }
 }

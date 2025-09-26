@@ -64,6 +64,7 @@ namespace Game
                 Debug.Log(contacts[i].Position);
             }
             Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
+            Actor.Destroy(collision.Actor);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)
