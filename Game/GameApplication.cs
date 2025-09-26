@@ -1,6 +1,7 @@
 ﻿
 using Engine;
 using Engine.Layers;
+using GlmNet;
 
 namespace Game
 {
@@ -102,7 +103,7 @@ namespace Game
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
-            // actor.GetComponent<Collider2D>().IsTrigger = true;
+            actor.GetComponent<Collider2D>().IsTrigger = true;
 
 
             // (int i = 0; i < 33; i++)
@@ -125,7 +126,7 @@ namespace Game
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 3, 0);
+            rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 9, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
             camera.OrthographicSize = 7;
@@ -141,11 +142,29 @@ namespace Game
                 camera.GetComponent<CameraFollow>().Target = actor3.Transform;
             }
 
-
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PolygonCollider2D, CollisionTest>("Floor");
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
+            var polygon = actor4.GetComponent<PolygonCollider2D>();
+            polygon.Points =
+            [
+                new vec2(0, 0),  new vec2(4, 1),
+                new vec2(7, 0),  new vec2(9, 2),
+                new vec2(11, 1), new vec2(12, 4),
+                new vec2(10, 5), new vec2(12, 7),
+                new vec2(9, 9),  new vec2(7, 7),
+                new vec2(6, 10), new vec2(4, 8),
+                new vec2(3, 11), new vec2(0, 10),
+                new vec2(1, 7),  new vec2(-2, 6),
+                new vec2(0, 4),  new vec2(-3, 2),
+                new vec2(-1, 1), new vec2(-2, -1)
+            ];
+
+            polygon.Generate();
+
+            polygon.Offset = new vec2(-2, 0);
+            polygon.RotationOffset = 49;
 
             rigid4.BodyType = Body2DType.Kinematic;
 

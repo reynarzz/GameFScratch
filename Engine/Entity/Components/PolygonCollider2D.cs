@@ -12,11 +12,16 @@ namespace Engine
 {
     public class PolygonCollider2D : Collider2D
     {
-        public List<GlmNet.vec2> Points { get; } = new List<GlmNet.vec2>();
+        public vec2[] Points { get; set; } =
+        [
+            new vec2(0f, 0f),   
+            new vec2(1f, 0f),   
+            new vec2(0.5f, 1f)  
+        ];
 
         public void Generate()
         {
-            if (Points.Count > 0)
+            if (Points.Length > 0)
             {
                 Create();
             }
@@ -24,33 +29,29 @@ namespace Engine
 
         protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
-           var verts = new List<PVertex>
+            if (Points.Length == 0 || Points == null)
             {
-                new PVertex(new Vec2(0, 0)),
-                new PVertex(new Vec2(3, 1)),
-                new PVertex(new Vec2(6, 0)),
-                new PVertex(new Vec2(7, 2)),
-                new PVertex(new Vec2(9, 1)),
-                new PVertex(new Vec2(10, 4)),
-                new PVertex(new Vec2(8, 5)),
-                new PVertex(new Vec2(9, 8)),
-                new PVertex(new Vec2(6, 9)),
-                new PVertex(new Vec2(5, 6)),
-                new PVertex(new Vec2(3, 8)),
-                new PVertex(new Vec2(1, 7)),
-                new PVertex(new Vec2(-1, 5)),
-                new PVertex(new Vec2(-1, 2))
-            };
+                Debug.Error("Polygon collider has zero vertices, it cannot be created.");
+                return null;
+            }
+
+            var verts = new List<PVertex>(Points.Length); 
+         
+            for (int i = 0; i < Points.Length; i++)
+            {
+                var p = Points[i];
+                verts.Add(new PVertex(p.x, p.y));
+            }
 
             var poly = new ConcavePolygon(verts);
 
             poly.ConvexDecompBayazit();
             var pieces = new List<ConcavePolygon>();
-            poly.ReturnLowestLevelPolys(pieces, 7);
+            poly.ReturnLowestLevelPolys(pieces, B2Constants.B2_MAX_POLYGON_VERTICES);
 
             var shapes = new B2ShapeId[pieces.Count];
             var points = default(Vec2[]);
-            var targetPoint = new B2Vec2[8];
+            var targetPoint = new B2Vec2[B2Constants.B2_MAX_POLYGON_VERTICES];
             for (int i = 0; i < pieces.Count; i++)
             {
                 int vertsCount = 0;
@@ -63,7 +64,7 @@ namespace Engine
                 }
 
                 var hull = B2Hulls.b2ComputeHull(targetPoint, vertsCount);
-                var polygon = B2Geometries.b2MakePolygon(ref hull, 0);
+                var polygon = B2Geometries.b2MakeOffsetPolygon(ref hull, Offset.ToB2Vec2(), B2MathFunction.b2MakeRot(RotationOffset));
                 shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
             }
 

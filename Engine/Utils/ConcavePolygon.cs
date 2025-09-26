@@ -57,6 +57,12 @@ namespace Engine.Utils.Polygon
             position = p;
         }
 
+        public PVertex(float x, float y)
+        {
+            position.x = x;
+            position.y = y;
+        }
+
         public static float GetHandedness(PVertex v1, PVertex v2, PVertex v3)
         {
             Vec2 edge1 = v2.position - v1.position;

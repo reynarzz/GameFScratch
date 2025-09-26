@@ -61,7 +61,7 @@ namespace Engine.Layers
                 drawFrictionImpulses = false,
                 drawIslands = false,
             };
-            
+
             //ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
 
             //B2Filter playerFilter = default;
@@ -88,7 +88,7 @@ namespace Engine.Layers
             B2ShapeProxy shapeCast = default;
             shapeCast.radius = 1;
             B2Worlds.b2World_CastShape(PhysicWorld.WorldID, ref shapeCast, new B2Vec2(1, 0), castFilter, CastResultFunc, null);
-            
+
             // B2Geometries.b2RayCastPolygon();
         }
 
@@ -140,9 +140,9 @@ namespace Engine.Layers
 
                 DrawShapes(rigidbody);
             }
-            
+
             B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);
-           
+
 
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
             float alpha = accumulator / fixedTimeStep;
@@ -160,9 +160,12 @@ namespace Engine.Layers
 
             for (int i = 0; i < colliders.Length; i++)
             {
-                for (int j = 0; j < colliders[i].ShapesId.Length; j++)
+                if (colliders[i].ShapesId != null)
                 {
-                    B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), colliders[i].ShapesId[j]), transform, B2HexColor.b2_colorBlanchedAlmond);
+                    for (int j = 0; j < colliders[i].ShapesId.Length; j++)
+                    {
+                        B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), colliders[i].ShapesId[j]), transform, B2HexColor.b2_colorBlanchedAlmond);
+                    }
                 }
             }
         }

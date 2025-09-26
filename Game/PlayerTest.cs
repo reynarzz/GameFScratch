@@ -43,8 +43,6 @@ namespace Game
             {
             }
 
-            Debug.DrawLine(new GlmNet.vec3(), new GlmNet.vec3(-1, -1, 0), new Color(1, 1, 1, 1));
-            Debug.DrawLine(new GlmNet.vec3(1, 2, 0), new GlmNet.vec3(1, -1, 0), new Color(1, 1, 1, 1));
             Debug.DrawRay(Transform.WorldPosition, Transform.Right, Color.Red);
             Debug.DrawRay(Transform.WorldPosition, Transform.Up, Color.Green);
         }
