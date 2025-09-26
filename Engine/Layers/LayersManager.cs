@@ -21,6 +21,12 @@ namespace Engine.Layers
             _cleanupLayer = new CleanUpLayer();
         }
 
+        public LayersManager(LayerBase[] layers)
+        {
+            _layers = layers;
+            _cleanupLayer = new CleanUpLayer();
+        }
+
         internal void Initialize()
         {
             _cleanupLayer.Initialize();

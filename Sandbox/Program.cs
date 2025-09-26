@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using Engine;
 using Engine.Layers;
 
@@ -8,8 +10,22 @@ namespace Sandbox
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
+
+#if RELEASE
+            var libsPath = Path.Combine(AppContext.BaseDirectory, "libs");
+
+            foreach (var dll in Directory.GetFiles(libsPath, "*.dll"))
+            {
+                try
+                {
+                    NativeLibrary.Load(dll);
+                }
+                catch { }
+            }
+#endif
+
             var engine = new Engine.Engine();
             engine.Initialize(typeof(TimeLayer),
                               typeof(Input),

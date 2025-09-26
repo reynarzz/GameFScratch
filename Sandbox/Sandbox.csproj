@@ -5,7 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishAot>true</PublishAot>
+	  <SelfContained>true</SelfContained>
+	  <PublishSingleFile>true</PublishSingleFile>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
@@ -16,6 +17,13 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="IF &quot;%25OS%25&quot;==&quot;Windows_NT&quot; (&#xD;&#xA;    echo Running on Windows&#xD;&#xA;    copy /Y &quot;$(SolutionDir)Third\Win\glfw\lib-vc2022\glfw3.dll&quot; &quot;$(TargetDir)glfw.dll&quot;&#xD;&#xA;) ELSE (&#xD;&#xA;    echo Running on unknown OS&#xD;&#xA;)" />
+  
   </Target>
-
+	<Target Name="MoveAllDllsToLibs" AfterTargets="Publish">
+		<MakeDir Directories="$(TargetDir)libs" />
+		<ItemGroup>
+			<DllsToMove Include="$(TargetDir)*.dll" Exclude="$(TargetDir)$(AssemblyName).dll" />
+		</ItemGroup>
+		<Move SourceFiles="@(DllsToMove)" DestinationFolder="$(TargetDir)libs" />
+	</Target>
 </Project>
