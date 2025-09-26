@@ -17,11 +17,11 @@ namespace Engine
             set
             {
                 _radius = value;
-                RigidBody.UpdateCollider(this);
+                Create();
             }
         }
 
-        protected override B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
             var circle = new B2Circle()
             {
@@ -29,7 +29,7 @@ namespace Engine
                 radius = _radius
             };
 
-            return B2Shapes.b2CreateCircleShape(bodyId, ref shapeDef, ref circle);
+            return [B2Shapes.b2CreateCircleShape(bodyId, ref shapeDef, ref circle)];
         }
     }
 }

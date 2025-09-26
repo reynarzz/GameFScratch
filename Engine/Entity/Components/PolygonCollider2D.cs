@@ -10,7 +10,7 @@ namespace Engine
 {
     public class PolygonCollider2D : Collider2D
     {
-        protected override B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
             List<PVertex> verts = new List<PVertex>
             {
@@ -69,7 +69,7 @@ namespace Engine
 
             Debug.Info("\nDone.");
 
-            return new B2ShapeId(-1, 0, 0);
+            return [new B2ShapeId(-1, 0, 0)];
         }
     }
 }

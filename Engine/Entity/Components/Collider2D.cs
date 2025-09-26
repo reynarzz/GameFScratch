@@ -3,7 +3,6 @@ using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,13 +13,13 @@ namespace Engine
         public RigidBody2D RigidBody { get; internal set; }
         public float RotationOffset { get; set; } = 0;
 
-        private B2ShapeId _shapeID = InvalidShapeID;
+        private B2ShapeId[] _shapesID;
         private B2ShapeDef _shapeDef;
         private vec2 _offset = new vec2(0, 0);
         private B2Filter _filter;
-
         private bool _isTrigger = false;
-        private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
+
+        internal B2ShapeId[] ShapesId => _shapesID;
 
         public override bool IsEnabled
         {
@@ -30,11 +29,11 @@ namespace Engine
                 var canChange = value != base.IsEnabled;
                 base.IsEnabled = value;
 
-                if (canChange && B2Worlds.b2Shape_IsValid(_shapeID))
+                if (canChange && AreShapesValid())
                 {
                     if (value)
                     {
-                        RigidBody.UpdateCollider(this);
+                        Create();
                     }
                     else
                     {
@@ -50,7 +49,7 @@ namespace Engine
             set
             {
                 _offset = value;
-                RigidBody?.UpdateCollider(this);
+                Create();
             }
         }
 
@@ -60,42 +59,57 @@ namespace Engine
             get => _isTrigger;
             set
             {
-                if (/*_isTrigger == value ||*/ !B2Worlds.b2Shape_IsValid(_shapeID))
+                if (/*_isTrigger == value ||*/ !AreShapesValid())
                 {
                     return;
                 }
 
                 _isTrigger = value;
-                B2Shapes.b2Shape_EnableSensorEvents(_shapeID, value);
-                B2Shapes.b2Shape_EnableContactEvents(_shapeID, !value);
-                _shapeDef.isSensor = value;
-                RigidBody?.UpdateCollider(this);
+                var success = ApplyToShapesSafe(shapeid =>
+                {
+                    B2Shapes.b2Shape_EnableSensorEvents(shapeid, value);
+                    B2Shapes.b2Shape_EnableContactEvents(shapeid, !value);
+                });
+
+                if (success)
+                {
+                    _shapeDef.isSensor = value;
+                    Create();
+                }
+                else
+                {
+                    Debug.Error("Can't change trigger value to collider.");
+                }
             }
         }
 
         public float Friction
         {
-            get => B2Worlds.b2Shape_IsValid(_shapeID) ? B2Shapes.b2Shape_GetFriction(_shapeID) : -1;
+            get => AreShapesValid() ? B2Shapes.b2Shape_GetFriction(_shapesID[0]) : -1;
             set
             {
-                if (B2Worlds.b2Shape_IsValid(_shapeID))
-                    B2Shapes.b2Shape_SetFriction(_shapeID, value);
+                ApplyToShapesSafe(shape =>
+                {
+                    B2Shapes.b2Shape_SetFriction(shape, value);
+                });
             }
         }
 
         public float Bounciness
         {
-            get => B2Worlds.b2Shape_IsValid(_shapeID) ? B2Shapes.b2Shape_GetRestitution(_shapeID) : -1;
+            get => AreShapesValid() ? B2Shapes.b2Shape_GetRestitution(_shapesID[0]) : -1;
             set
             {
-                B2Shapes.b2Shape_SetRestitution(_shapeID, value);
+                ApplyToShapesSafe(shape =>
+                {
+                    B2Shapes.b2Shape_SetRestitution(shape, value);
+                });
             }
         }
 
         internal override void OnInitialize()
         {
             RigidBody = GetComponent<RigidBody2D>();
-            _filter = B2Types.b2DefaultFilter();
 
             _shapeDef = new B2ShapeDef()
             {
@@ -108,31 +122,58 @@ namespace Engine
                 density = 1,
                 updateBodyMass = true,
                 material = B2Types.b2DefaultSurfaceMaterial(),
-                filter = _filter,
+                filter = B2Types.b2DefaultFilter(),
                 internalValue = B2Constants.B2_SECRET_COOKIE,
                 userData = this
             };
 
-            RigidBody?.AddCollider(this);
+            Create();
         }
 
-        internal void Create(B2BodyId bodyId)
+        internal void Create()
         {
-            if (IsEnabled)
+            if (IsEnabled && RigidBody)
             {
                 DestroyShape();
-                _shapeID = CreateShape(bodyId, _shapeDef);
+                _shapesID = CreateShape(RigidBody.BodyId, _shapeDef);
+                RigidBody.UpdateBody();
             }
         }
 
-        protected abstract B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef);
+        protected abstract B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef);
+
+        protected bool AreShapesValid()
+        {
+            if (_shapesID == null || _shapesID.Length == 0)
+                return false;
+
+            for (int i = 0; i < _shapesID.Length; i++)
+            {
+                if (!B2Worlds.b2Shape_IsValid(_shapesID[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool ApplyToShapesSafe(Action<B2ShapeId> shapeApply)
+        {
+            if (!AreShapesValid())
+                return false;
+
+            for (int i = 0; i < _shapesID.Length; i++)
+            {
+                shapeApply(_shapesID[i]);
+            }
+
+            return true;
+        }
 
         public override void OnDestroy()
         {
             base.OnDestroy();
             if (RigidBody != null)
             {
-                RigidBody.RemoveCollider(_shapeID);
                 DestroyShape();
                 RigidBody = null;
             }
@@ -140,14 +181,20 @@ namespace Engine
 
         private void DestroyShape()
         {
-            if (B2Worlds.b2Shape_IsValid(_shapeID))
-            {
-                // TODO: destroy collection of shapes
-                var autoMass = RigidBody ? RigidBody.IsAutoMass : false;
-                B2Shapes.b2DestroyShape(_shapeID, autoMass);
+            if (_shapesID == null)
+                return;
 
-                _shapeID = InvalidShapeID;
+            for (int i = 0; i < _shapesID.Length; i++)
+            {
+                if (B2Worlds.b2Shape_IsValid(_shapesID[i]))
+                {
+                    var autoMass = RigidBody ? RigidBody.IsAutoMass : false;
+                    B2Shapes.b2DestroyShape(_shapesID[i], autoMass);
+                    _shapesID[i] = default;
+                }
             }
+
+            _shapesID = null;
         }
     }
 }

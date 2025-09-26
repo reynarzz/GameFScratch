@@ -18,7 +18,7 @@ namespace Engine
             set
             {
                 _radius = value;
-                RigidBody.UpdateCollider(this);
+                Create();
             }
         }
 
@@ -27,19 +27,19 @@ namespace Engine
             get => _size;
             set
             {
-                _size = value;
-                RigidBody?.UpdateCollider(this);
+                _size = value; 
+                Create();
             }
         }
 
-        protected override B2ShapeId CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
             B2Capsule capsule = new B2Capsule()
             {
                 radius = _radius,
             };
 
-            return B2Shapes.b2CreateCapsuleShape(bodyId, ref shapeDef, ref capsule);
+            return [B2Shapes.b2CreateCapsuleShape(bodyId, ref shapeDef, ref capsule)];
         }
     }
 }

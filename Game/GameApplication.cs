@@ -54,7 +54,6 @@ namespace Game
         }}";
 
         // TODO:
-        // Implement physics: collision functions (OnCollisionEnter2D, OnTriggerEnter2D, etc...)
         // Implement layerMask
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio

@@ -33,6 +33,7 @@ namespace Engine
         private bool _isZRotationLocked = false;
         private bool _shouldUpdatePreTransformation = false;
 
+        internal B2BodyId BodyId => _bodyId;
         public vec2 Velocity
         {
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
@@ -160,7 +161,7 @@ namespace Engine
             foreach (var collider in colliders)
             {
                 collider.RigidBody = this;
-                collider.Create(_bodyId);
+                collider.Create();
             }
 
             Transform.OnChanged += OnTransformChanged;
@@ -215,25 +216,14 @@ namespace Engine
             }
         }
 
-        internal void AddCollider(Collider2D collider)
+        internal void UpdateBody()
         {
-            collider.Create(_bodyId);
-            Mass = _userMassValue;
-        }
-
-        internal void UpdateCollider(Collider2D collider)
-        {
-            collider.Create(_bodyId);
             Mass = _userMassValue;
         }
 
         private void OnTransformChanged(Transform transform)
         {
             _shouldUpdatePreTransformation = true;
-        }
-
-        internal void RemoveCollider(B2ShapeId shapeID)
-        {
         }
 
         public override void OnDestroy()
