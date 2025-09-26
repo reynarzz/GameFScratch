@@ -104,5 +104,9 @@ namespace Engine.Utils
             return new vec2(vec.X, vec.Y);
         }
 
+        internal static vec3 ToVec3(this B2Vec2 vec)
+        {
+            return new vec3(vec.X, vec.Y, 0);
+        }
     }
 }

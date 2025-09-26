@@ -24,16 +24,16 @@ namespace Engine
         {
             List<PVertex> verts = new List<PVertex>
             {
-                new PVertex(new Vec2(0, 0)),
-                new PVertex(new Vec2(4, 1)),
-                new PVertex(new Vec2(8, 0)),
-                new PVertex(new Vec2(6, 3)),
-                new PVertex(new Vec2(8, 6)),
-                new PVertex(new Vec2(4, 5)),
-                new PVertex(new Vec2(0, 6)),
-                new PVertex(new Vec2(2, 3)),
-                new PVertex(new Vec2(1, 2)),
-                new PVertex(new Vec2(3, 2))
+                new PVertex(new Vec2(0, 0) * 0.2f),
+                new PVertex(new Vec2(4, 1) * 0.2f),
+                new PVertex(new Vec2(8, 0) * 0.2f),
+                new PVertex(new Vec2(6, 3) * 0.2f),
+                new PVertex(new Vec2(8, 6) * 0.2f),
+                new PVertex(new Vec2(4, 5) * 0.2f),
+                new PVertex(new Vec2(0, 6) * 0.2f),
+                new PVertex(new Vec2(2, 3) * 0.2f),
+                new PVertex(new Vec2(1, 2) * 0.2f),
+                new PVertex(new Vec2(3, 2) * 0.2f)
             };
 
             var poly = new ConcavePolygon(verts);
@@ -42,7 +42,7 @@ namespace Engine
             var pieces = new List<ConcavePolygon>();
             poly.ReturnLowestLevelPolys(pieces, 7);
 
-            var shapes = new B2ShapeId[pieces.Count];
+            var shapes = new B2ShapeId[1];
             var points = default(Vec2[]);
             for (int i = 0; i < pieces.Count; i++)
             {
@@ -67,6 +67,7 @@ namespace Engine
                 }
 #endif
                 shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
+                break;
             }
 
             return shapes;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GlmNet;
+using Engine.Utils;
 
 
 namespace Engine.Graphics
@@ -27,11 +28,7 @@ namespace Engine.Graphics
             // Draw all here in one go
         }
 
-        internal static void DrawCircle(B2Vec2 center, float radius, B2HexColor color, object context)
-        {
-
-        }
-
+        
         internal static void DrawPolygon(ReadOnlySpan<B2Vec2> vertices, int vertexCount, B2HexColor color, object context)
         {
             DrawPolygonInternal(ref DefaultTransform, ref vertices, vertexCount, color);
@@ -76,9 +73,15 @@ namespace Engine.Graphics
             return new B2Vec2(x, y);
         }
 
+        internal static void DrawCircle(B2Vec2 center, float radius, B2HexColor color, object context)
+        {
+            Debug.DrawCircle(center.ToVec3(), radius, (uint)color);
+        }
+
         internal static void DrawSolidCircle(ref B2Transform transform, float radius, B2HexColor color, object context)
         {
-
+            var pos = Mul(ref transform, default);
+            Debug.DrawCircle(pos.ToVec3(), radius, (uint)color);
         }
 
         internal static void DrawSolidCapsule(B2Vec2 p1, B2Vec2 p2, float radius, B2HexColor color, object context)
@@ -93,7 +96,18 @@ namespace Engine.Graphics
 
         internal static void DrawTransform(B2Transform transform, object context)
         {
+            const float axisLength = 2;
+            vec3 p = new vec3(transform.p.X, transform.p.Y, 0);
 
+            vec3 xAxis = new vec3(transform.p.X + transform.q.c * axisLength,
+                                  transform.p.Y + transform.q.s * axisLength, 0);
+
+            vec3 yAxis = new vec3(transform.p.X - transform.q.s * axisLength,
+                                  transform.p.Y + transform.q.c * axisLength, 0);
+
+            // Draw axes
+            Debug.DrawLine(p, xAxis, Color.Red);
+            Debug.DrawLine(p, yAxis, Color.Green);
         }
 
         internal static void DrawPoint(B2Vec2 p, float size, B2HexColor color, object context)

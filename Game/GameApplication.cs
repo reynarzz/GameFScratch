@@ -118,7 +118,7 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CircleCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
@@ -142,7 +142,6 @@ namespace Game
 
 
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PolygonCollider2D, CollisionTest>("Floor");
-
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();

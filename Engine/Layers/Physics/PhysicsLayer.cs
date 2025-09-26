@@ -15,6 +15,7 @@ using static Box2D.NET.B2Diagnostics;
 using static Box2D.NET.B2Contacts;
 using GlmNet;
 using Engine.Graphics;
+using Engine.Utils;
 
 namespace Engine.Layers
 {
@@ -34,7 +35,7 @@ namespace Engine.Layers
             _contactDispatcher = new ContactsDispatcher();
             _debugDraw = new B2DebugDraw()
             {
-                context = null,
+                context = this,
 
                 DrawPolygonFcn = Box2DDraw.DrawPolygon,
                 DrawSolidPolygonFcn = Box2DDraw.DrawSolidPolygon,
@@ -47,20 +48,19 @@ namespace Engine.Layers
                 DrawStringFcn = Box2DDraw.DrawString,
 
                 drawShapes = true,
-                drawJoints = false,
+                drawJoints = true,
                 drawJointExtras = false,
-                drawBounds = false,
-                drawMass = false,
+                drawBounds = true,
+                drawMass = true,
                 drawBodyNames = false,
-                drawContacts = false,
-                drawGraphColors = false,
-                drawContactNormals = false,
+                drawContacts = true,
+                drawGraphColors = true,
+                drawContactNormals = true,
                 drawContactImpulses = false,
                 drawContactFeatures = false,
                 drawFrictionImpulses = false,
                 drawIslands = false,
             };
-
             
             //ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
 
@@ -128,6 +128,7 @@ namespace Engine.Layers
                 accumulator -= fixedTimeStep;
 
                 _contactDispatcher.Update();
+
             }
 
             foreach (var rigidbody in rigidBodies)
@@ -136,9 +137,17 @@ namespace Engine.Layers
                 {
                     rigidbody.PostUpdateBody();
                 }
+
+                B2Transform transform = new B2Transform();
+                transform.p = new B2Vec2(rigidbody.Transform.WorldPosition.x, rigidbody.Transform.WorldPosition.y);
+                transform.q = rigidbody.Transform.WorldRotation.QuatToB2Rot();
+
+                B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), rigidbody.GetComponent<Collider2D>().ShapesId[0]), transform, B2HexColor.b2_colorAntiqueWhite);
+
             }
             
             B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);
+           
 
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
             float alpha = accumulator / fixedTimeStep;
