@@ -9,29 +9,59 @@ namespace Engine
 {
     internal struct CollisionKey : IEquatable<CollisionKey>
     {
-        public B2ShapeId shapeA;
-        public B2ShapeId shapeB;
+        public Collider2D colliderA;
+        public Collider2D colliderB;
 
         public bool WasEnterEventRaised;
 
-        // TODO: use Collider2D instead of shape, so it can support colliders of multiples shapes.
-        public CollisionKey(B2ShapeId a, B2ShapeId b)
+        public CollisionKey(Collider2D a, Collider2D b)
         {
-            shapeA = a;
-            shapeB = b;
+            colliderA = a;
+            colliderB = b;
             WasEnterEventRaised = false;
         }
 
-        private static bool EqualsShape(B2ShapeId a, B2ShapeId b)
+        private static bool EqualsShape(Collider2D a, Collider2D b)
         {
-            return a.index1 == b.index1 &&
-                   a.world0 == b.world0 &&
-                   a.generation == b.generation;
+            if (a.ShapesId.Length != b.ShapesId.Length)
+                return false;
+
+            for (int i = 0; i < a.ShapesId.Length; i++)
+            {
+                var sa = a.ShapesId[i];
+                var sb = b.ShapesId[i];
+
+                if (sa.index1 != sb.index1 ||
+                    sa.world0 != sb.world0 ||
+                    sa.generation != sb.generation)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        private static int GetShapeHash(B2ShapeId s)
+        private static int CombineHash(int h1, int h2)
         {
-            return HashCode.Combine(s.index1, s.world0, s.generation);
+            unchecked
+            {
+                return ((h1 << 5) + h1) ^ h2;
+            }
+        }
+
+        private static int GetShapesHash(B2ShapeId[] shapes)
+        {
+            int hash = 17; // seed
+            unchecked
+            {
+                foreach (var s in shapes)
+                {
+                    int sh = HashCode.Combine(s.index1, s.world0, s.generation);
+                    hash = CombineHash(hash, sh);
+                }
+            }
+            return hash;
         }
 
         public bool Equals(CollisionKey other)
@@ -39,13 +69,13 @@ namespace Engine
             // Order-independent equality
             return
             (
-                EqualsShape(shapeA, other.shapeA) &&
-                EqualsShape(shapeB, other.shapeB)
+                EqualsShape(colliderA, other.colliderA) &&
+                EqualsShape(colliderB, other.colliderB)
             )
             ||
             (
-                EqualsShape(shapeA, other.shapeB) &&
-                EqualsShape(shapeB, other.shapeA)
+                EqualsShape(colliderA, other.colliderB) &&
+                EqualsShape(colliderB, other.colliderA)
             );
         }
 
@@ -54,8 +84,8 @@ namespace Engine
 
         public override int GetHashCode()
         {
-            int h1 = GetShapeHash(shapeA);
-            int h2 = GetShapeHash(shapeB);
+            int h1 = GetShapesHash(colliderA.ShapesId);
+            int h2 = GetShapesHash(colliderB.ShapesId);
 
             // Canonical order to make (A,B) == (B,A) produce same hash:
             if (h2 < h1)

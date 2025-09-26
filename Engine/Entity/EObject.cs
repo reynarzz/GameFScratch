@@ -56,7 +56,7 @@ namespace Engine
 
         protected void CheckIfValidObject(EObject obj)
         {
-            if (EndFrameLayer.CleaningUp)
+            if (CleanUpLayer.CleaningUp)
                 return;
 
             if (!obj.IsAlive)

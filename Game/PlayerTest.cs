@@ -55,13 +55,13 @@ namespace Game
 
         public override void OnCollisionEnter2D(Collision2D collision)
         {
-            List<ContactPoint2D> contacts = null;
-            collision.GetContacts(ref contacts);
+            //List<ContactPoint2D> contacts = null;
+            //collision.GetContacts(ref contacts);
 
-            for (int i = 0; i < contacts.Count; i++)
-            {
-                Debug.Log(contacts[i].Position);
-            }
+            //for (int i = 0; i < contacts.Count; i++)
+            //{
+            //    Debug.Log(contacts[i].Position);
+            //}
             Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
              Actor.Destroy(collision.Actor);
         }

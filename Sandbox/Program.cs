@@ -16,8 +16,7 @@ namespace Sandbox
                               typeof(GameApplication), 
                               typeof(SceneLayer),
                               typeof(PhysicsLayer),
-                              typeof(RenderingLayer),
-                              typeof(EndFrameLayer));
+                              typeof(RenderingLayer));
 
             engine.Run();
 

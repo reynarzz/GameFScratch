@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Layers
 {
-    internal class EndFrameLayer : LayerBase
+    internal class CleanUpLayer : LayerBase
     {
         public static bool CleaningUp { get; private set; }
 

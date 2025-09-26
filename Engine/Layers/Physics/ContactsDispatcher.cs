@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+using System.Threading.Tasks.Sources;
 
 namespace Engine.Layers
 {
-
-
     public struct Collision2D
     {
         public Collider2D Collider { get; internal set; }
@@ -20,9 +18,10 @@ namespace Engine.Layers
         public Transform Transform => OtherCollider.Transform;
         public Actor Actor => OtherCollider.Actor;
 
-        internal B2ShapeId CurrentShapeId;
-        internal B2ShapeId OtherShapeId;
+        internal B2ShapeId CurrentShapeId; // Remove
+        internal B2ShapeId OtherShapeId; // Remove
 
+        
         public void GetContacts(ref List<ContactPoint2D> contacts)
         {
             if (contacts == null)
@@ -33,6 +32,9 @@ namespace Engine.Layers
             {
                 contacts.Clear();
             }
+
+            // TODO: refactor to implement multiple shapes
+            throw new Exception(); // Remove
 
             var capacity = B2Shapes.b2Shape_GetContactCapacity(CurrentShapeId);
 
@@ -79,8 +81,8 @@ namespace Engine.Layers
         private readonly Action<ScriptBehavior, Collider2D> _onTriggerEnter = (x, y) => x.OnTriggerEnter2D(y);
         private readonly Action<ScriptBehavior, Collider2D> _onTriggerExit = (x, y) => x.OnTriggerExit2D(y);
         private readonly Action<ScriptBehavior, Collider2D> _onTriggerStay = (x, y) => x.OnTriggerStay2D(y);
-        private Action<Action<ScriptBehavior, Collision2D>, B2ShapeId, B2ShapeId> _collisionFuncEvent => OnCollision;
-        private Action<Action<ScriptBehavior, Collider2D>, B2ShapeId, B2ShapeId> _triggerFuncEvent => OnTrigger;
+        private Action<Action<ScriptBehavior, Collision2D>, Collider2D, Collider2D> _collisionFuncEvent => OnCollision;
+        private Action<Action<ScriptBehavior, Collider2D>, Collider2D, Collider2D> _triggerFuncEvent => OnTrigger;
 
         private HashSet<CollisionKey> _contactEnter;
         private HashSet<CollisionKey> _contactExit;
@@ -103,6 +105,24 @@ namespace Engine.Layers
             _triggerExit.EnsureCapacity(100);
         }
 
+        private bool GetCollisionKey(B2ShapeId shapeA, B2ShapeId shapeB, out CollisionKey key)
+        {
+            key = default;
+
+            if (!(B2Worlds.b2Shape_IsValid(shapeA) && B2Worlds.b2Shape_IsValid(shapeB)))
+                return false;
+
+            var col1 = B2Shapes.b2Shape_GetUserData(shapeA) as Collider2D;
+            var col2 = B2Shapes.b2Shape_GetUserData(shapeB) as Collider2D;
+
+            if (!(col1 && col2))
+                return false;
+
+            key = new CollisionKey(col1, col2);
+
+            return true;
+        }
+
         internal void Update()
         {
             // Contacts
@@ -110,24 +130,34 @@ namespace Engine.Layers
             for (int i = 0; i < contactsEvent.beginCount; ++i)
             {
                 var evt = contactsEvent.beginEvents[i];
-                var added = _contactEnter.Add(new CollisionKey(evt.shapeIdA, evt.shapeIdB));
-                if (!added)
-                {
-                    Debug.Error($"Not added: '{GetCollider(ref evt.shapeIdA).Name}' and {GetCollider(ref evt.shapeIdB).Name}\n" +
-                        $"A:{evt.shapeIdA}, B:{evt.shapeIdB}");
 
-                    for (int j = 0; j < _contactEnter.Count; j++)
+                if (GetCollisionKey(evt.shapeIdA, evt.shapeIdB, out var currentKey))
+                {
+                    var added = _contactEnter.Add(currentKey);
+
+                    if (!added)
                     {
-                        var key = _contactEnter.ElementAt(j);
-                        Debug.Log($"Enter Key's({j}): A:{key.shapeA}, B:{key.shapeB}");
+
+                        Debug.Error($"Not added: '{currentKey.colliderA.Name}' and {currentKey.colliderB.Name}\n" +
+                            $"A:{evt.shapeIdA}, B:{evt.shapeIdB}");
+
+                        for (int j = 0; j < _contactEnter.Count; j++)
+                        {
+                            var key = _contactEnter.ElementAt(j);
+                            Debug.Log($"Enter Key's({j}): A:{key.colliderA}, B:{key.colliderB}");
+                        }
                     }
                 }
+
             }
 
             for (int i = 0; i < contactsEvent.endCount; ++i)
             {
                 var evt = contactsEvent.endEvents[i];
-                _contactExit.Add(new CollisionKey(evt.shapeIdA, evt.shapeIdB));
+                if (GetCollisionKey(evt.shapeIdA, evt.shapeIdB, out var key))
+                {
+                    _contactExit.Add(key);
+                }
             }
 
             // Sensor
@@ -135,13 +165,20 @@ namespace Engine.Layers
             for (int i = 0; i < sensorEvents.beginCount; ++i)
             {
                 var evt = sensorEvents.beginEvents[i];
-                _triggerEnter.Add(new CollisionKey(evt.sensorShapeId, evt.visitorShapeId));
+
+                if (GetCollisionKey(evt.sensorShapeId, evt.visitorShapeId, out var key))
+                {
+                    _triggerEnter.Add(key);
+                }
             }
 
             for (int i = 0; i < sensorEvents.endCount; ++i)
             {
                 var evt = sensorEvents.endEvents[i];
-                _triggerExit.Add(new CollisionKey(evt.sensorShapeId, evt.visitorShapeId));
+                if (GetCollisionKey(evt.sensorShapeId, evt.visitorShapeId, out var key))
+                {
+                    _triggerExit.Add(key);
+                }
             }
 
             RaiseEvents();
@@ -156,7 +193,7 @@ namespace Engine.Layers
             OnExit(_triggerExit, _triggerEnter, _triggerFuncEvent, _onTriggerExit);
         }
 
-        private void OnEnter<T>(HashSet<CollisionKey> enterCollisions, Action<Action<ScriptBehavior, T>, B2ShapeId, B2ShapeId> eventForwarder,
+        private void OnEnter<T>(HashSet<CollisionKey> enterCollisions, Action<Action<ScriptBehavior, T>, Collider2D, Collider2D> eventForwarder,
                                 Action<ScriptBehavior, T> onEnterFunc, Action<ScriptBehavior, T> onStayFunc)
         {
             for (int i = 0; i < enterCollisions.Count; i++)
@@ -169,19 +206,19 @@ namespace Engine.Layers
                     collision.WasEnterEventRaised = true;
                     enterCollisions.Add(collision);
 
-                    eventForwarder(onEnterFunc, collision.shapeA, collision.shapeB);
-                    eventForwarder(onEnterFunc, collision.shapeB, collision.shapeA);
+                    eventForwarder(onEnterFunc, collision.colliderA, collision.colliderB);
+                    eventForwarder(onEnterFunc, collision.colliderB, collision.colliderA);
                 }
                 else
                 {
-                    eventForwarder(onStayFunc, collision.shapeA, collision.shapeB);
-                    eventForwarder(onStayFunc, collision.shapeB, collision.shapeA);
+                    eventForwarder(onStayFunc, collision.colliderA, collision.colliderB);
+                    eventForwarder(onStayFunc, collision.colliderB, collision.colliderA);
                 }
             }
         }
 
         private void OnExit<T>(HashSet<CollisionKey> exitCollisions, HashSet<CollisionKey> enterCollisions,
-            Action<Action<ScriptBehavior, T>, B2ShapeId, B2ShapeId> eventForwarder, Action<ScriptBehavior, T> exitEvent)
+            Action<Action<ScriptBehavior, T>, Collider2D, Collider2D> eventForwarder, Action<ScriptBehavior, T> exitEvent)
         {
             for (int i = 0; i < exitCollisions.Count; i++)
             {
@@ -190,8 +227,8 @@ namespace Engine.Layers
 
                 if (!found)
                 {
-                    Debug.Error($"Can't exit: '{GetCollider(ref exitCollision.shapeA).Name}' and {GetCollider(ref exitCollision.shapeB).Name}\n" +
-                        $"A:{exitCollision.shapeA}, B:{exitCollision.shapeB}");
+                    Debug.Error($"Can't exit: '{exitCollision.colliderA.Name}' and {exitCollision.colliderB.Name}\n" +
+                        $"A:{exitCollision.colliderA}, B:{exitCollision.colliderB}");
                 }
 
                 //var enterContact = _contactEnter.ElementAt(i);
@@ -203,8 +240,8 @@ namespace Engine.Layers
                     //Debug.Log($"Remove contact enter: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
                     //    $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
 
-                    eventForwarder(exitEvent, enterCollision.shapeA, enterCollision.shapeB);
-                    eventForwarder(exitEvent, enterCollision.shapeB, enterCollision.shapeA);
+                    eventForwarder(exitEvent, enterCollision.colliderA, enterCollision.colliderB);
+                    eventForwarder(exitEvent, enterCollision.colliderB, enterCollision.colliderA);
                 }
                 else
                 {
@@ -238,43 +275,25 @@ namespace Engine.Layers
             }
         }
 
-        private void OnCollision(Action<ScriptBehavior, Collision2D> action, B2ShapeId shapeIdA, B2ShapeId shapeIdB)
+        private void OnCollision(Action<ScriptBehavior, Collision2D> action, Collider2D collA, Collider2D collB)
         {
-            var coll1 = GetCollider(ref shapeIdA);
-            var coll2 = GetCollider(ref shapeIdB);
-
-            if (coll1 && coll1.Actor && coll2 && coll2.Actor)
+            if (collA && collA.Actor && collB && collB.Actor)
             {
-                _collisionData.Collider = coll1;
-                _collisionData.OtherCollider = coll2;
-                _collisionData.CurrentShapeId = shapeIdA;
-                _collisionData.OtherShapeId = shapeIdB;
+                _collisionData.Collider = collA;
+                _collisionData.OtherCollider = collB;
 
-                OnNotifyScripts(coll1, coll2, action, ref _collisionData);
+                OnNotifyScripts(collA, collB, action, ref _collisionData);
             }
 
             _collisionData = default;
         }
 
-        private void OnTrigger(Action<ScriptBehavior, Collider2D> action, B2ShapeId shapeIdA, B2ShapeId shapeIdB)
+        private void OnTrigger(Action<ScriptBehavior, Collider2D> action, Collider2D coll1, Collider2D coll2)
         {
-            var coll1 = GetCollider(ref shapeIdA);
-            var coll2 = GetCollider(ref shapeIdB);
-
             if (coll1 && coll1.IsTrigger && coll1.Actor && coll2 && coll2.Actor)
             {
                 OnNotifyScripts(coll1, coll2, action, ref coll2);
             }
-        }
-
-        private Collider2D GetCollider(ref B2ShapeId shape)
-        {
-            if (B2Worlds.b2Shape_IsValid(shape))
-            {
-                return B2Shapes.b2Shape_GetUserData(shape) as Collider2D;
-            }
-
-            return null;
         }
 
         private void OnNotifyScripts<T>(Collider2D current, Collider2D collided, Action<ScriptBehavior, T> funcEvent, ref T data)

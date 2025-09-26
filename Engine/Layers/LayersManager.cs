@@ -9,6 +9,7 @@ namespace Engine.Layers
     internal class LayersManager
     {
         private LayerBase[] _layers;
+        private CleanUpLayer _cleanupLayer;
         public LayersManager(Type[] layersTypes)
         {
             _layers = new LayerBase[layersTypes.Length];
@@ -16,10 +17,14 @@ namespace Engine.Layers
             {
                 _layers[i] = (LayerBase)Activator.CreateInstance(layersTypes[i]);
             }
+
+            _cleanupLayer = new CleanUpLayer();
         }
 
         internal void Initialize()
         {
+            _cleanupLayer.Initialize();
+
             for (int i = _layers.Length - 1; i >= 0; i--)
             {
                 _layers[i].Initialize();
@@ -31,7 +36,7 @@ namespace Engine.Layers
 //                }
 //                catch (Exception e)
 //                {
-//                    Log.Error(e);
+//                    Debug.Error(e);
 //                }
 //#else
 //                _layers[i].Initialize();
@@ -45,6 +50,8 @@ namespace Engine.Layers
             {
                 _layers[i].UpdateLayer();
             }
+
+            _cleanupLayer.UpdateLayer();
         }
 
         internal void PublishEvent(LayerEvent currentEvent)
