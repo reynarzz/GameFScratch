@@ -14,8 +14,9 @@ namespace Game
         {
             Debug.Info("Awake");
             //new Actor<RotateTest>();
-
+            GetComponent<RigidBody2D>().IsContinuos = true;
         }
+
         public override void OnStart()
         {
             Debug.Info("Start");
@@ -24,8 +25,6 @@ namespace Game
 
         public override void OnUpdate()
         {
-            GetComponent<RigidBody2D>().IsContinuos = true;
-
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(GetComponent<RigidBody2D>().Velocity.x, 0);
@@ -64,13 +63,22 @@ namespace Game
                 Debug.Log(contacts[i].Position);
             }
             Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
-            Actor.Destroy(collision.Actor);
+            // Actor.Destroy(collision.Actor);
         }
          
         public override void OnCollisionExit2D(Collision2D collision)
         {
             Debug.Info("Player Collision -exit: " + collision.OtherCollider.Name);
+        }
 
+        public override void OnCollisionStay2D(Collision2D collision)
+        {
+            Debug.Info("Player Collision stay: " + collision.OtherCollider.Name);
+        }
+        public override void OnTriggerEnter2D(Collider2D collider)
+        {
+            Debug.Log("On trigger enter: " + collider.Name);
+            //Actor.Destroy(collider.Actor);
         }
     }
 }

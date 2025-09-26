@@ -13,11 +13,7 @@ namespace Engine
         {
             get
             {
-                if (!IsValidObject(this) || !IsValidObject(Actor))
-                {
-                    return null;
-                }
-
+                CheckIfValidObject(this);
                 return Actor.Transform;
             }
         }
@@ -55,28 +51,19 @@ namespace Engine
 
         public Component AddComponent(Type type)
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return null;
-            }
+            CheckIfValidObject(this);
             return Actor.AddComponent(type);
         }
 
         public T AddComponent<T>() where T : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return null;
-            }
+            CheckIfValidObject(this);
             return Actor.AddComponent<T>();
         }
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             Actor.AddComponent<T1, T2>();
         }
 
@@ -84,10 +71,7 @@ namespace Engine
                                                 where T2 : Component
                                                 where T3 : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             Actor.AddComponent<T1, T2, T3>();
         }
 
@@ -96,10 +80,7 @@ namespace Engine
                                                     where T3 : Component
                                                     where T4 : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             Actor.AddComponent<T1, T2, T3, T4>();
         }
 
@@ -109,34 +90,20 @@ namespace Engine
                                                         where T4 : Component
                                                         where T5 : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             Actor.AddComponent<T1, T2, T3, T4, T5>();
         }
 
         public T GetComponent<T>() where T : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return null;
-            }
-
+            CheckIfValidObject(this);
             return Actor.GetComponent<T>();
         }
 
         public T[] GetComponents<T>() where T : Component
         {
-            if (!IsValidObject(this) || !IsValidObject(Actor))
-            {
-                return null;
-            }
-
+            CheckIfValidObject(this);
             return Actor.GetComponents<T>();
         }
-
-
-
     }
 }

@@ -11,7 +11,17 @@ namespace Engine
         private List<Component> _components;
         internal IReadOnlyList<Component> Components => _components;
 
-        public Transform Transform { get; private set; }
+        private Transform _transform;
+        public Transform Transform 
+        {
+            get { CheckIfValidObject(this); return _transform; }
+            private set
+            {
+                CheckIfValidObject(this);
+                _transform = value;
+            } 
+        }
+      
         public Scene Scene { get; internal set; }
         public bool IsEnabled { get; set; } = true;
         public string Tag { get; set; }
@@ -51,9 +61,7 @@ namespace Engine
             _onStartComponents = new List<Component>();
             _pendingToDeleteComponents = new List<Component>();
 
-
-
-            Transform = AddComponent<Transform>();
+            _transform = AddComponent<Transform>();
 
             Scene = SceneManager.ActiveScene;
             Scene.AddActor(this);
@@ -61,10 +69,7 @@ namespace Engine
 
         public Component AddComponent(Type type)
         {
-            if (!IsValidObject(this))
-            {
-                return null;
-            }
+            CheckIfValidObject(this);
 
             if (!IsValidComponent(type))
             {
@@ -87,19 +92,13 @@ namespace Engine
 
         public T AddComponent<T>() where T : Component
         {
-            if (!IsValidObject(this))
-            {
-                return null;
-            }
+            CheckIfValidObject(this);
             return AddComponent(typeof(T)) as T;
         }
 
         public void AddComponent<T1, T2>() where T1 : Component where T2 : Component
         {
-            if (!IsValidObject(this))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             AddComponent<T1>();
             AddComponent<T2>();
         }
@@ -108,10 +107,7 @@ namespace Engine
                                                 where T2 : Component
                                                 where T3 : Component
         {
-            if (!IsValidObject(this))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             AddComponent<T1, T2>();
             AddComponent<T3>();
         }
@@ -121,10 +117,7 @@ namespace Engine
                                                     where T3 : Component
                                                     where T4 : Component
         {
-            if (!IsValidObject(this))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             AddComponent<T1, T2, T3>();
             AddComponent<T4>();
         }
@@ -135,20 +128,14 @@ namespace Engine
                                                         where T4 : Component
                                                         where T5 : Component
         {
-            if (!IsValidObject(this))
-            {
-                return;
-            }
+            CheckIfValidObject(this);
             AddComponent<T1, T2, T3, T4>();
             AddComponent<T5>();
         }
 
         public Component GetComponent(Type type)
         {
-            if (!IsValidObject(this))
-            {
-                return null;
-            }
+            CheckIfValidObject(this);
             for (int i = 0; i < _components.Count; i++)
             {
                 if (type.IsAssignableFrom(_components[i].GetType()))
@@ -167,10 +154,7 @@ namespace Engine
 
         public T[] GetComponents<T>() where T : Component
         {
-            if (!IsValidObject(this))
-            {
-                return null;
-            }
+            CheckIfValidObject(this);
             var components = new List<T>();
             for (int i = 0; i < _components.Count; i++)
             {
@@ -202,8 +186,6 @@ namespace Engine
 
             void PendingToDestroyNotify(Actor actor)
             {
-                actor.IsPendingToDestroy = true;
-
                 // Notify children components
                 for (int i = 0; i < actor.Transform.Children.Count; i++)
                 {
@@ -211,10 +193,12 @@ namespace Engine
                 }
 
                 // Notify own components
-                for (int i = actor._components.Count - 1; i >= 0; i--)
+                for (int i = 0; i < actor._components.Count; i++)
                 {
                     actor._components[i].IsPendingToDestroy = true;
                 }
+
+                actor.IsPendingToDestroy = true;
             }
 
             PendingToDestroyNotify(actor);

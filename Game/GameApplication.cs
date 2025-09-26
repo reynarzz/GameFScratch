@@ -62,7 +62,9 @@ namespace Game
         // Tilemap (rendering, ldtk file loading, colliders)
         // Use Collider2D instead of shape in CollisionKey, so it can support colliders of multiples shapes.
         // Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
-             // This collisionsExit/TriggerExit should not be called with invalid actors/components
+        // This collisionsExit/TriggerExit should not be called with invalid actors/components
+        // Investigate why colliders are not freed from memory automatically.
+        // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
 
         public override void Initialize()
         {
@@ -92,7 +94,7 @@ namespace Game
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
 
-            var actor = new Actor<SpriteRenderer, RotateTest, RigidBody2D, BoxCollider2D, CollisionTest>("Actor1");
+            var actor = new Actor<SpriteRenderer, RotateTest, RigidBody2D, BoxCollider2D, CollisionTest>("CenterRotParent");
             actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
@@ -101,12 +103,15 @@ namespace Game
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
+            //actor.GetComponent<Collider2D>().IsTrigger = true;
+
+
             // (int i = 0; i < 33; i++)
             {
                 var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, RotateTest, CollisionTest>("RotatedQuad");
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
                 actor2.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
-                
+
                 //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
                 actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
                 actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
@@ -119,13 +124,14 @@ namespace Game
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
-                     var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
+            var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 0, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
             // rigid3.Actor.IsEnabled = false;
-           
+            // actor3.GetComponent<BoxCollider2D>().IsTrigger = true;
+
             rigid3.IsAutoMass = false;
             // Actor.Destroy(camera.Actor);
             var cam = Actor.Find("Camera");

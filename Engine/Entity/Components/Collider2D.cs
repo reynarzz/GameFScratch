@@ -42,7 +42,7 @@ namespace Engine
                 }
             }
         }
-        
+
         public vec2 Offset
         {
             get => _offset;
@@ -53,13 +53,13 @@ namespace Engine
             }
         }
 
-      
+
         public bool IsTrigger
         {
             get => _isTrigger;
             set
             {
-                if (_isTrigger == value)
+                if (/*_isTrigger == value ||*/ !B2Worlds.b2Shape_IsValid(_shapeID))
                 {
                     return;
                 }
@@ -74,21 +74,23 @@ namespace Engine
 
         public float Friction
         {
-            get => B2Shapes.b2Shape_GetFriction(_shapeID);
+            get => B2Worlds.b2Shape_IsValid(_shapeID) ? B2Shapes.b2Shape_GetFriction(_shapeID) : -1;
             set
             {
-                B2Shapes.b2Shape_SetFriction(_shapeID, value);
+                if (B2Worlds.b2Shape_IsValid(_shapeID))
+                    B2Shapes.b2Shape_SetFriction(_shapeID, value);
             }
         }
 
         public float Bounciness
         {
-            get => B2Shapes.b2Shape_GetRestitution(_shapeID);
+            get => B2Worlds.b2Shape_IsValid(_shapeID) ? B2Shapes.b2Shape_GetRestitution(_shapeID) : -1;
             set
             {
                 B2Shapes.b2Shape_SetRestitution(_shapeID, value);
             }
         }
+
         internal override void OnInitialize()
         {
             RigidBody = GetComponent<RigidBody2D>();
@@ -98,7 +100,7 @@ namespace Engine
             {
                 enableContactEvents = true,
                 enableHitEvents = true,
-                //enableSensorEvents = false,
+                enableSensorEvents = true,
                 // enablePreSolveEvents = false,
                 invokeContactCreation = true,
                 isSensor = false,

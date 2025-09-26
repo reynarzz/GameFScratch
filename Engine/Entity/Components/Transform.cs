@@ -61,6 +61,8 @@ namespace Engine
             get => _parent;
             set
             {
+                CheckIfValidObject(this);
+
                 if (_parent == value)
                     return;
 
@@ -117,6 +119,8 @@ namespace Engine
         {
             get
             {
+                CheckIfValidObject(this);
+
                 UpdateWorldIfDirty();
                 return _cachedWorldPosition;
             }

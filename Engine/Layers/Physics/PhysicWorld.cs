@@ -16,6 +16,8 @@ namespace Engine
         {
             B2WorldDef worldDef = B2Types.b2DefaultWorldDef();
             worldDef.gravity = new B2Vec2(0, -9.8f);
+            worldDef.enableContinuous = true;
+
             WorldID = B2Worlds.b2CreateWorld(ref worldDef);
         }
 

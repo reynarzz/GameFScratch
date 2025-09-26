@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Engine.Exceptions;
+using Engine.Layers;
 
 namespace Engine
 {
@@ -52,25 +54,21 @@ namespace Engine
             return obj != null && obj.IsAlive && !obj.IsPendingToDestroy && obj._guid != Guid.Empty;
         }
 
-        protected bool IsValidObject(EObject obj)
+        protected void CheckIfValidObject(EObject obj)
         {
+            if (EndFrameLayer.CleaningUp)
+                return;
+
             if (!obj.IsAlive)
             {
-#if DEBUG
-                try
-                {
-                    Debug.Error($"Can't use already deleted object: {obj.GetType().Name}");
-                }
-                catch (Exception)
-                {
-                    Debug.Error($"Can't use already deleted object");
-                }
-#endif
-                return false;
+                throw new DestroyedObjectException($"Can't use destroyed object of type: '{obj.GetType().Name}'");
             }
-
-            return true;
+            else if (obj.IsPendingToDestroy)
+            {
+                Debug.Error($"Object of type: '{obj.GetType().Name}' was marked to be destroyed, please don't use it.");
+            }
         }
+
 #if DEBUG
         ~EObject()
         {

@@ -17,6 +17,9 @@ namespace Engine
         {
             public T Invoke(Actor actor, bool canAddDisabled)
             {
+                if (!actor)
+                    return null;
+
                 var comp = actor.GetComponent<T>();
 
                 if (canAddDisabled)
@@ -142,7 +145,10 @@ namespace Engine
 
             for (int i = 0; i < _rootActors.Count; i++)
             {
-                Find(_rootActors[i]);
+                if (_rootActors[i])
+                {
+                    Find(_rootActors[i]);
+                }
             }
 
             return list;

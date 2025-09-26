@@ -259,7 +259,7 @@ namespace Engine.Layers
             var coll1 = GetCollider(ref shapeIdA);
             var coll2 = GetCollider(ref shapeIdB);
 
-            if (coll1.IsTrigger && coll1 && coll1.Actor && coll2 && coll2.Actor)
+            if (coll1 && coll1.IsTrigger && coll1.Actor && coll2 && coll2.Actor)
             {
                 OnNotifyScripts(coll1, coll2, action, ref coll2);
             }
