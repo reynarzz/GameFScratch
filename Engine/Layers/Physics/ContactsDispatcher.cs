@@ -72,65 +72,6 @@ namespace Engine.Layers
 
     internal class ContactsDispatcher
     {
-        private Collision2D _collisionData;
-        private struct CollisionKey : IEquatable<CollisionKey>
-        {
-            public B2ShapeId shapeA;
-            public B2ShapeId shapeB;
-
-            public bool WasEnterEventRaised;
-
-            // TODO: use Collider2D instead of shape, so it can support colliders of multiples shapes.
-            public CollisionKey(B2ShapeId a, B2ShapeId b)
-            {
-                shapeA = a;
-                shapeB = b;
-                WasEnterEventRaised = false;
-            }
-
-            private static bool EqualsShape(B2ShapeId a, B2ShapeId b)
-            {
-                return a.index1 == b.index1 &&
-                       a.world0 == b.world0 &&
-                       a.generation == b.generation;
-            }
-
-            private static int GetShapeHash(B2ShapeId s)
-            {
-                return HashCode.Combine(s.index1, s.world0, s.generation);
-            }
-
-            public bool Equals(CollisionKey other)
-            {
-                // Order-independent equality
-                return
-                (
-                    EqualsShape(shapeA, other.shapeA) &&
-                    EqualsShape(shapeB, other.shapeB)
-                )
-                ||
-                (
-                    EqualsShape(shapeA, other.shapeB) &&
-                    EqualsShape(shapeB, other.shapeA)
-                );
-            }
-
-            public override bool Equals(object obj) =>
-                obj is CollisionKey other && Equals(other);
-
-            public override int GetHashCode()
-            {
-                int h1 = GetShapeHash(shapeA);
-                int h2 = GetShapeHash(shapeB);
-
-                // Canonical order to make (A,B) == (B,A) produce same hash:
-                if (h2 < h1)
-                    (h1, h2) = (h2, h1);
-
-                return HashCode.Combine(h1, h2);
-            }
-        }
-
         private readonly Action<ScriptBehavior, Collision2D> _onCollisionEnter = (x, y) => x.OnCollisionEnter2D(y);
         private readonly Action<ScriptBehavior, Collision2D> _onCollisionExit = (x, y) => x.OnCollisionExit2D(y);
         private readonly Action<ScriptBehavior, Collision2D> _onCollisionStay = (x, y) => x.OnCollisionStay2D(y);
@@ -143,9 +84,10 @@ namespace Engine.Layers
 
         private HashSet<CollisionKey> _contactEnter;
         private HashSet<CollisionKey> _contactExit;
-
         private HashSet<CollisionKey> _triggerEnter;
         private HashSet<CollisionKey> _triggerExit;
+
+        private Collision2D _collisionData;
 
         public ContactsDispatcher()
         {
@@ -203,6 +145,15 @@ namespace Engine.Layers
             }
 
             RaiseEvents();
+        }
+
+        private void RaiseEvents()
+        {
+            OnEnter(_contactEnter, _collisionFuncEvent, _onCollisionEnter, _onCollisionStay);
+            OnExit(_contactExit, _contactEnter, _collisionFuncEvent, _onCollisionExit);
+
+            OnEnter(_triggerEnter, _triggerFuncEvent, _onTriggerEnter, _onTriggerStay);
+            OnExit(_triggerExit, _triggerEnter, _triggerFuncEvent, _onTriggerExit);
         }
 
         private void OnEnter<T>(HashSet<CollisionKey> enterCollisions, Action<Action<ScriptBehavior, T>, B2ShapeId, B2ShapeId> eventForwarder,
@@ -266,14 +217,6 @@ namespace Engine.Layers
             exitCollisions.Clear();
         }
 
-        private void RaiseEvents()
-        {
-            OnEnter(_contactEnter, _collisionFuncEvent, _onCollisionEnter, _onCollisionStay);
-            OnExit(_contactExit, _contactEnter, _collisionFuncEvent, _onCollisionExit);
-
-            OnEnter(_triggerEnter, _triggerFuncEvent, _onTriggerEnter, _onTriggerStay);
-            OnExit(_triggerExit, _triggerEnter, _triggerFuncEvent, _onTriggerExit);
-        }
 
         internal void NotifyColliderToDestroy(Collider2D collider)
         {
@@ -291,16 +234,6 @@ namespace Engine.Layers
             {
                 //_contactExit
             }
-        }
-
-        private Collider2D GetCollider(ref B2ShapeId shape)
-        {
-            if (B2Worlds.b2Shape_IsValid(shape))
-            {
-                return B2Shapes.b2Shape_GetUserData(shape) as Collider2D;
-            }
-
-            return null;
         }
 
         private void OnCollision(Action<ScriptBehavior, Collision2D> action, B2ShapeId shapeIdA, B2ShapeId shapeIdB)
@@ -332,7 +265,17 @@ namespace Engine.Layers
             }
         }
 
-        private void OnNotifyScripts<T>(Collider2D current, Collider2D collided, Action<ScriptBehavior, T> action, ref T data)
+        private Collider2D GetCollider(ref B2ShapeId shape)
+        {
+            if (B2Worlds.b2Shape_IsValid(shape))
+            {
+                return B2Shapes.b2Shape_GetUserData(shape) as Collider2D;
+            }
+
+            return null;
+        }
+
+        private void OnNotifyScripts<T>(Collider2D current, Collider2D collided, Action<ScriptBehavior, T> funcEvent, ref T data)
         {
             if (current && current.Actor && current.Actor.IsEnabled)
             {
@@ -340,7 +283,7 @@ namespace Engine.Layers
                 {
                     if (component && component.IsEnabled && component is ScriptBehavior script)
                     {
-                        action(script, data);
+                        funcEvent(script, data);
                     }
                 }
             }
