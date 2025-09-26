@@ -23,23 +23,7 @@ namespace Engine
 
         private static bool EqualsShape(Collider2D a, Collider2D b)
         {
-            if (a.ShapesId.Length != b.ShapesId.Length)
-                return false;
-
-            for (int i = 0; i < a.ShapesId.Length; i++)
-            {
-                var sa = a.ShapesId[i];
-                var sb = b.ShapesId[i];
-
-                if (sa.index1 != sb.index1 ||
-                    sa.world0 != sb.world0 ||
-                    sa.generation != sb.generation)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return a.GetID() == b.GetID();
         }
 
         private static int CombineHash(int h1, int h2)
