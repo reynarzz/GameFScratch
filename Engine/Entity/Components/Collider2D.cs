@@ -10,11 +10,16 @@ namespace Engine
 {
     public abstract class Collider2D : Component
     {
+        public RigidBody2D RigidBody { get; internal set; }
+        public float RotationOffset { get; set; } = 0;
+
+        private B2ShapeId _shapeID = InvalidShapeID;
+        private B2ShapeDef _shapeDef;
         private vec2 _offset = new vec2(0, 0);
-        private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
         private B2Filter _filter;
 
-        public RigidBody2D RigidBody { get; internal set; }
+        private bool _isTrigger = false;
+        private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
 
         public override bool IsEnabled
         {
@@ -48,11 +53,7 @@ namespace Engine
             }
         }
 
-        public float RotationOffset { get; set; } = 0;
-        private B2ShapeId _shapeID = InvalidShapeID;
-        private B2ShapeDef _shapeDef;
-
-        private bool _isTrigger = false;
+      
         public bool IsTrigger
         {
             get => _isTrigger;
@@ -71,6 +72,23 @@ namespace Engine
             }
         }
 
+        public float Friction
+        {
+            get => B2Shapes.b2Shape_GetFriction(_shapeID);
+            set
+            {
+                B2Shapes.b2Shape_SetFriction(_shapeID, value);
+            }
+        }
+
+        public float Bounciness
+        {
+            get => B2Shapes.b2Shape_GetRestitution(_shapeID);
+            set
+            {
+                B2Shapes.b2Shape_SetRestitution(_shapeID, value);
+            }
+        }
         internal override void OnInitialize()
         {
             RigidBody = GetComponent<RigidBody2D>();
@@ -110,10 +128,11 @@ namespace Engine
         {
             base.OnDestroy();
 
-            if (RigidBody)
+            if (RigidBody != null)
             {
                 RigidBody.RemoveCollider(_shapeID);
                 DestroyShape();
+                RigidBody = null;
             }
         }
 
@@ -122,27 +141,10 @@ namespace Engine
             if (B2Worlds.b2Shape_IsValid(_shapeID))
             {
                 // TODO: destroy collection of shapes
-                B2Shapes.b2DestroyShape(_shapeID, RigidBody.IsAutoMass);
+                var autoMass = RigidBody ? RigidBody.IsAutoMass : false;
+                B2Shapes.b2DestroyShape(_shapeID, autoMass);
 
                 _shapeID = InvalidShapeID;
-            }
-        }
-
-        public float Friction
-        {
-            get => B2Shapes.b2Shape_GetFriction(_shapeID);
-            set
-            {
-                B2Shapes.b2Shape_SetFriction(_shapeID, value);
-            }
-        }
-
-        public float Bounciness
-        {
-            get => B2Shapes.b2Shape_GetRestitution(_shapeID);
-            set
-            {
-                B2Shapes.b2Shape_SetRestitution(_shapeID, value);
             }
         }
     }

@@ -22,8 +22,6 @@ namespace Engine.Layers
             SceneManager.ActiveScene.Start();
             SceneManager.ActiveScene.Update();
             SceneManager.ActiveScene.LateUpdate();
-            SceneManager.ActiveScene.DeletePending();
-
         }
     }
 }

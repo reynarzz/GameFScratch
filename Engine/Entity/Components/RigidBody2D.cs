@@ -245,5 +245,10 @@ namespace Engine
                 Transform.OnChanged -= OnTransformChanged;
             }
         }
+
+        ~RigidBody2D()
+        {
+            B2Bodies.b2DestroyBody(_bodyId);
+        }
     }
 }

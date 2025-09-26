@@ -61,6 +61,8 @@ namespace Game
         // Implement a simple file system.
         // Tilemap (rendering, ldtk file loading, colliders)
         // Use Collider2D instead of shape in CollisionKey, so it can support colliders of multiples shapes.
+        // Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
+             // This collisionsExit/TriggerExit should not be called with invalid actors/components
 
         public override void Initialize()
         {

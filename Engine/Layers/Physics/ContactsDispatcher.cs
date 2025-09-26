@@ -17,8 +17,9 @@ namespace Engine.Layers
         public Collider2D Collider { get; internal set; }
         public Collider2D OtherCollider { get; internal set; }
         public int PointsCount { get; internal set; }
-        public Transform Transform => Collider.Transform;
-        public Actor Actor => Collider.Actor;
+        public Transform Transform => OtherCollider.Transform;
+        public Actor Actor => OtherCollider.Actor;
+
         internal B2ShapeId CurrentShapeId;
         internal B2ShapeId OtherShapeId;
 
@@ -151,13 +152,13 @@ namespace Engine.Layers
             _collisionData = new Collision2D();
             _contactEnter = new HashSet<CollisionKey>();
             _contactExit = new HashSet<CollisionKey>();
-            _contactEnter.EnsureCapacity(300);
-            _contactExit.EnsureCapacity(300);
-
             _triggerEnter = new HashSet<CollisionKey>();
             _triggerExit = new HashSet<CollisionKey>();
-            _triggerEnter.EnsureCapacity(200);
-            _triggerExit.EnsureCapacity(200);
+
+            _contactEnter.EnsureCapacity(200);
+            _contactExit.EnsureCapacity(200);
+            _triggerEnter.EnsureCapacity(100);
+            _triggerExit.EnsureCapacity(100);
         }
 
         internal void Update()
@@ -170,7 +171,6 @@ namespace Engine.Layers
                 var added = _contactEnter.Add(new CollisionKey(evt.shapeIdA, evt.shapeIdB));
                 if (!added)
                 {
-
                     Debug.Error($"Not added: '{GetCollider(ref evt.shapeIdA).Name}' and {GetCollider(ref evt.shapeIdB).Name}\n" +
                         $"A:{evt.shapeIdA}, B:{evt.shapeIdB}");
 
@@ -275,9 +275,32 @@ namespace Engine.Layers
             OnExit(_triggerExit, _triggerEnter, _triggerFuncEvent, _onTriggerExit);
         }
 
+        internal void NotifyColliderToDestroy(Collider2D collider)
+        {
+            /* Note: since the exit events (OnCollisionExit/OnTriggerExit) will not be called automatically after a shape is
+                 destroyed when an actor is destroyed (because doing so will send invalid/destroyed actors) this function takes care
+                 of calling OnCollisionExit/OnTriggerExit before the actors become invalid, and in the same frame.
+            */
+
+            // TODO: Implement early OnCollisionExit/OnTriggerExit
+            if (collider.IsTrigger)
+            {
+                //_triggerExit.Add(collider);
+            }
+            else
+            {
+                //_contactExit
+            }
+        }
+
         private Collider2D GetCollider(ref B2ShapeId shape)
         {
-            return B2Shapes.b2Shape_GetUserData(shape) as Collider2D;
+            if (B2Worlds.b2Shape_IsValid(shape))
+            {
+                return B2Shapes.b2Shape_GetUserData(shape) as Collider2D;
+            }
+
+            return null;
         }
 
         private void OnCollision(Action<ScriptBehavior, Collision2D> action, B2ShapeId shapeIdA, B2ShapeId shapeIdB)
@@ -285,12 +308,17 @@ namespace Engine.Layers
             var coll1 = GetCollider(ref shapeIdA);
             var coll2 = GetCollider(ref shapeIdB);
 
-            _collisionData.Collider = coll1;
-            _collisionData.OtherCollider = coll2;
-            _collisionData.CurrentShapeId = shapeIdA;
-            _collisionData.OtherShapeId = shapeIdB;
+            if (coll1 && coll1.Actor && coll2 && coll2.Actor)
+            {
+                _collisionData.Collider = coll1;
+                _collisionData.OtherCollider = coll2;
+                _collisionData.CurrentShapeId = shapeIdA;
+                _collisionData.OtherShapeId = shapeIdB;
 
-            OnNotifyScripts(coll1, coll2, action, ref _collisionData);
+                OnNotifyScripts(coll1, coll2, action, ref _collisionData);
+            }
+
+            _collisionData = default;
         }
 
         private void OnTrigger(Action<ScriptBehavior, Collider2D> action, B2ShapeId shapeIdA, B2ShapeId shapeIdB)
@@ -298,7 +326,7 @@ namespace Engine.Layers
             var coll1 = GetCollider(ref shapeIdA);
             var coll2 = GetCollider(ref shapeIdB);
 
-            if (coll1.IsTrigger)
+            if (coll1.IsTrigger && coll1 && coll1.Actor && coll2 && coll2.Actor)
             {
                 OnNotifyScripts(coll1, coll2, action, ref coll2);
             }

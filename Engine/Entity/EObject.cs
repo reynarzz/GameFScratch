@@ -54,7 +54,7 @@ namespace Engine
 
         protected bool IsValidObject(EObject obj)
         {
-            if (!obj)
+            if (!obj.IsAlive)
             {
 #if DEBUG
                 try
