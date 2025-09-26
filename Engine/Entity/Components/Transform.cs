@@ -317,5 +317,11 @@ namespace Engine
         {
             _children.Remove(transform);
         }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            OnChanged = null;
+        }
     }
 }

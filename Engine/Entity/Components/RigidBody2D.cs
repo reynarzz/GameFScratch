@@ -239,8 +239,11 @@ namespace Engine
         public override void OnDestroy()
         {
             base.OnDestroy();
-            Transform.OnChanged -= OnTransformChanged;
-        }
 
+            if (Transform)
+            {
+                Transform.OnChanged -= OnTransformChanged;
+            }
+        }
     }
 }

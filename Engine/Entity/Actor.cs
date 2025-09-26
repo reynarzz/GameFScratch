@@ -202,6 +202,8 @@ namespace Engine
 
             void PendingToDestroyNotify(Actor actor)
             {
+                actor.IsPendingToDestroy = true;
+
                 // Notify children components
                 for (int i = 0; i < actor.Transform.Children.Count; i++)
                 {
@@ -214,8 +216,6 @@ namespace Engine
                     actor._components[i].IsPendingToDestroy = true;
                 }
             }
-
-            actor.IsPendingToDestroy = true;
 
             PendingToDestroyNotify(actor);
         }
@@ -370,14 +370,8 @@ namespace Engine
             {
                 void OnDestroyEventNotify(Actor actor)
                 {
-                    // Notify children components
-                    for (int i = 0; i < actor.Transform.Children.Count; i++)
-                    {
-                        OnDestroyEventNotify(actor.Transform.Children[i].Actor);
-                    }
-
                     // Notify own components
-                    for (int i = actor._components.Count - 1; i >= 0; i--)
+                    for (int i = 0; i < actor._components.Count; i++)
                     {
 #if DEBUG
                         try
@@ -391,6 +385,12 @@ namespace Engine
 #else
                         actor._components[i].OnDestroy();
 #endif
+                    }
+
+                    // Notify children components
+                    for (int i = 0; i < actor.Transform.Children.Count; i++)
+                    {
+                        OnDestroyEventNotify(actor.Transform.Children[i].Actor);
                     }
                 }
 

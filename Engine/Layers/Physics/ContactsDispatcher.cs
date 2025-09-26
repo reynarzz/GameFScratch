@@ -204,9 +204,9 @@ namespace Engine.Layers
 
             RaiseEvents();
         }
-        
-        private void OnEnter<T>(HashSet<CollisionKey> enterCollisions, Action<Action<ScriptBehavior, T>, B2ShapeId, B2ShapeId> eventForwarder, 
-                                Action<ScriptBehavior, T> onEnterFunc, Action<ScriptBehavior, T> onStayFunc) 
+
+        private void OnEnter<T>(HashSet<CollisionKey> enterCollisions, Action<Action<ScriptBehavior, T>, B2ShapeId, B2ShapeId> eventForwarder,
+                                Action<ScriptBehavior, T> onEnterFunc, Action<ScriptBehavior, T> onStayFunc)
         {
             for (int i = 0; i < enterCollisions.Count; i++)
             {
@@ -265,7 +265,7 @@ namespace Engine.Layers
 
             exitCollisions.Clear();
         }
-        
+
         private void RaiseEvents()
         {
             OnEnter(_contactEnter, _collisionFuncEvent, _onCollisionEnter, _onCollisionStay);
@@ -306,11 +306,14 @@ namespace Engine.Layers
 
         private void OnNotifyScripts<T>(Collider2D current, Collider2D collided, Action<ScriptBehavior, T> action, ref T data)
         {
-            foreach (var component in current.Actor.Components)
+            if (current && current.Actor && current.Actor.IsEnabled)
             {
-                if (component && component.IsEnabled && component is ScriptBehavior script)
+                foreach (var component in current.Actor.Components)
                 {
-                    action(script, data);
+                    if (component && component.IsEnabled && component is ScriptBehavior script)
+                    {
+                        action(script, data);
+                    }
                 }
             }
         }
