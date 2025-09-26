@@ -9,7 +9,7 @@ namespace Game
 {
     public class RotateTest : ScriptBehavior
     {
-        float angle = 0;
+        float angle = 40;
 
         public override void OnStart()
         {
@@ -18,7 +18,7 @@ namespace Game
 
         public override void OnUpdate()
         {
-            angle += Time.DeltaTime * 50;
+            // angle += Time.DeltaTime * 50;
             Transform.LocalEulerAngles = new GlmNet.vec3(0, 0, angle);
         }
 

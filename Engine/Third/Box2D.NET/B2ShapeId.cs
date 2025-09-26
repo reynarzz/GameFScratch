@@ -17,5 +17,11 @@ namespace Box2D.NET
             this.world0 = world0;
             this.generation = generation;
         }
+
+
+        public override string ToString()
+        {
+            return $"(i:{index1}, w:{world0}, g:{generation})";
+        }
     }
 }

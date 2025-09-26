@@ -56,7 +56,13 @@ namespace Game
 
         public override void OnCollisionEnter2D(CollisionData2D collision)
         {
-            Debug.Info("Collided with: " + "Player");
+            Debug.Info("Collided with: " + collision.Collider.Name);
+        }
+
+        public override void OnCollisionExit2D(CollisionData2D collision)
+        {
+            Debug.Info("Collided -exit: " + collision.Collider.Name);
+
         }
     }
 }
