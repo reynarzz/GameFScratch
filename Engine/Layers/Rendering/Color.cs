@@ -34,6 +34,11 @@ namespace Engine
         {
             return (ColorPacketRGBA)(Color32)c;
         }
+
+        public static implicit operator Color(uint packet)
+        {
+            return new ColorPacketRGBA(packet);
+        }
     }
 
     public struct Color32

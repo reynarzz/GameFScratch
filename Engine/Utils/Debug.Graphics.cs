@@ -90,7 +90,7 @@ namespace Engine
             Initialize();
             unsafe
             {
-                var offset = sizeof(LinesVertex) * _totalLinesGeometryToDraw;
+                var offset = sizeof(LinesVertex) * _totalLinesGeometryToDraw * 2;
 
                 var vertices = new LinesVertex[]
                 {
@@ -106,6 +106,7 @@ namespace Engine
                 }
                 
                 _linesGeoDescriptor.VertexDesc.BufferDesc.Offset = offset;
+                _linesGeoDescriptor.VertexDesc.BufferDesc.Count = _totalLinesGeometryToDraw * 2;
             }
 
             GfxDeviceManager.Current.UpdateGeometry(_linesGeometry, _linesGeoDescriptor);

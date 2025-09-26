@@ -42,6 +42,9 @@ namespace Game
             else
             {
             }
+
+            Debug.DrawLine(new GlmNet.vec3(), new GlmNet.vec3(-1, -1, 0), new Color(1, 1, 1, 1));
+            Debug.DrawLine(new GlmNet.vec3(1, 2, 0), new GlmNet.vec3(1, -1, 0), new Color(1, 1, 1, 1));
         }
 
         public override void OnFixedUpdate()
