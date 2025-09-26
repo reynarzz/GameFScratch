@@ -130,6 +130,9 @@ namespace Engine
 
             void Find(Actor actor)
             {
+                if (!actor) // After I put this, onDestroy is not being called.
+                    return;
+
                 var result = matcher.Invoke(actor, comparer);
 
                 if (result && result.IsAlive)

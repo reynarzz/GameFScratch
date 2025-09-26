@@ -3,6 +3,7 @@ using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -129,7 +130,7 @@ namespace Engine
         public override void OnDestroy()
         {
             base.OnDestroy();
-
+            Debug.Log("Destroy collider");
             if (RigidBody != null)
             {
                 RigidBody.RemoveCollider(_shapeID);

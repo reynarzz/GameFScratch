@@ -186,16 +186,16 @@ namespace Engine
 
             void PendingToDestroyNotify(Actor actor)
             {
-                // Notify children components
-                for (int i = 0; i < actor.Transform.Children.Count; i++)
-                {
-                    PendingToDestroyNotify(actor.Transform.Children[i].Actor);
-                }
-
                 // Notify own components
                 for (int i = 0; i < actor._components.Count; i++)
                 {
                     actor._components[i].IsPendingToDestroy = true;
+                }
+
+                // Notify children components
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    PendingToDestroyNotify(actor.Transform.Children[i].Actor);
                 }
 
                 actor.IsPendingToDestroy = true;
@@ -350,6 +350,7 @@ namespace Engine
 
         internal void DeletePending()
         {
+            var x = this;
             if (IsPendingToDestroy)
             {
                 void OnDestroyEventNotify(Actor actor)
@@ -397,6 +398,8 @@ namespace Engine
 
                 OnDestroyEventNotify(this);
                 OnCleanUpChildren(this);
+
+                IsPendingToDestroy = false;
             }
 
             if (_pendingToDeleteComponents.Count > 0)
@@ -427,9 +430,13 @@ namespace Engine
 
                 _pendingToDeleteComponents.Clear();
             }
+
+            // Check if a child ask to be removed.
+            for (int i = 0; i < Transform.Children.Count; i++)
+            {
+                Transform.Children[i].Actor.DeletePending();
+            }
         }
-
-
     }
 
     public class Actor<T1> : Actor where T1 : Component

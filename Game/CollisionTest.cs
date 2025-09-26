@@ -17,7 +17,7 @@ namespace Game
         public override void OnCollisionEnter2D(Collision2D collision)
         {
             Debug.Info($"{collision.Actor.Name}: Collision enter: " + collision.OtherCollider.Name);
-            Actor.Destroy(collision.OtherCollider.Actor);
+            // Actor.Destroy(collision.OtherCollider.Actor);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)

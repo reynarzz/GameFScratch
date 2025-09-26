@@ -220,12 +220,14 @@ namespace Engine.Layers
 
         internal void NotifyColliderToDestroy(Collider2D collider)
         {
-            /* Note: since the exit events (OnCollisionExit/OnTriggerExit) will not be called automatically after a shape is
-                 destroyed when an actor is destroyed (because doing so will send invalid/destroyed actors) this function takes care
-                 of calling OnCollisionExit/OnTriggerExit before the actors become invalid, and in the same frame.
+            // TODO: Implement early OnCollisionExit/OnTriggerExit
+
+            /* Note: OnCollisionExit/OnTriggerExit will not be called automatically after a shape is
+               destroyed when an actor is destroyed because doing so will send invalid/destroyed actors
+               so this function takes care of calling OnCollisionExit/OnTriggerExit 
+               before the actors become invalid, and in the same frame.
             */
 
-            // TODO: Implement early OnCollisionExit/OnTriggerExit
             if (collider.IsTrigger)
             {
                 //_triggerExit.Add(collider);

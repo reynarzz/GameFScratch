@@ -103,7 +103,7 @@ namespace Game
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
-            //actor.GetComponent<Collider2D>().IsTrigger = true;
+            actor.GetComponent<Collider2D>().IsTrigger = true;
 
 
             // (int i = 0; i < 33; i++)
