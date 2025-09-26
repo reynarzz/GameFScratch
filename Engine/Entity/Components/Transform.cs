@@ -194,6 +194,10 @@ namespace Engine
             }
         }
 
+        public vec3 Right => RotateVecByQuat(new vec3(1, 0, 0), WorldRotation);
+        public vec3 Up => RotateVecByQuat(new vec3(0, 1, 0), WorldRotation);
+        public vec3 Forward => RotateVecByQuat(new vec3(0, 0, 1), WorldRotation);
+
         // Helper to update world transforms if dirty
         private void UpdateWorldIfDirty()
         {
@@ -216,7 +220,13 @@ namespace Engine
             _isDirty = false;
         }
 
-        // Quaternion <-> Euler helpers
+        private vec3 RotateVecByQuat(vec3 v, quat q)
+        {
+            var qv = new vec3(q.x, q.y, q.z);
+            var t = 2.0f * glm.cross(qv, v);
+            return v + q.w * t + glm.cross(qv, t);
+        }
+
         private static vec3 QuaternionToEuler(quat q)
         {
             vec3 euler;

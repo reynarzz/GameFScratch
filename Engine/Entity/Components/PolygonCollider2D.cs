@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Engine.Utils.Polygon;
+using Engine.Utils;
+using GlmNet;
 
 namespace Engine
 {
@@ -22,18 +24,22 @@ namespace Engine
 
         protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
-            List<PVertex> verts = new List<PVertex>
+           var verts = new List<PVertex>
             {
                 new PVertex(new Vec2(0, 0)),
-                new PVertex(new Vec2(4, 1)),
-                new PVertex(new Vec2(8, 0)),
-                new PVertex(new Vec2(6, 3)),
-                new PVertex(new Vec2(8, 6)),
-                new PVertex(new Vec2(4, 5)),
-                new PVertex(new Vec2(0, 6)),
-                new PVertex(new Vec2(2, 3)),
-                new PVertex(new Vec2(1, 2)),
-                new PVertex(new Vec2(3, 2))
+                new PVertex(new Vec2(3, 1)),
+                new PVertex(new Vec2(6, 0)),
+                new PVertex(new Vec2(7, 2)),
+                new PVertex(new Vec2(9, 1)),
+                new PVertex(new Vec2(10, 4)),
+                new PVertex(new Vec2(8, 5)),
+                new PVertex(new Vec2(9, 8)),
+                new PVertex(new Vec2(6, 9)),
+                new PVertex(new Vec2(5, 6)),
+                new PVertex(new Vec2(3, 8)),
+                new PVertex(new Vec2(1, 7)),
+                new PVertex(new Vec2(-1, 5)),
+                new PVertex(new Vec2(-1, 2))
             };
 
             var poly = new ConcavePolygon(verts);
@@ -44,58 +50,24 @@ namespace Engine
 
             var shapes = new B2ShapeId[pieces.Count];
             var points = default(Vec2[]);
+            var targetPoint = new B2Vec2[8];
             for (int i = 0; i < pieces.Count; i++)
             {
-                B2Polygon polygon = default;
-                polygon.count = pieces[i].GetPointCount();
-
                 int vertsCount = 0;
                 pieces[i].GetPoints(ref points, ref vertsCount);
-                polygon.centroid = ComputeCentroid(points, vertsCount);
-                
-                for (int j = 0; j < polygon.count; j++)
+
+                for (int j = 0; j < pieces[i].GetPointCount(); j++)
                 {
                     var p = points[j];
-                    polygon.vertices[j] = new B2Vec2(p.x, p.y);
+                    targetPoint[j] = new B2Vec2(p.x, p.y);
                 }
-#if DEBUG
-                var hull = B2Hulls.b2ComputeHull(polygon.vertices.AsSpan(), polygon.vertices.Length);
-                bool valid = B2Hulls.b2ValidateHull(ref hull);
-                if (!valid)
-                {
-                    Debug.Error("Invalid polygon hull");
-                }
-#endif
+
+                var hull = B2Hulls.b2ComputeHull(targetPoint, vertsCount);
+                var polygon = B2Geometries.b2MakePolygon(ref hull, 0);
                 shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
             }
 
             return shapes;
-        }
-
-        private B2Vec2 ComputeCentroid(ReadOnlySpan<Vec2> vertices, int count)
-        {
-            float area = 0f;
-            float cx = 0f;
-            float cy = 0f;
-
-            for (int i = 0; i < count; ++i)
-            {
-                Vec2 p0 = vertices[i];
-                Vec2 p1 = vertices[(i + 1) % count];
-
-                float cross = p0.x * p1.y - p1.x * p0.y;
-                area += cross;
-                cx += (p0.x + p1.x) * cross;
-                cy += (p0.y + p1.y) * cross;
-            }
-
-            area *= 0.5f;
-
-            if (Math.Abs(area) < float.Epsilon)
-                return new B2Vec2(0, 0); // degenerate polygon
-
-            float inv6A = 1.0f / (6.0f * area);
-            return new B2Vec2(cx * inv6A, cy * inv6A);
         }
     }
 }

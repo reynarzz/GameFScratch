@@ -23,8 +23,6 @@ namespace Engine
         private static int _totalLinesVerticesToDraw = 0;
         private static bool _initializedGraphics = false;
 
-
-        
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         private struct DebugVertex
         {
@@ -87,7 +85,7 @@ namespace Engine
         public static void DrawRay(vec3 origin, vec3 direction, Color color)
         {
             Initialize();
-            // TODO:
+            DrawLine(origin, origin + direction, color);
         }
 
         public static void DrawLine(vec3 start, vec3 end, Color color)
@@ -171,7 +169,6 @@ namespace Engine
             }
 
             GfxDeviceManager.Current.UpdateGeometry(_linesGeometry, _linesGeoDescriptor);
-
         }
     }
 }

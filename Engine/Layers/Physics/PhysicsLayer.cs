@@ -47,14 +47,14 @@ namespace Engine.Layers
                 DrawPointFcn = Box2DDraw.DrawPoint,
                 DrawStringFcn = Box2DDraw.DrawString,
 
-                drawShapes = true,
+                drawShapes = false,
                 drawJoints = true,
                 drawJointExtras = false,
-                drawBounds = true,
-                drawMass = true,
+                drawBounds = false,
+                drawMass = false,
                 drawBodyNames = false,
                 drawContacts = true,
-                drawGraphColors = true,
+                drawGraphColors = false,
                 drawContactNormals = true,
                 drawContactImpulses = false,
                 drawContactFeatures = false,
@@ -138,13 +138,7 @@ namespace Engine.Layers
                     rigidbody.PostUpdateBody();
                 }
 
-                // Example, remove from here
-                B2Transform transform = new B2Transform();
-                transform.p = new B2Vec2(rigidbody.Transform.WorldPosition.x, rigidbody.Transform.WorldPosition.y);
-                transform.q = rigidbody.Transform.WorldRotation.QuatToB2Rot();
-
-                B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), rigidbody.GetComponent<Collider2D>().ShapesId[0]), transform, B2HexColor.b2_colorBlack);
-
+                DrawShapes(rigidbody);
             }
             
             B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);
@@ -155,7 +149,23 @@ namespace Engine.Layers
 
         }
 
-        
+        private void DrawShapes(RigidBody2D rigidbody)
+        {
+            // Example, remove from here
+            var transform = new B2Transform();
+            transform.p = new B2Vec2(rigidbody.Transform.WorldPosition.x, rigidbody.Transform.WorldPosition.y);
+            transform.q = rigidbody.Transform.WorldRotation.QuatToB2Rot();
+
+            var colliders = rigidbody.GetComponents<Collider2D>();
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                for (int j = 0; j < colliders[i].ShapesId.Length; j++)
+                {
+                    B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), colliders[i].ShapesId[j]), transform, B2HexColor.b2_colorBlanchedAlmond);
+                }
+            }
+        }
 
         public override void Close()
         {

@@ -102,7 +102,7 @@ namespace Game
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
 
-            actor.GetComponent<Collider2D>().IsTrigger = true;
+            // actor.GetComponent<Collider2D>().IsTrigger = true;
 
 
             // (int i = 0; i < 33; i++)
@@ -128,6 +128,7 @@ namespace Game
             rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 3, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
+            camera.OrthographicSize = 7;
             // rigid3.Actor.IsEnabled = false;
             // actor3.GetComponent<BoxCollider2D>().IsTrigger = true;
 

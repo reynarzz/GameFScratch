@@ -55,7 +55,7 @@ namespace Engine
             {
                 polygon = B2Geometries.b2MakeOffsetBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot());
             }
-
+            
             return [B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon)];
         }
     }
