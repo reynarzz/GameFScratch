@@ -18,7 +18,7 @@ namespace Engine
         private static Shader _shader;
 
         private const int LINES_MAX_VERTICES = 10000;
-        private const float CIRCLE_MAX_SEGMENTS = 10;
+        private const float CIRCLE_MAX_SEGMENTS = 15;
 
         private static int _totalLinesVerticesToDraw = 0;
         private static bool _initializedGraphics = false;

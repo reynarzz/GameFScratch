@@ -138,11 +138,12 @@ namespace Engine.Layers
                     rigidbody.PostUpdateBody();
                 }
 
+                // Example, remove from here
                 B2Transform transform = new B2Transform();
                 transform.p = new B2Vec2(rigidbody.Transform.WorldPosition.x, rigidbody.Transform.WorldPosition.y);
                 transform.q = rigidbody.Transform.WorldRotation.QuatToB2Rot();
 
-                B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), rigidbody.GetComponent<Collider2D>().ShapesId[0]), transform, B2HexColor.b2_colorAntiqueWhite);
+                B2Worlds.b2DrawShape(_debugDraw, B2Shapes.b2GetShape(B2Worlds.b2GetWorld(0), rigidbody.GetComponent<Collider2D>().ShapesId[0]), transform, B2HexColor.b2_colorBlack);
 
             }
             
