@@ -10,6 +10,16 @@ namespace Engine
 {
     public class PolygonCollider2D : Collider2D
     {
+        public List<GlmNet.vec2> Points { get; } = new List<GlmNet.vec2>();
+
+        public void Generate()
+        {
+            if(Points.Count > 0)
+            {
+                Create();
+            }
+        }
+
         protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
         {
             List<PVertex> verts = new List<PVertex>
@@ -69,7 +79,53 @@ namespace Engine
 
             Debug.Info("\nDone.");
 
-            return [new B2ShapeId(-1, 0, 0)];
+            var shapes = new B2ShapeId[bayazitPieces.Count];
+            var points = default(Vec2[]);
+            int vertsCount = 0;
+            for (int i = 0; i < bayazitPieces.Count; i++)
+            {
+                B2Polygon polygon = default;
+                polygon.count = bayazitPieces[i].GetPointCount();
+                 
+                bayazitPieces[i].GetPoints(ref points, ref vertsCount);
+                polygon.centroid = ComputeCentroid(points, vertsCount);
+
+                for (int j = 0; j < polygon.count; j++)
+                {
+                    var p = bayazitPieces[i].GetPoint(j);
+                    polygon.vertices[j] = new B2Vec2(p.x, p.y);
+                }
+
+                shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
+            }
+
+            return shapes;
+        }
+
+        private B2Vec2 ComputeCentroid(Vec2[] vertices, int count)
+        {
+            float area = 0f;
+            float cx = 0f;
+            float cy = 0f;
+
+            for (int i = 0; i < count; ++i)
+            {
+                Vec2 p0 = vertices[i];
+                Vec2 p1 = vertices[(i + 1) % count];
+
+                float cross = p0.x * p1.y - p1.x * p0.y;
+                area += cross;
+                cx += (p0.x + p1.x) * cross;
+                cy += (p0.y + p1.y) * cross;
+            }
+
+            area *= 0.5f;
+
+            if (Math.Abs(area) < float.Epsilon)
+                return new B2Vec2(0, 0); // degenerate polygon
+
+            float inv6A = 1.0f / (6.0f * area);
+            return new B2Vec2(cx * inv6A, cy * inv6A);
         }
     }
 }

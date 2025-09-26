@@ -557,6 +557,23 @@ namespace Engine.Utils.Polygon
             return Vec2.Zero;
         }
 
+        public void GetPoints(ref Vec2[] points, ref int count)
+        {
+            if (points == null || points.Length < vertices.Count)
+            {
+                points = new Vec2[vertices.Count];
+            }
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                var pos = vertices[i].position;
+                points[i] = new Vec2(pos.x, pos.y);
+            }
+
+            count = vertices.Count;
+        }
+
+
         public int GetPointCount() => vertices.Count;
 
         private void FlipPolygon()

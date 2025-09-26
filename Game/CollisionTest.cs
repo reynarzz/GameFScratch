@@ -28,7 +28,7 @@ namespace Game
         public override void OnTriggerEnter2D(Collider2D collider)
         {
             Debug.Info($"{collider.Actor.Name}: Trigger Enter: " + collider.Name);
-            Actor.Destroy(collider.Actor);
+            //Actor.Destroy(collider.Actor);
         }
 
         public override void OnTriggerExit2D(Collider2D collider)
