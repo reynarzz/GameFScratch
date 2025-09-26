@@ -60,8 +60,8 @@ namespace Game
         // Implement a simple file system.
         // Tilemap (rendering, ldtk file loading, colliders)
         // Use Collider2D instead of shape in CollisionKey, so it can support colliders of multiples shapes.
-        // Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
-        // This collisionsExit/TriggerExit should not be called with invalid actors/components
+        /* Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
+             This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Investigate why colliders are not freed from memory automatically.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
 
@@ -125,7 +125,7 @@ namespace Game
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 0, 0);
+            rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 3, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
             // rigid3.Actor.IsEnabled = false;

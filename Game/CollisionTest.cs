@@ -16,13 +16,13 @@ namespace Game
 
         public override void OnCollisionEnter2D(Collision2D collision)
         {
-            Debug.Info($"{collision.Actor.Name}: Collision enter: " + collision.OtherCollider.Name);
+            Debug.Info($"{collision.Collider.Name}: Collision enter: " + collision.OtherCollider.Name);
             // Actor.Destroy(collision.OtherCollider.Actor);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)
         {
-            Debug.Info($"{collision.Actor.Name}: Collision -exit: " + collision.OtherCollider.Name);
+            Debug.Info($"{collision.Collider.Name}: Collision -exit: " + collision.OtherCollider.Name);
         }
 
         public override void OnTriggerEnter2D(Collider2D collider)

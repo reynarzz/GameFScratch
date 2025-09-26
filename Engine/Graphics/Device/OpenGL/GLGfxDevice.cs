@@ -86,26 +86,37 @@ namespace Engine.Graphics.OpenGL
 
         internal override void DrawIndexed(DrawMode mode, int indicesLength)
         {
-            var glMode = mode switch
+            unsafe
+            {
+                glDrawElements(GetGLDrawMode(mode), indicesLength, GL_UNSIGNED_INT, null);
+            }
+        }
+
+        internal override void DrawArrays(DrawMode mode, int startIndex, int vertexCount)
+        {
+            unsafe
+            {
+                glDrawArrays(GetGLDrawMode(mode), startIndex, vertexCount);
+            }
+        }
+
+        private int GetGLDrawMode(DrawMode mode)
+        {
+            var internalMode = mode switch
             {
                 DrawMode.Triangles => GL_TRIANGLES,
                 DrawMode.Lines => GL_LINES,
                 DrawMode.Points => GL_POINTS,
-                _ => 0
+                _ => -1
             };
 
-            if (glMode == 0)
+            if (internalMode == -1)
             {
-                Debug.Error($"Draw mode unsupported: {mode}");
-                return;
+                throw new NotImplementedException($"Draw mode unsupported: {mode}");
             }
 
-            unsafe
-            {
-                glDrawElements(glMode, indicesLength, GL_UNSIGNED_INT, null);
-            }
+            return internalMode;
         }
-
         internal override void SetPipelineFeatures(PipelineFeatures features)
         {
             if (features.Blending.Enabled)
@@ -135,5 +146,7 @@ namespace Engine.Graphics.OpenGL
         {
             (resource as GLGeometry).UpdateResource(desc);
         }
+
+       
     }
 }

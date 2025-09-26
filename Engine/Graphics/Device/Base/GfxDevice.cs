@@ -31,6 +31,7 @@ namespace Engine.Graphics
 
         internal abstract GfxDeviceInfo GetDeviceInfo();
         internal abstract void DrawIndexed(DrawMode mode, int indicesLength);
+        internal abstract void DrawArrays(DrawMode mode, int startIndex, int vertexCount);
         internal abstract void Clear(ClearDeviceConfig config);
         internal abstract GfxResource CreateGeometry(GeometryDescriptor desc);
         internal abstract GfxResource CreateShader(ShaderDescriptor desc);

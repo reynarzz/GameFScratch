@@ -14,7 +14,7 @@ namespace Engine
 
         public void Generate()
         {
-            if(Points.Count > 0)
+            if (Points.Count > 0)
             {
                 Create();
             }
@@ -36,73 +36,43 @@ namespace Engine
                 new PVertex(new Vec2(3, 2))
             };
 
-            ConcavePolygon poly = new ConcavePolygon(verts);
+            var poly = new ConcavePolygon(verts);
 
-            Debug.Info("Original vertices:");
-            for (int i = 0; i < poly.GetPointCount(); i++)
-            {
-                Vec2 p = poly.GetPoint(i);
-                Debug.Info($"  {i}: ({p.x}, {p.y})");
-            }
-
-            // Ear-clipping decomposition
-            poly.ConvexDecomp();
-            List<ConcavePolygon> earPieces = new List<ConcavePolygon>();
-            poly.ReturnLowestLevelPolys(earPieces, 7);
-
-            Debug.Info($"\nEar-clipping decomposition: {earPieces.Count} convex pieces");
-            for (int i = 0; i < earPieces.Count; i++)
-            {
-                Debug.Info($"Piece {i}:");
-                for (int j = 0; j < earPieces[i].GetPointCount(); j++)
-                {
-                    Vec2 p = earPieces[i].GetPoint(j);
-                    Debug.Info($"  ({p.x}, {p.y})");
-                }
-            }
-
-            // Bayazit decomposition
             poly.ConvexDecompBayazit();
-            List<ConcavePolygon> bayazitPieces = new List<ConcavePolygon>();
-            poly.ReturnLowestLevelPolys(bayazitPieces, 7);
+            var pieces = new List<ConcavePolygon>();
+            poly.ReturnLowestLevelPolys(pieces, 7);
 
-            Debug.Info($"\nBayazit decomposition: {bayazitPieces.Count} convex pieces");
-            for (int i = 0; i < bayazitPieces.Count; i++)
-            {
-                Debug.Info($"Piece {i}:");
-                for (int j = 0; j < bayazitPieces[i].GetPointCount(); j++)
-                {
-                    Vec2 p = bayazitPieces[i].GetPoint(j);
-                    Debug.Info($"  ({p.x}, {p.y})");
-                }
-            }
-
-            Debug.Info("\nDone.");
-
-            var shapes = new B2ShapeId[bayazitPieces.Count];
+            var shapes = new B2ShapeId[pieces.Count];
             var points = default(Vec2[]);
-            int vertsCount = 0;
-            for (int i = 0; i < bayazitPieces.Count; i++)
+            for (int i = 0; i < pieces.Count; i++)
             {
                 B2Polygon polygon = default;
-                polygon.count = bayazitPieces[i].GetPointCount();
-                 
-                bayazitPieces[i].GetPoints(ref points, ref vertsCount);
-                polygon.centroid = ComputeCentroid(points, vertsCount);
+                polygon.count = pieces[i].GetPointCount();
 
+                int vertsCount = 0;
+                pieces[i].GetPoints(ref points, ref vertsCount);
+                polygon.centroid = ComputeCentroid(points, vertsCount);
+                
                 for (int j = 0; j < polygon.count; j++)
                 {
-                    var p = bayazitPieces[i].GetPoint(j);
+                    var p = points[j];
                     polygon.vertices[j] = new B2Vec2(p.x, p.y);
                 }
-
+#if DEBUG
+                var hull = B2Hulls.b2ComputeHull(polygon.vertices.AsSpan(), polygon.vertices.Length);
+                bool valid = B2Hulls.b2ValidateHull(ref hull);
+                if (!valid)
+                {
+                    Debug.Error("Invalid polygon hull");
+                }
+#endif
                 shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
             }
 
             return shapes;
         }
 
-        private B2Vec2 ComputeCentroid(Vec2[] vertices, int count)
+        private B2Vec2 ComputeCentroid(ReadOnlySpan<Vec2> vertices, int count)
         {
             float area = 0f;
             float cx = 0f;

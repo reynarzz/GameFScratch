@@ -9,7 +9,7 @@ using GlmNet;
 
 namespace Engine
 {
-    public static class Debug
+    public static partial class Debug
     {
         public enum LogLevel
         {
@@ -95,29 +95,5 @@ namespace Engine
             };
         }
 
-        public static void DrawRay(vec3 origin, vec3 direction, Color color)
-        {
-            // TODO:
-        }
-
-        public static void DrawLine(vec3 start, vec3 end, Color color)
-        {
-
-        }
-
-        public static void DrawBox(vec3 origin, vec3 size, vec3 eulerAngles, Color color)
-        {
-
-        }
-
-        public static void DrawCircle(vec3 origin, float radius, Color color)
-        {
-
-        }
-
-        internal static void DrawGeometries()
-        {
-
-        }
     }
 }

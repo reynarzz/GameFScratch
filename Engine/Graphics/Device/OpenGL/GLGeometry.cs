@@ -27,14 +27,8 @@ namespace Engine.Graphics.OpenGL
                 return false;
             }
 
-            if (descriptor.SharedIndexBuffer == null)
+            if (descriptor.SharedIndexBuffer == null && descriptor.IndexDesc != null)
             {
-                if (descriptor.IndexDesc == null)
-                {
-                    Debug.Error("Index descriptor is null, can't create geometry.");
-                    return false;
-                }
-
                 _indexBuffer = new GLIndexBuffer();
 
                 if (!_indexBuffer.Create(descriptor.IndexDesc))
@@ -46,7 +40,7 @@ namespace Engine.Graphics.OpenGL
 
                 _indexBuffer.Bind();
             }
-            else
+            else if(descriptor.SharedIndexBuffer != null)
             {
                 (descriptor.SharedIndexBuffer as GLIndexBuffer).Bind();
             }

@@ -138,13 +138,13 @@ namespace Engine.Layers
                     if (!added)
                     {
 
-                        Debug.Error($"Not added: '{currentKey.colliderA.Name}' and {currentKey.colliderB.Name}\n" +
+                        Debug.Error($"Not added: '{currentKey.colliderA.Name}:{evt.shapeIdA}' and {currentKey.colliderB.Name}:{evt.shapeIdB}\n" +
                             $"A:{evt.shapeIdA}, B:{evt.shapeIdB}");
 
                         for (int j = 0; j < _contactEnter.Count; j++)
                         {
                             var key = _contactEnter.ElementAt(j);
-                            Debug.Log($"Enter Key's({j}): A:{key.colliderA}, B:{key.colliderB}");
+                            Debug.Log($"Enter Key's({j}): A:{key.colliderA.Name}, B:{key.colliderB.Name}");
                         }
                     }
                 }

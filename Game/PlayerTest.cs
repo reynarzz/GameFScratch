@@ -62,13 +62,13 @@ namespace Game
             //{
             //    Debug.Log(contacts[i].Position);
             //}
-            Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
+            //Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
             // Actor.Destroy(collision.Actor);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)
         {
-            Debug.Info("Player Collision -exit: " + collision.OtherCollider.Name);
+            //Debug.Info("Player Collision -exit: " + collision.OtherCollider.Name);
         }
 
         public override void OnCollisionStay2D(Collision2D collision)

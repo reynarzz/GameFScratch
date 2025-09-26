@@ -1,6 +1,7 @@
 ﻿using Engine.Graphics;
 using Engine.Graphics.OpenGL;
 using Engine.Rendering;
+using Engine.Utils;
 using GlmNet;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +57,7 @@ namespace Engine.Layers
                 (batch.Geometry as GLGeometry).Bind();
                 var shader = batch.Material.Shader.NativeShader as GLShader;
                 shader.Bind();
-                shader.SetUniform("uVP", VP);
+                shader.SetUniform(Consts.VIEW_PROJECTION_UNIFORM_NAME, VP);
 
                 for (int i = 0; i < batch.Textures.Length; i++)
                 {
@@ -66,13 +67,13 @@ namespace Engine.Layers
                     (tex.NativeTexture as GLTexture).Bind(i);
                 }
 
-                shader.SetUniform("uTextures", Batch2D.TextureSlotArray);
+                shader.SetUniform(Consts.TEXTURES_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
 
                 // Draw
                 GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, batch.IndexCount);
             }
-
-            Debug.DrawGeometries();
+            
+            Debug.DrawGeometries(VP);
         }
     }
 }
