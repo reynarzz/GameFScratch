@@ -14,10 +14,7 @@ namespace Engine
         private static B2ShapeId InvalidShapeID = new B2ShapeId(-1, 0, 0);
         private B2Filter _filter;
 
-        internal const int MAX_CONTACTS_PER_SHAPE = 10;
-
         public RigidBody2D RigidBody { get; internal set; }
-        internal B2ContactData[] Contacts = new B2ContactData[MAX_CONTACTS_PER_SHAPE];
 
         public override bool IsEnabled
         {

@@ -9,34 +9,75 @@ using System.Threading.Tasks;
 
 namespace Engine.Layers
 {
+ 
 
-    public struct CollisionData2D
+    public struct Collision2D
     {
-        public struct Point
-        {
-            public vec2 Position { get; internal set; }
+        public Collider2D Collider { get; internal set; }
+        public Collider2D OtherCollider { get; internal set; }
+        public int PointsCount { get; internal set; }
+        public Transform Transform => Collider.Transform;
+        public Actor Actor => Collider.Actor;
+        internal B2ShapeId CurrentShapeId;
+        internal B2ShapeId OtherShapeId;
 
+        public void GetContacts(ref List<ContactPoint2D> contacts)
+        {
+            if(contacts == null)
+            {
+                contacts = new List<ContactPoint2D>();
+            }
+            else
+            {
+                contacts.Clear();
+            }
+
+            var capacity = B2Shapes.b2Shape_GetContactCapacity(CurrentShapeId);
+
+            var contactsInternal = new B2ContactData[capacity];
+            var validCount = B2Shapes.b2Shape_GetContactData(CurrentShapeId, contactsInternal, contactsInternal.Length);
+
+            for (int i = 0; i < validCount; i++)
+            {
+                var contact = contactsInternal[i];
+
+                if ((B2Ids.B2_ID_EQUALS(contact.shapeIdA, CurrentShapeId) && B2Ids.B2_ID_EQUALS(contact.shapeIdB, OtherShapeId)) ||
+                    (B2Ids.B2_ID_EQUALS(contact.shapeIdA, OtherShapeId) && B2Ids.B2_ID_EQUALS(contact.shapeIdB, CurrentShapeId)))
+                {
+                    for (int j = 0; j < contact.manifold.pointCount; j++)
+                    {
+                        var point = contact.manifold.points[j];
+                        var id = point.id;
+
+                        // TODO: fix adding extra contacts
+                        contacts.Add(new ContactPoint2D()
+                        {
+                            Position = point.point.ToVec2(),
+                            NormalImpulse = point.normalImpulse,
+                            TangentImpulse = point.tangentImpulse,
+                            Normal = contact.manifold.normal.ToVec2(),
+                            NormalVelocity = point.normalVelocity,
+                        });
+                    }
+                }
+            }
         }
 
-        public Collider2D Collider { get; internal set; }
-        public Point[] Points { get; } = new Point[Collider2D.MAX_CONTACTS_PER_SHAPE];
-        public int PointsCount { get; internal set; }
-        public vec2 Normal { get; internal set; }
-        public CollisionData2D()
+        public Collision2D()
         {
         }
     }
 
     internal class ContactsDispatcher
     {
-        private CollisionData2D _collisionData;
+        private Collision2D _collisionData;
         private struct CollisionKey : IEquatable<CollisionKey>
         {
             public B2ShapeId shapeA;
             public B2ShapeId shapeB;
 
             public bool WasContactEnterEventRaised;
-
+            // TODO: use Collider2D instead of shape, so it can support colliders of multiples shapes.
             public CollisionKey(B2ShapeId a, B2ShapeId b)
             {
                 shapeA = a;
@@ -87,8 +128,8 @@ namespace Engine.Layers
             }
         }
 
-        private readonly Action<ScriptBehavior, CollisionData2D> _onCollisionEnter = (x, y) => x.OnCollisionEnter2D(y);
-        private readonly Action<ScriptBehavior, CollisionData2D> _onCollisionExit = (x, y) => x.OnCollisionExit2D(y);
+        private readonly Action<ScriptBehavior, Collision2D> _onCollisionEnter = (x, y) => x.OnCollisionEnter2D(y);
+        private readonly Action<ScriptBehavior, Collision2D> _onCollisionExit = (x, y) => x.OnCollisionExit2D(y);
 
         private HashSet<CollisionKey> _contactEnter;
         private HashSet<CollisionKey> _contactExit;
@@ -97,7 +138,7 @@ namespace Engine.Layers
         private HashSet<CollisionKey> _sensorExit;
         public ContactsDispatcher()
         {
-            _collisionData = new CollisionData2D();
+            _collisionData = new Collision2D();
             _contactEnter = new HashSet<CollisionKey>();
             _contactExit = new HashSet<CollisionKey>();
             _contactEnter.EnsureCapacity(300);
@@ -192,18 +233,17 @@ namespace Engine.Layers
                 if (enterContact.WasContactEnterEventRaised)
                 {
                     _contactEnter.Remove(enterContact);
-                  
-                    Debug.Log($"Remove contact enter: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
-                        $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
+
+                    //Debug.Log($"Remove contact enter: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
+                    //    $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
 
                     OnCollision(_onCollisionExit, ref enterContact.shapeA, ref enterContact.shapeB);
                     OnCollision(_onCollisionExit, ref enterContact.shapeB, ref enterContact.shapeA);
-                    // OnCollisionEnter(ref contact.shapeA, ref contact.shapeB);
                 }
                 else
                 {
-                    Debug.Error($"Enter no raised: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
-                        $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
+                    //Debug.Error($"Enter no raised: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
+                    //    $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
 
                 }
             }
@@ -216,42 +256,16 @@ namespace Engine.Layers
             return B2Shapes.b2Shape_GetUserData(shape) as Collider2D;
         }
 
-        private int GetContactData(ref B2ShapeId shape, Collider2D collider)
-        {
-            return B2Shapes.b2Shape_GetContactData(shape, collider.Contacts, collider.Contacts.Length);
-        }
-
-        private void GetCollisionData(B2ShapeId shapeA, B2ShapeId shapeB, ref CollisionData2D data)
-        {
-
-        }
-
-        private void OnCollision(Action<ScriptBehavior, CollisionData2D> action, ref B2ShapeId shapeIdA, ref B2ShapeId shapeIdB)
+        private void OnCollision(Action<ScriptBehavior, Collision2D> action, ref B2ShapeId shapeIdA, ref B2ShapeId shapeIdB)
         {
             var coll1 = GetCollider(ref shapeIdA);
             var coll2 = GetCollider(ref shapeIdB);
 
-            var contactsCount1 = GetContactData(ref shapeIdA, coll1);
+            _collisionData.Collider = coll1;
+            _collisionData.OtherCollider = coll2;
+            _collisionData.CurrentShapeId = shapeIdA;
+            _collisionData.OtherShapeId = shapeIdB;
 
-            int count = 0;
-            for (int i = 0; i < contactsCount1; i++)
-            {
-                if (B2Ids.B2_ID_EQUALS(coll1.Contacts[i].shapeIdB, shapeIdB))
-                {
-                    _collisionData.Normal = coll1.Contacts[i].manifold.normal.ToVec2();
-                    count++;
-                    //for (int j = 0; j < coll1.Contacts[i].manifold.points.Length; j++)
-                    //{
-                    //    var point = coll1.Contacts[i].manifold.points[j];
-
-                    //    _collisionData.Points[j].Position = new vec2(point.point.X, point.point.Y);
-                    //}
-                    // Send collisionData2D
-                    // Debug.Log("Contact: " + coll1.Name + " Count: " + count);
-                }
-            }
-
-            _collisionData.Collider = coll2;
             OnNotifyScripts(coll1, coll2, action, ref _collisionData);
         }
 

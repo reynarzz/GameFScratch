@@ -54,14 +54,21 @@ namespace Game
             }
         }
 
-        public override void OnCollisionEnter2D(CollisionData2D collision)
+        public override void OnCollisionEnter2D(Collision2D collision)
         {
-            Debug.Info("Collided with: " + collision.Collider.Name);
+            List<ContactPoint2D> contacts = null;
+            collision.GetContacts(ref contacts);
+
+            for (int i = 0; i < contacts.Count; i++)
+            {
+                Debug.Log(contacts[i].Position);
+            }
+            Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
         }
 
-        public override void OnCollisionExit2D(CollisionData2D collision)
+        public override void OnCollisionExit2D(Collision2D collision)
         {
-            Debug.Info("Collided -exit: " + collision.Collider.Name);
+            Debug.Info("Player Collision -exit: " + collision.OtherCollider.Name);
 
         }
     }

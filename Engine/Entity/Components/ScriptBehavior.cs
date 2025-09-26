@@ -17,9 +17,9 @@ namespace Engine
         public virtual void OnUpdate() { }
         public virtual void OnLateUpdate() { }
         public virtual void OnFixedUpdate() { }
-        public virtual void OnCollisionEnter2D(CollisionData2D collision) { }
-        public virtual void OnCollisionExit2D(CollisionData2D collision) { }
-        public virtual void OnTriggerEnter2D() { }
-        public virtual void OnTriggerExit2D() { }
+        public virtual void OnCollisionEnter2D(Collision2D collision) { }
+        public virtual void OnCollisionExit2D(Collision2D collision) { }
+        public virtual void OnTriggerEnter2D(Collider2D collider) { }
+        public virtual void OnTriggerExit2D(Collider2D collider) { }
     }
 }

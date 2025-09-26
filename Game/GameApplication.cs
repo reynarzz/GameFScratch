@@ -89,7 +89,7 @@ namespace Game
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
 
-            var actor = new Actor<SpriteRenderer, RotateTest, RigidBody2D, BoxCollider2D>("Actor1");
+            var actor = new Actor<SpriteRenderer, RotateTest, RigidBody2D, BoxCollider2D, CollisionTest>("Actor1");
             actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
@@ -100,7 +100,7 @@ namespace Game
 
             // (int i = 0; i < 33; i++)
             {
-                var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, RotateTest>("RotatedQuad");
+                var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, RotateTest, CollisionTest>("RotatedQuad");
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
                 actor2.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
                 
@@ -133,7 +133,7 @@ namespace Game
             }
 
 
-            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PolygonCollider2D>("Floor");
+            var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PolygonCollider2D, CollisionTest>("Floor");
 
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
