@@ -350,7 +350,6 @@ namespace Engine
 
         internal void DeletePending()
         {
-            var x = this;
             if (IsPendingToDestroy)
             {
                 void OnDestroyEventNotify(Actor actor)

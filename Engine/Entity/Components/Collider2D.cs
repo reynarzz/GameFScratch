@@ -130,7 +130,6 @@ namespace Engine
         public override void OnDestroy()
         {
             base.OnDestroy();
-            Debug.Log("Destroy collider");
             if (RigidBody != null)
             {
                 RigidBody.RemoveCollider(_shapeID);
