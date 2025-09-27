@@ -117,8 +117,9 @@ namespace Engine.Rendering
                     if (renderer.Mesh == null)
                     {
                         var chunk = renderer.Sprite?.GetAtlasChunk() ?? AtlasChunk.DefaultChunk;
-                        var worldMatrix = renderer.Transform.PhysicsAlpha < 0 ? renderer.Transform.WorldMatrix : renderer.Transform.InterpolatedWorldMatrix;
-                        renderer.Transform.PhysicsAlpha = -1;
+
+                        var worldMatrix = !renderer.Transform.NeedsInterpolation ? renderer.Transform.WorldMatrix : renderer.Transform.InterpolatedWorldMatrix;
+                      
                         var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                         var material = renderer.Material ?? _pinkMaterial;
 

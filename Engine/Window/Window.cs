@@ -97,9 +97,6 @@ namespace Engine
 
         public static void FullScreen(bool fullscreen, int monitorIndex = 0)
         {
-            if (IsFullScreen == fullscreen)
-                return;
-
             IsFullScreen = fullscreen;
 
             if (fullscreen)

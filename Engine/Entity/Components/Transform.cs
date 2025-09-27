@@ -15,31 +15,7 @@ namespace Engine
         private vec3 _localScale = new vec3(1, 1, 1);
         private Transform _parent = null;
 
-        internal vec3 PrevPhysicsPosition { get; set; }
-        internal quat PrevRotation { get; set; }
-        internal float PhysicsAlpha { get; set; } = -1;
-        internal mat4 InterpolatedWorldMatrix { get; private set; } = mat4.identity();
-
-        internal void CalculatePhysicsInterpolation()
-        {
-            vec3 interpolatedPos = Mathf.Lerp(PrevPhysicsPosition, Transform.WorldPosition, PhysicsAlpha);
-            quat interpolatedRot = Mathf.Slerp(PrevRotation, Transform.WorldRotation, PhysicsAlpha);
-            vec3 interpolatedScale = Transform.WorldScale;
-
-            mat4 scaleMat = glm.scale(mat4.identity(), interpolatedScale);
-            mat4 rotMat = QuaternionToMat4(interpolatedRot);
-            mat4 transMat = glm.translate(mat4.identity(), interpolatedPos);
-
-            mat4 localMatrix = transMat * rotMat * scaleMat;
-
-            InterpolatedWorldMatrix = localMatrix;
-
-            foreach (var child in Transform.Children)
-            {
-                child.CalculatePhysicsInterpolation();
-            }
-        }
-
+        
         private readonly List<Transform> _children = new List<Transform>();
 
         // Dirty flag and cached matrices
@@ -128,7 +104,7 @@ namespace Engine
         }
 
         // Local matrix
-        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * QuaternionToMat4(_localRotation) * glm.scale(IdentityM, _localScale);
+        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * Mathf.QuaternionToMat4(_localRotation) * glm.scale(IdentityM, _localScale);
 
         // World transforms with lazy evaluation
         public mat4 WorldMatrix
@@ -226,6 +202,9 @@ namespace Engine
         public vec3 Forward => RotateVecByQuat(new vec3(0, 0, 1), WorldRotation);
         public vec3 Back => RotateVecByQuat(new vec3(0, 0, -1), WorldRotation);
 
+        public bool NeedsInterpolation { get; internal set; }
+        internal mat4 InterpolatedWorldMatrix { get; set; }
+
         // Helper to update world transforms if dirty
         private void UpdateWorldIfDirty()
         {
@@ -306,54 +285,13 @@ namespace Engine
             );
 
             mat4 scaleMat = glm.scale(IdentityM, invScale);
-            mat4 rotMat = QuaternionToMat4(rotation.Conjugate);
+            mat4 rotMat = Mathf.QuaternionToMat4(rotation.Conjugate);
             mat4 transMat = glm.translate(IdentityM, new vec3(-position.x, -position.y, -position.z));
 
             return scaleMat * rotMat * transMat;
         }
 
-        private mat4 QuaternionToMat4(quat q)
-        {
-            float x = q.x, y = q.y, z = q.z, w = q.w;
-
-            float xx = x * x;
-            float yy = y * y;
-            float zz = z * z;
-            float xy = x * y;
-            float xz = x * z;
-            float yz = y * z;
-            float wx = w * x;
-            float wy = w * y;
-            float wz = w * z;
-
-            mat4 result = IdentityM;
-
-            // column 0
-            result[0, 0] = 1 - 2 * (yy + zz);
-            result[0, 1] = 2 * (xy + wz);
-            result[0, 2] = 2 * (xz - wy);
-            result[0, 3] = 0f;
-
-            // column 1
-            result[1, 0] = 2 * (xy - wz);
-            result[1, 1] = 1 - 2 * (xx + zz);
-            result[1, 2] = 2 * (yz + wx);
-            result[1, 3] = 0f;
-
-            // column 2
-            result[2, 0] = 2 * (xz + wy);
-            result[2, 1] = 2 * (yz - wx);
-            result[2, 2] = 1 - 2 * (xx + yy);
-            result[2, 3] = 0f;
-
-            // column 3 (translation)
-            result[3, 0] = 0f;
-            result[3, 1] = 0f;
-            result[3, 2] = 0f;
-            result[3, 3] = 1f;
-
-            return result;
-        }
+       
 
         internal void RemoveChild(Transform transform)
         {

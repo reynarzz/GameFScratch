@@ -39,7 +39,17 @@ namespace Engine
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
-        public bool Interpolate { get; set; }
+        private bool _interpolate = false;
+        public bool Interpolate 
+        {
+            get => _interpolate;
+            set 
+            {
+                _interpolate = value;
+                Transform.NeedsInterpolation = value;
+            } 
+        }
+
         public override bool IsEnabled
         {
             get => base.IsEnabled;
@@ -149,6 +159,27 @@ namespace Engine
             }
         }
 
+        internal vec3 PrevPhysicsPosition { get; set; }
+        internal quat PrevRotation { get; set; }
+
+        internal void CalculatePhysicsInterpolation(float alpha)
+        {
+            if (Interpolate)
+            {
+                vec3 interpolatedPos = Mathf.Lerp(PrevPhysicsPosition, Transform.WorldPosition, alpha);
+                quat interpolatedRot = Mathf.Slerp(PrevRotation, Transform.WorldRotation, alpha);
+                vec3 interpolatedScale = Transform.WorldScale;
+
+                mat4 scaleMat = glm.scale(mat4.identity(), interpolatedScale);
+                mat4 rotMat = Mathf.QuaternionToMat4(interpolatedRot);
+                mat4 transMat = glm.translate(mat4.identity(), interpolatedPos);
+
+                mat4 localMatrix = transMat * rotMat * scaleMat;
+
+                Transform.InterpolatedWorldMatrix = localMatrix;
+            }
+        }
+
         internal override void OnInitialize()
         {
             var worldPos = Transform.WorldPosition;
@@ -242,6 +273,7 @@ namespace Engine
 
             if (Transform)
             {
+                Transform.NeedsInterpolation = false;
                 Transform.OnChanged -= OnTransformChanged;
             }
         }

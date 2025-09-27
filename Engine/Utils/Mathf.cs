@@ -128,5 +128,48 @@ namespace Engine
                 Clamp(v.x, min.x, max.x),
                 Clamp(v.y, min.y, max.y),
                 Clamp(v.z, min.z, max.z));
+
+        public static mat4 QuaternionToMat4(quat q)
+        {
+            float x = q.x, y = q.y, z = q.z, w = q.w;
+
+            float xx = x * x;
+            float yy = y * y;
+            float zz = z * z;
+            float xy = x * y;
+            float xz = x * z;
+            float yz = y * z;
+            float wx = w * x;
+            float wy = w * y;
+            float wz = w * z;
+
+            mat4 result = mat4.identity();
+
+            // column 0
+            result[0, 0] = 1 - 2 * (yy + zz);
+            result[0, 1] = 2 * (xy + wz);
+            result[0, 2] = 2 * (xz - wy);
+            result[0, 3] = 0f;
+
+            // column 1
+            result[1, 0] = 2 * (xy - wz);
+            result[1, 1] = 1 - 2 * (xx + zz);
+            result[1, 2] = 2 * (yz + wx);
+            result[1, 3] = 0f;
+
+            // column 2
+            result[2, 0] = 2 * (xz + wy);
+            result[2, 1] = 2 * (yz - wx);
+            result[2, 2] = 1 - 2 * (xx + yy);
+            result[2, 3] = 0f;
+
+            // column 3 (translation)
+            result[3, 0] = 0f;
+            result[3, 1] = 0f;
+            result[3, 2] = 0f;
+            result[3, 3] = 1f;
+
+            return result;
+        }
     }
 }

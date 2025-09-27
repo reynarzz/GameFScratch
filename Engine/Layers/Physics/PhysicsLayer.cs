@@ -125,11 +125,12 @@ namespace Engine.Layers
                 _contactDispatcher.Update();
 
                 SceneManager.ActiveScene.FixedUpdate();
+
                 foreach (var rigidbody in rigidBodies)
                 {
                     rigidbody.PreUpdateBody();
-                    rigidbody.Transform.PrevPhysicsPosition = rigidbody.Transform.WorldPosition;
-                    rigidbody.Transform.PrevRotation = rigidbody.Transform.WorldRotation;
+                    rigidbody.PrevPhysicsPosition = rigidbody.Transform.WorldPosition;
+                    rigidbody.PrevRotation = rigidbody.Transform.WorldRotation;
                 }
 
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
@@ -148,17 +149,13 @@ namespace Engine.Layers
 
             foreach (var rigidbody in rigidBodies)
             {
-                rigidbody.Transform.PhysicsAlpha = alpha;
-                rigidbody.Transform.CalculatePhysicsInterpolation();
+                rigidbody.CalculatePhysicsInterpolation(alpha);
+
                 if (Physics2D.DrawColliders)
                 {
                     DrawShapes(rigidbody);
                 }
             }
-
-
-            // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
-
         }
 
         private void DrawShapes(RigidBody2D rigidbody)

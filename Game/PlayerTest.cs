@@ -67,8 +67,11 @@ namespace Game
                 Window.FullScreen(!Window.IsFullScreen);
             }
 
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                _rigid.Interpolate = !_rigid.Interpolate;
+            }
 
-            
 
         }
 
