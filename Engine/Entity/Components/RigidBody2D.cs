@@ -33,6 +33,7 @@ namespace Engine
         private bool _isZRotationLocked = false;
         private bool _shouldUpdatePreTransformation = false;
         private float _gravityScale = 1;
+        private readonly static mat4 _identity = mat4.identity();
         internal B2BodyId BodyId => _bodyId;
         public vec2 Velocity
         {
@@ -40,14 +41,14 @@ namespace Engine
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
         private bool _interpolate = false;
-        public bool Interpolate 
+        public bool Interpolate
         {
             get => _interpolate;
-            set 
+            set
             {
                 _interpolate = value;
                 Transform.NeedsInterpolation = value;
-            } 
+            }
         }
 
         public override bool IsEnabled
@@ -162,21 +163,33 @@ namespace Engine
         internal vec3 PrevPhysicsPosition { get; set; }
         internal quat PrevRotation { get; set; }
 
-        internal void CalculatePhysicsInterpolation(float alpha)
+        internal void CalculatePhysicsInterpolation(Transform transform, float alpha)
         {
             if (Interpolate)
             {
-                vec3 interpolatedPos = Mathf.Lerp(PrevPhysicsPosition, Transform.WorldPosition, alpha);
-                quat interpolatedRot = Mathf.Slerp(PrevRotation, Transform.WorldRotation, alpha);
-                vec3 interpolatedScale = Transform.WorldScale;
+                vec3 interpolatedPos = Mathf.Lerp(PrevPhysicsPosition, transform.WorldPosition, alpha);
+                quat interpolatedRot = Mathf.Slerp(PrevRotation, transform.WorldRotation, alpha);
+                vec3 interpolatedScale = transform.WorldScale;
 
                 mat4 scaleMat = glm.scale(mat4.identity(), interpolatedScale);
-                mat4 rotMat = Mathf.QuaternionToMat4(interpolatedRot);
+                mat4 rotMat = Mathf.QuatToMat4(interpolatedRot);
                 mat4 transMat = glm.translate(mat4.identity(), interpolatedPos);
 
                 mat4 localMatrix = transMat * rotMat * scaleMat;
 
-                Transform.InterpolatedWorldMatrix = localMatrix;
+                transform.InterpolatedWorldMatrix = localMatrix;
+            }
+            else
+            {
+                mat4 parentMatrix = transform.Parent?.InterpolatedWorldMatrix ?? _identity;
+                mat4 localMatrix = transform.LocalMatrix;
+                transform.InterpolatedWorldMatrix = parentMatrix * localMatrix;
+            }
+
+            // TODO: Mark the child transform as needInterpolate
+            foreach (var child in transform.Children)
+            {
+                CalculatePhysicsInterpolation(child.Transform, alpha);
             }
         }
 

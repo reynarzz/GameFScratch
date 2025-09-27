@@ -129,7 +129,7 @@ namespace Engine
                 Clamp(v.y, min.y, max.y),
                 Clamp(v.z, min.z, max.z));
 
-        public static mat4 QuaternionToMat4(quat q)
+        public static mat4 QuatToMat4(quat q)
         {
             float x = q.x, y = q.y, z = q.z, w = q.w;
 

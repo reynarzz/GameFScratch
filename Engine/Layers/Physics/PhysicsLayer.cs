@@ -149,7 +149,7 @@ namespace Engine.Layers
 
             foreach (var rigidbody in rigidBodies)
             {
-                rigidbody.CalculatePhysicsInterpolation(alpha);
+                rigidbody.CalculatePhysicsInterpolation(rigidbody.Transform, alpha);
 
                 if (Physics2D.DrawColliders)
                 {

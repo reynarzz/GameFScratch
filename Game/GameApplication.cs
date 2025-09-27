@@ -67,6 +67,7 @@ namespace Game
         // Fix: polygon collider onEnter event with it's own shapes.
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
+        // Fix rigidbody interpolation propagated to children
 
         public override void Initialize()
         {

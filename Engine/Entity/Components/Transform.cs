@@ -104,7 +104,7 @@ namespace Engine
         }
 
         // Local matrix
-        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * Mathf.QuaternionToMat4(_localRotation) * glm.scale(IdentityM, _localScale);
+        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * Mathf.QuatToMat4(_localRotation) * glm.scale(IdentityM, _localScale);
 
         // World transforms with lazy evaluation
         public mat4 WorldMatrix
@@ -202,7 +202,7 @@ namespace Engine
         public vec3 Forward => RotateVecByQuat(new vec3(0, 0, 1), WorldRotation);
         public vec3 Back => RotateVecByQuat(new vec3(0, 0, -1), WorldRotation);
 
-        public bool NeedsInterpolation { get; internal set; }
+        internal bool NeedsInterpolation { get; set; }
         internal mat4 InterpolatedWorldMatrix { get; set; }
 
         // Helper to update world transforms if dirty
@@ -225,6 +225,11 @@ namespace Engine
             _cachedWorldScale = Parent != null ? Parent.WorldScale * LocalScale : LocalScale;
 
             _isDirty = false;
+        }
+
+        internal mat4 GetRenderingWorldMatrix()
+        {
+            return NeedsInterpolation ? InterpolatedWorldMatrix : WorldMatrix;
         }
 
         private vec3 RotateVecByQuat(vec3 v, quat q)
@@ -285,7 +290,7 @@ namespace Engine
             );
 
             mat4 scaleMat = glm.scale(IdentityM, invScale);
-            mat4 rotMat = Mathf.QuaternionToMat4(rotation.Conjugate);
+            mat4 rotMat = Mathf.QuatToMat4(rotation.Conjugate);
             mat4 transMat = glm.translate(IdentityM, new vec3(-position.x, -position.y, -position.z));
 
             return scaleMat * rotMat * transMat;
