@@ -98,13 +98,14 @@ namespace Game
 
         private void TestGround()
         {
-            var length = 0.4f;
-            var origin1 = Transform.WorldPosition + new vec3(-0.45f, -0.55f, 0);
-            var origin2 = Transform.WorldPosition + new vec3(0.45f, -0.55f, 0);
+            var length = 1.0f;
+            var yOffset = 0;//-0.55f;
+            var origin1 = Transform.WorldPosition + new vec3(-0.45f, yOffset, 0);
+            var origin2 = Transform.WorldPosition + new vec3(0.45f, yOffset, 0);
             //Debug.DrawRay(Transform.WorldPosition, Transform.Up, Color.Green);
 
-            var hitA = Physics2D.Raycast(origin1, Transform.Down * length);
-            var hitB = Physics2D.Raycast(origin2, Transform.Down * length);
+            var hitA = Physics2D.Raycast(origin1, Transform.Down * length, 1UL << 1);
+            var hitB = Physics2D.Raycast(origin2, Transform.Down * length, 1UL << 1);
 
             var color1 = Color.White;
             var color2 = Color.White;
@@ -153,8 +154,8 @@ namespace Game
                 _isOnGround = false;
             }
 
-            //Debug.DrawRay(origin1, Transform.Down * length, color1);
-            //Debug.DrawRay(origin2, Transform.Down * length, color2);
+            Debug.DrawRay(origin1, Transform.Down * length, color1);
+            Debug.DrawRay(origin2, Transform.Down * length, color2);
         }
         public override void OnCollisionEnter2D(Collision2D collision)
         {

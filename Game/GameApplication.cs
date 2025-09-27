@@ -164,6 +164,7 @@ namespace Game
             }
 
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, CollisionTest>("Floor");
+            actor4.Layer = 1;
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();

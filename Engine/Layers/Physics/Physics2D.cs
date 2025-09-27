@@ -20,16 +20,21 @@ namespace Engine
     public static class Physics2D
     {
         public static bool DrawColliders { get; set; }
-
-        public static RaycastHit2D Raycast(vec2 origin, vec2 direction, ulong layer)
+        private static readonly B2QueryFilter _defaultQueryFilter = new B2QueryFilter(B2Constants.B2_DEFAULT_CATEGORY_BITS, 
+                                                                                      B2Constants.B2_DEFAULT_MASK_BITS);
+        public static RaycastHit2D Raycast(vec2 origin, vec2 direction, ulong layerMask)
         {
-            // TODO: use layer
-            B2QueryFilter castFilter = B2Types.b2DefaultQueryFilter();
-            
             RaycastHit2D hit = default;
             float CastResultFunc(B2ShapeId shapeId, B2Vec2 point, B2Vec2 normal, float fraction, object context)
             {
-                hit.Collider = B2Shapes.b2Shape_GetUserData(shapeId) as Collider2D;
+                var collider = B2Shapes.b2Shape_GetUserData(shapeId) as Collider2D;
+                
+                if (!LayerMaskManager.AreValid(collider.Actor.Layer, layerMask))
+                {
+                    return 0;
+                }
+
+                hit.Collider = collider;
                 hit.Point = point.ToVec2();
                 hit.Normal = normal.ToVec2();
                 hit.isHit = true;
@@ -37,8 +42,8 @@ namespace Engine
                 return fraction; // Stop at the first hit
             }
 
-            B2Worlds.b2World_CastRay(PhysicWorld.WorldID, origin.ToB2Vec2(), direction.ToB2Vec2(), castFilter, CastResultFunc, null);
-
+            B2Worlds.b2World_CastRay(PhysicWorld.WorldID, origin.ToB2Vec2(), direction.ToB2Vec2(), _defaultQueryFilter, CastResultFunc, null);
+          
             return hit;
         }
 
@@ -47,10 +52,11 @@ namespace Engine
             return Raycast(origin, direction, ulong.MaxValue);
         }
 
-        public static RaycastHit2D Raycast(vec3 origin, vec3 direction, ulong layer)
+        public static RaycastHit2D Raycast(vec3 origin, vec3 direction, ulong mask)
         {
-            return Raycast(new vec2(origin.x, origin.y), new vec2(direction.x, direction.y), layer);
+            return Raycast(new vec2(origin.x, origin.y), new vec2(direction.x, direction.y), mask);
         }
+
         public static RaycastHit2D Raycast(vec3 origin, vec3 direction)
         {
             return Raycast(new vec2(origin.x, origin.y), new vec2(direction.x, direction.y), ulong.MaxValue);

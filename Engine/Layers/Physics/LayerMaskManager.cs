@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class LayerMaskManager
+    public static class LayerMaskManager
     {
         private static ulong[] MaskBits;
         private static Dictionary<string, int> Names;
@@ -33,9 +33,14 @@ namespace Engine
             return BitOperations.TrailingZeroCount(layer);
         }
 
-        public static ulong IndexToLayer(int index)
+        public static ulong LayerToBits(int index)
         {
             return 1UL << index;
+        }
+
+        public static bool AreValid(int layer, ulong mask)
+        {
+            return (LayerToBits(layer) & mask) != 0;
         }
 
         public static void TurnOff(int layerA, int layerB)
@@ -63,19 +68,19 @@ namespace Engine
             var layerA = NameToLayer(nameA);
             var layerB = NameToLayer(nameB);
 
-            MaskBits[layerA] = op(MaskBits[layerA], IndexToLayer(layerB));
-            MaskBits[layerB] = op(MaskBits[layerB], IndexToLayer(layerA));
+            MaskBits[layerA] = op(MaskBits[layerA], LayerToBits(layerB));
+            MaskBits[layerB] = op(MaskBits[layerB], LayerToBits(layerA));
         }
 
         private static void ModifyLayers(int layerA, int layerB, Func<ulong, ulong, ulong> op)
         {
-            MaskBits[layerA] = op(MaskBits[layerA], IndexToLayer(layerB));
-            MaskBits[layerB] = op(MaskBits[layerB], IndexToLayer(layerA));
+            MaskBits[layerA] = op(MaskBits[layerA], LayerToBits(layerB));
+            MaskBits[layerB] = op(MaskBits[layerB], LayerToBits(layerA));
         }
 
         public static bool AreEnabled(int layerA, int layerB)
         {
-            return (MaskBits[layerA] & IndexToLayer(layerB)) != 0;
+            return (MaskBits[layerA] & LayerToBits(layerB)) != 0;
         }
 
         public static void AssignName(int layer, string name)
