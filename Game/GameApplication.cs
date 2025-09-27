@@ -122,6 +122,22 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
+            int layerMask = 0;
+            int layerMask2 = 1;
+
+            var maskBits = LayerMaskManager.GetMaskBits(layerMask);
+            // LayerMaskManager.TurnOff(layerMask, layerMask2);
+            // LayerMaskManager.TurnOn(layerMask, layerMask2);
+            LayerMaskManager.AssignName(layerMask, "Player");
+            LayerMaskManager.AssignName(layerMask2, "Enemy");
+            LayerMaskManager.TurnOff("Player", "Player");
+
+            //  LayerMaskManager.TurnOn("Player", "Player");
+
+            Debug.Log("Enabled: " + LayerMaskManager.AreEnabled(layerMask, layerMask));
+
+            Debug.Log(maskBits);
+
             var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
@@ -133,7 +149,7 @@ namespace Game
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
             rigid3.LockZRotation = true;
-            
+
             camera.OrthographicSize = 8;
             // rigid3.Actor.IsEnabled = false;
             // actor3.GetComponent<BoxCollider2D>().IsTrigger = true;
@@ -165,10 +181,10 @@ namespace Game
                 new vec2(0, 4),  new vec2(-3, 2),
                 new vec2(-1, 1), new vec2(-2, -1)
             ];
-           
+
             polygon.Generate();
             polygon.Offset = new vec2(-2, 0);
-            polygon.RotationOffset = 49;
+            polygon.RotationOffset = 0;
 
             var platform = new Actor<Platform>("Platform");
             var respawner = new Actor<Respawner>("Respawner");

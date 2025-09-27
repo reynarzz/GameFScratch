@@ -77,34 +77,25 @@ namespace Engine.Layers
             //B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
             //B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
 
-            B2Worlds.b2World_SetCustomFilterCallback(PhysicWorld.WorldID, CustomFilter, null);
+            B2Worlds.b2World_SetCustomFilterCallback(PhysicWorld.WorldID, CustomFilter, this);
 
             B2QueryFilter castFilter = default;
             castFilter.categoryBits = 0;
             castFilter.maskBits = 0xFF;
 
-            B2Worlds.b2World_CastRay(PhysicWorld.WorldID, new B2Vec2(0, 0), new B2Vec2(2, 4), castFilter, CastResultFunc, this);
-
-            B2ShapeProxy shapeCast = default;
-            shapeCast.radius = 1;
-            B2Worlds.b2World_CastShape(PhysicWorld.WorldID, ref shapeCast, new B2Vec2(1, 0), castFilter, CastResultFunc, null);
+            //B2ShapeProxy shapeCast = default;
+            //shapeCast.radius = 1;
+            //B2Worlds.b2World_CastShape(PhysicWorld.WorldID, ref shapeCast, new B2Vec2(1, 0), castFilter, CastResultFunc, null);
 
             // B2Geometries.b2RayCastPolygon();
         }
 
-        private float CastResultFunc(B2ShapeId shapeId, B2Vec2 point, B2Vec2 normal, float fraction, object context)
-        {
-
-
-            return fraction; // Stop at the first hit
-        }
-
         private bool CustomFilter(B2ShapeId shapeIdA, B2ShapeId shapeIdB, object context)
         {
-            B2Shapes.b2Shape_GetUserData(shapeIdA);
-            B2Shapes.b2Shape_GetUserData(shapeIdB);
-
-            return false;
+            var colA = B2Shapes.b2Shape_GetUserData(shapeIdA) as Collider2D;
+            var colB = B2Shapes.b2Shape_GetUserData(shapeIdB) as Collider2D;
+            
+            return LayerMaskManager.AreEnabled(colA.Actor.Layer, colB.Actor.Layer);
         }
 
 

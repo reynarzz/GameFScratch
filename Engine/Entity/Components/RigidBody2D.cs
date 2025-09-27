@@ -29,7 +29,7 @@ namespace Engine
         private B2BodyId _bodyId;
         private Body2DType _bodyType = Body2DType.Dynamic;
         private bool _isContinuos = false;
-        private bool _canSleep = false;
+        private bool _canSleep = true;
         private bool _isAutoMass = false;
         private float _userMassValue = 1.0f;
         private bool _isZRotationLocked = false;
@@ -42,6 +42,19 @@ namespace Engine
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
+
+        public float AngularVelovity
+        {
+            get
+            {
+                return B2Bodies.b2Body_GetAngularVelocity(_bodyId);
+            }
+            set
+            {
+                B2Bodies.b2Body_SetAngularVelocity(_bodyId, value);
+            }
+        }
+
         private bool _interpolate = false;
         public bool Interpolate
         {
@@ -144,7 +157,7 @@ namespace Engine
             get => _bodyType;
             set
             {
-                // if (_bodyType == value) return;
+                 if (_bodyType == value) return;
                 _bodyType = value;
 
                 B2Bodies.b2Body_SetType(_bodyId, (B2BodyType)_bodyType);
@@ -176,7 +189,6 @@ namespace Engine
 
             if (Interpolate)
             {
-                transform.NeedsInterpolation = true;
                 // Interpolate in *local space*
                 localPos = Mathf.Lerp(prevPos, transform.LocalPosition, alpha);
                 localRot = Mathf.Slerp(prevRot, transform.LocalRotation, alpha);
@@ -217,11 +229,11 @@ namespace Engine
             bodyDef.position = new B2Vec2(worldPos.x, worldPos.y);
             bodyDef.rotation = worldRot.QuatToB2Rot();
             bodyDef.name = GetID().ToString();
-            bodyDef.isBullet = false;
+            bodyDef.isBullet = _isContinuos;
             bodyDef.isAwake = true;
             bodyDef.isEnabled = true;
             bodyDef.gravityScale = _gravityScale;
-            bodyDef.enableSleep = false;
+            bodyDef.enableSleep = _canSleep;
 
             _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);
 
@@ -246,10 +258,13 @@ namespace Engine
 
         internal void PostUpdateBody()
         {
-            var position = B2Bodies.b2Body_GetPosition(_bodyId);
+            if(_bodyType == Body2DType.Dynamic)
+            {
+                var position = B2Bodies.b2Body_GetPosition(_bodyId);
 
-            Transform.WorldPosition = new vec3(position.X, position.Y, Transform.WorldPosition.z);
-            Transform.WorldRotation = B2Bodies.b2Body_GetRotation(_bodyId).B2RotToQuat();
+                Transform.WorldPosition = new vec3(position.X, position.Y, Transform.WorldPosition.z);
+                Transform.WorldRotation = B2Bodies.b2Body_GetRotation(_bodyId).B2RotToQuat();
+            }
         }
 
         public void AddForce(vec2 force, ForceMode2D mode)
@@ -284,6 +299,25 @@ namespace Engine
             }
         }
 
+
+
+
+        public void AddAngularForce(float force, ForceMode2D mode)
+        {
+            switch (mode)
+            {
+                case ForceMode2D.Force:
+                    B2Bodies.b2Body_ApplyTorque(_bodyId, force, true);
+                    break;
+                case ForceMode2D.Impulse:
+                    B2Bodies.b2Body_ApplyAngularImpulse(_bodyId, force, true);
+                    break;
+                default:
+                    Debug.Error($"ForceMode2D: '{mode}' Not implemented");
+                    break;
+            }
+        }
+      
         internal void UpdateBody()
         {
             Mass = _userMassValue;

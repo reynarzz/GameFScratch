@@ -28,6 +28,8 @@ namespace Engine
         public bool IsEnabled { get; set; } = true;
         public string Tag { get; set; }
 
+        public int Layer { get; set; } = 0;
+
         private List<Component> _pendingToDeleteComponents;
 
         private List<Component> _onAwakeComponents;

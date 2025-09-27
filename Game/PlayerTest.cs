@@ -16,15 +16,15 @@ namespace Game
         private float _walkSpeed = 2.4f;
         private RigidBody2D _rigid;
         private bool _isOnGround = false;
-
+        private float _gravityScale = 3;
         public override void OnAwake()
         {
             Debug.Info("Awake");
             //new Actor<RotateTest>();
             _rigid = GetComponent<RigidBody2D>();
-          
+
             _rigid.IsContinuos = true;
-            _rigid.GravityScale = 3;
+            _rigid.GravityScale = _gravityScale;
             _rigid.Interpolate = true;
 
             GetComponent<Collider2D>().Friction = 0;
@@ -48,21 +48,24 @@ namespace Game
             if ((_isOnGround || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
             {
                 _extraJumpAvailable = false;
+                _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_rigid.Velocity.x, 0);
                 _rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
             }
 
             if (Input.GetKey(KeyCode.A))
             {
+                _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
             }
             else if (Input.GetKey(KeyCode.D))
             {
+                _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_walkSpeed, _rigid.Velocity.y);
             }
             else
             {
-              
+
 
             }
 
@@ -86,15 +89,11 @@ namespace Game
 
         public override void OnFixedUpdate()
         {
-            if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-            {
-                var yVel = _isOnGround && _rigid.Velocity.y <= 0 ? 0 : _rigid.Velocity.y;
-                _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
-            }
+
+            TestGround();
 
 
             // Error: Rays move late not in sync with the velocity
-            TestGround();
         }
 
         private void TestGround()
@@ -111,21 +110,43 @@ namespace Game
             var color2 = Color.White;
             if (hitA.isHit || hitB.isHit)
             {
+
+                // Test code
+                var pressingKeysToMove = Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.A);
                 if (hitA.isHit)
                 {
                     // Debug.Log("RayHit: " + hitA.Collider.Name);
                     color1 = Color.Red;
                     //Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
+                    if (_rigid.Velocity.y <= 0 && !pressingKeysToMove)
+                    {
+                        Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitA.Point.y + 0.6f, 0);
+                        _rigid.GravityScale = 0;
+                        _rigid.Velocity = new GlmNet.vec2(0, 0);
+                    }
                 }
+
 
                 if (hitB.isHit)
                 {
                     //Debug.DrawRay(origin2 + Transform.Down * length, new vec3(hitB.Normal.x, hitB.Normal.y, 0), Color.Blue);
                     color2 = Color.Red;
+
+                    if (_rigid.Velocity.y <= 0 && !pressingKeysToMove)
+                    {
+                        Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitB.Point.y + 0.6f, 0);
+                        _rigid.GravityScale = 0;
+                        _rigid.Velocity = new GlmNet.vec2(0, 0);
+                    }
                 }
 
+                if (!pressingKeysToMove)
+                {
+                    _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
+                }
                 _isOnGround = true;
                 _extraJumpAvailable = true;
+
             }
             else
             {

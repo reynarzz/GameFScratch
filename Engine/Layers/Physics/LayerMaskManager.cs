@@ -1,0 +1,113 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Engine
+{
+    public class LayerMaskManager
+    {
+        private static ulong[] MaskBits;
+        private static Dictionary<string, int> Names;
+        private const int ARRAY_SIZE = sizeof(ulong) * 8;
+        static LayerMaskManager()
+        {
+            MaskBits = new ulong[ARRAY_SIZE];
+            Names = new Dictionary<string, int>(ARRAY_SIZE);
+
+            for (int i = 0; i < MaskBits.Length; i++)
+            {
+                MaskBits[i] = ulong.MaxValue;
+            }
+        }
+
+        public static ulong GetMaskBits(int layer)
+        {
+            return MaskBits[layer];
+        }
+
+        public static int LayerToIndex(ulong layer)
+        {
+            return BitOperations.TrailingZeroCount(layer);
+        }
+
+        public static ulong IndexToLayer(int index)
+        {
+            return 1UL << index;
+        }
+
+        public static void TurnOff(int layerA, int layerB)
+        {
+            ModifyLayers(layerA, layerB, (mask, bit) => mask & ~bit);
+        }
+
+        public static void TurnOn(int layerA, int layerB)
+        {
+            ModifyLayers(layerA, layerB, (mask, bit) => mask | bit);
+        }
+
+        public static void TurnOff(string nameA, string nameB)
+        {
+            ModifyLayers(nameA, nameB, (mask, bit) => mask & ~bit);
+        }
+
+        public static void TurnOn(string nameA, string nameB)
+        {
+            ModifyLayers(nameA, nameB, (mask, bit) => mask | bit);
+        }
+
+        private static void ModifyLayers(string nameA, string nameB, Func<ulong, ulong, ulong> op)
+        {
+            var layerA = NameToLayer(nameA);
+            var layerB = NameToLayer(nameB);
+
+            MaskBits[layerA] = op(MaskBits[layerA], IndexToLayer(layerB));
+            MaskBits[layerB] = op(MaskBits[layerB], IndexToLayer(layerA));
+        }
+
+        private static void ModifyLayers(int layerA, int layerB, Func<ulong, ulong, ulong> op)
+        {
+            MaskBits[layerA] = op(MaskBits[layerA], IndexToLayer(layerB));
+            MaskBits[layerB] = op(MaskBits[layerB], IndexToLayer(layerA));
+        }
+
+        public static bool AreEnabled(int layerA, int layerB)
+        {
+            return (MaskBits[layerA] & IndexToLayer(layerB)) != 0;
+        }
+
+        public static void AssignName(int layer, string name)
+        {
+            if (Names.ContainsKey(name))
+            {
+                Names[name] = layer;
+            }
+            else
+            {
+                Names.Add(name, layer);
+            }
+        }
+
+        public static string LayerToName(int layer)
+        {
+            foreach (var kvp in Names)
+            {
+                if (kvp.Value == layer)
+                    return kvp.Key;
+            }
+            return string.Empty;
+        }
+
+        public static int NameToLayer(string name)
+        {
+            if (Names.TryGetValue(name, out var layer))
+            {
+                return layer;
+            }
+
+            return 0;
+        }
+    }
+}
