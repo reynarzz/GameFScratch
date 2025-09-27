@@ -32,7 +32,7 @@ namespace Engine
         private float _userMassValue = 1.0f;
         private bool _isZRotationLocked = false;
         private bool _shouldUpdatePreTransformation = false;
-
+        private float _gravityScale = 1;
         internal B2BodyId BodyId => _bodyId;
         public vec2 Velocity
         {
@@ -104,6 +104,16 @@ namespace Engine
             }
         }
 
+        public float GravityScale
+        {
+            get => _gravityScale;
+            set
+            {
+                _gravityScale = value;
+                B2Bodies.b2Body_SetGravityScale(_bodyId, _gravityScale);
+            }
+        }
+
         public bool LockZRotation
         {
             get => _isZRotationLocked;
@@ -152,7 +162,7 @@ namespace Engine
             bodyDef.isBullet = false;
             bodyDef.isAwake = true;
             bodyDef.isEnabled = true;
-            bodyDef.gravityScale = 1;
+            bodyDef.gravityScale = _gravityScale;
             bodyDef.enableSleep = false;
 
             _bodyId = B2Bodies.b2CreateBody(PhysicWorld.WorldID, ref bodyDef);

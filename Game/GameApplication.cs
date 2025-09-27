@@ -120,19 +120,19 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest>("Player");
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            rigid3.Transform.WorldPosition = new GlmNet.vec3(-9.0f, 0, 0);
+            rigid3.Transform.WorldPosition = new GlmNet.vec3(-6.5f, 0, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
             rigid3.LockZRotation = true;
             
-            camera.OrthographicSize = 7;
+            camera.OrthographicSize = 8;
             // rigid3.Actor.IsEnabled = false;
             // actor3.GetComponent<BoxCollider2D>().IsTrigger = true;
 
@@ -167,6 +167,7 @@ namespace Game
             polygon.Generate();
 
             var platform = new Actor<Platform>("Platform");
+            var respawner = new Actor<Respawner>("Respawner");
 
             polygon.Offset = new vec2(-2, 0);
             polygon.RotationOffset = 49;

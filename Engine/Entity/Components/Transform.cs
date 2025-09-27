@@ -195,8 +195,11 @@ namespace Engine
         }
 
         public vec3 Right => RotateVecByQuat(new vec3(1, 0, 0), WorldRotation);
+        public vec3 Left => RotateVecByQuat(new vec3(-1, 0, 0), WorldRotation);
         public vec3 Up => RotateVecByQuat(new vec3(0, 1, 0), WorldRotation);
+        public vec3 Down => RotateVecByQuat(new vec3(0, -1, 0), WorldRotation);
         public vec3 Forward => RotateVecByQuat(new vec3(0, 0, 1), WorldRotation);
+        public vec3 Back => RotateVecByQuat(new vec3(0, 0, -1), WorldRotation);
 
         // Helper to update world transforms if dirty
         private void UpdateWorldIfDirty()
