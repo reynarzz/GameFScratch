@@ -11,16 +11,19 @@ namespace Game
 {
     internal class PlayerTest : ScriptBehavior
     {
-        private bool _canJump = false;
         private bool _extraJumpAvailable = false;
-        private float _jumpForce = 9;
+        private float _jumpForce = 11;
+        private float _walkSpeed = 2.4f;
+        private RigidBody2D _rigid;
+        private bool _isOnGround = false;
+
         public override void OnAwake()
         {
             Debug.Info("Awake");
             //new Actor<RotateTest>();
-            var rigid = GetComponent<RigidBody2D>();
-            rigid.IsContinuos = true;
-            rigid.GravityScale = 2;
+            _rigid = GetComponent<RigidBody2D>();
+            _rigid.IsContinuos = true;
+            _rigid.GravityScale = 3;
 
             GetComponent<Collider2D>().Friction = 0;
         }
@@ -33,32 +36,52 @@ namespace Game
 
         public override void OnUpdate()
         {
-            if ((_canJump || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
+            if ((_isOnGround || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
             {
                 _extraJumpAvailable = false;
-                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(GetComponent<RigidBody2D>().Velocity.x, 0);
-                GetComponent<RigidBody2D>()?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
+                _rigid.Velocity = new GlmNet.vec2(_rigid.Velocity.x, 0);
+                _rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
             }
 
             if (Input.GetKey(KeyCode.A))
             {
-                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(-2, GetComponent<RigidBody2D>().Velocity.y);
+                _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
             }
             else if (Input.GetKey(KeyCode.D))
             {
-                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(2, GetComponent<RigidBody2D>().Velocity.y);
+                _rigid.Velocity = new GlmNet.vec2(_walkSpeed, _rigid.Velocity.y);
             }
             else
             {
-                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(0, GetComponent<RigidBody2D>().Velocity.y);
+              
 
             }
 
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Physics2D.DrawColliders = !Physics2D.DrawColliders;
+            }
+        }
 
+        public override void OnFixedUpdate()
+        {
+            if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            {
+                var yVel = _isOnGround && _rigid.Velocity.y <= 0 ? 0 : _rigid.Velocity.y;
+                _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
+            }
+
+
+            // Error: Rays move late not in sync with the velocity
+            TestGround();
+        }
+
+        private void TestGround()
+        {
             var length = 0.4f;
             var origin1 = Transform.WorldPosition + new vec3(-0.45f, -0.55f, 0);
             var origin2 = Transform.WorldPosition + new vec3(0.45f, -0.55f, 0);
-            Debug.DrawRay(Transform.WorldPosition, Transform.Up, Color.Green);
+            //Debug.DrawRay(Transform.WorldPosition, Transform.Up, Color.Green);
 
             var hitA = Physics2D.Raycast(origin1, Transform.Down * length);
             var hitB = Physics2D.Raycast(origin2, Transform.Down * length);
@@ -69,39 +92,28 @@ namespace Game
             {
                 if (hitA.isHit)
                 {
-                   // Debug.Log("RayHit: " + hitA.Collider.Name);
+                    // Debug.Log("RayHit: " + hitA.Collider.Name);
                     color1 = Color.Red;
-                    Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
+                    //Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
                 }
 
                 if (hitB.isHit)
                 {
-                    Debug.DrawRay(origin2 + Transform.Down * length, new vec3(hitB.Normal.x, hitB.Normal.y, 0), Color.Blue);
+                    //Debug.DrawRay(origin2 + Transform.Down * length, new vec3(hitB.Normal.x, hitB.Normal.y, 0), Color.Blue);
                     color2 = Color.Red;
                 }
 
-                _canJump = true;
+                _isOnGround = true;
                 _extraJumpAvailable = true;
             }
             else
             {
-                _canJump = false;
+                _isOnGround = false;
             }
 
-            Debug.DrawRay(origin1, Transform.Down * length, color1);
-            Debug.DrawRay(origin2, Transform.Down * length, color2);
-
+            //Debug.DrawRay(origin1, Transform.Down * length, color1);
+            //Debug.DrawRay(origin2, Transform.Down * length, color2);
         }
-
-        public override void OnFixedUpdate()
-        {
-            if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-            {
-                //GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(0, GetComponent<RigidBody2D>().Velocity.y);
-
-            }
-        }
-
         public override void OnCollisionEnter2D(Collision2D collision)
         {
             //List<ContactPoint2D> contacts = null;

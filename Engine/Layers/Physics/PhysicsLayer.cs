@@ -28,7 +28,7 @@ namespace Engine.Layers
         private B2BodyId _bodyTest;
         private B2BodyId _floorTest;
         private float accumulator = 0f;
-        private float fixedTimeStep = 1.0f / 60.0f;
+        private const float fixedTimeStep = 0.02f;
 
         public override void Initialize()
         {
@@ -128,27 +128,36 @@ namespace Engine.Layers
                 foreach (var rigidbody in rigidBodies)
                 {
                     rigidbody.PreUpdateBody();
+                    rigidbody.Transform.PrevPhysicsPosition = rigidbody.Transform.WorldPosition;
+                    rigidbody.Transform.PrevRotation = rigidbody.Transform.WorldRotation;
                 }
 
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
                 accumulator -= fixedTimeStep;
+
+                foreach (var rigidbody in rigidBodies)
+                {
+                    if (rigidbody)
+                    {
+                        rigidbody.PostUpdateBody();
+                    }
+                }
             }
+
+            float alpha = accumulator / fixedTimeStep;
 
             foreach (var rigidbody in rigidBodies)
             {
-                if (rigidbody)
+                rigidbody.Transform.PhysicsAlpha = alpha;
+                rigidbody.Transform.CalculatePhysicsInterpolation();
+                if (Physics2D.DrawColliders)
                 {
-                    rigidbody.PostUpdateBody();
+                    DrawShapes(rigidbody);
                 }
-
-                DrawShapes(rigidbody);
             }
-
-            B2Worlds.b2World_Draw(PhysicWorld.WorldID, _debugDraw);
 
 
             // TODO: Interpolate position and rotation only for rendering, create a smooth model matrix.
-            float alpha = accumulator / fixedTimeStep;
 
         }
 

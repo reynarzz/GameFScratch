@@ -27,10 +27,10 @@ namespace Engine
             => a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
         public static quat Mul(quat q, float s)
-            => new quat(q.w * s, q.x * s, q.y * s, q.z * s);
+            => new quat(q.x * s, q.y * s, q.z * s, q.w * s);
 
         public static quat Mul(float s, quat q)
-            => new quat(q.w * s, q.x * s, q.y * s, q.z * s);
+            => new quat(q.x * s, q.y * s, q.z * s, q.w * s);
 
         public static quat Lerp(quat a, quat b, float t)
         {
@@ -49,7 +49,7 @@ namespace Engine
             // If dot < 0, invert one to take shortest path
             if (dot < 0.0f)
             {
-                b = new quat(-b.w, -b.x, -b.y, -b.z);
+                b = new quat(-b.x, -b.y, -b.z, -b.w);
                 dot = -dot;
             }
 
@@ -74,10 +74,10 @@ namespace Engine
         }
 
         private static quat Add(quat a, quat b)
-            => new quat(a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z);
+            => new quat(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 
         private static quat Sub(quat a, quat b)
-            => new quat(a.w - b.w, a.x - b.x, a.y - b.y, a.z - b.z);
+            => new quat(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 
         public static vec2 Lerp(vec2 a, vec2 b, float t)
             => a + (b - a) * Clamp01(t);

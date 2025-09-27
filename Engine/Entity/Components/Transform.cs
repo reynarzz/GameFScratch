@@ -15,6 +15,31 @@ namespace Engine
         private vec3 _localScale = new vec3(1, 1, 1);
         private Transform _parent = null;
 
+        internal vec3 PrevPhysicsPosition { get; set; }
+        internal quat PrevRotation { get; set; }
+        internal float PhysicsAlpha { get; set; } = -1;
+        internal mat4 InterpolatedWorldMatrix { get; private set; } = mat4.identity();
+
+        internal void CalculatePhysicsInterpolation()
+        {
+            vec3 interpolatedPos = Mathf.Lerp(PrevPhysicsPosition, Transform.WorldPosition, PhysicsAlpha);
+            quat interpolatedRot = Mathf.Slerp(PrevRotation, Transform.WorldRotation, PhysicsAlpha);
+            vec3 interpolatedScale = Transform.WorldScale;
+
+            mat4 scaleMat = glm.scale(mat4.identity(), interpolatedScale);
+            mat4 rotMat = QuaternionToMat4(interpolatedRot);
+            mat4 transMat = glm.translate(mat4.identity(), interpolatedPos);
+
+            mat4 localMatrix = transMat * rotMat * scaleMat;
+
+            InterpolatedWorldMatrix = localMatrix;
+
+            foreach (var child in Transform.Children)
+            {
+                child.CalculatePhysicsInterpolation();
+            }
+        }
+
         private readonly List<Transform> _children = new List<Transform>();
 
         // Dirty flag and cached matrices
@@ -103,7 +128,7 @@ namespace Engine
         }
 
         // Local matrix
-        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * Rotate(_localRotation) * glm.scale(IdentityM, _localScale);
+        public mat4 LocalMatrix => glm.translate(IdentityM, _localPosition) * QuaternionToMat4(_localRotation) * glm.scale(IdentityM, _localScale);
 
         // World transforms with lazy evaluation
         public mat4 WorldMatrix
@@ -281,13 +306,13 @@ namespace Engine
             );
 
             mat4 scaleMat = glm.scale(IdentityM, invScale);
-            mat4 rotMat = Rotate(rotation.Conjugate);
+            mat4 rotMat = QuaternionToMat4(rotation.Conjugate);
             mat4 transMat = glm.translate(IdentityM, new vec3(-position.x, -position.y, -position.z));
 
             return scaleMat * rotMat * transMat;
         }
 
-        private mat4 Rotate(quat q)
+        private mat4 QuaternionToMat4(quat q)
         {
             float x = q.x, y = q.y, z = q.z, w = q.w;
 

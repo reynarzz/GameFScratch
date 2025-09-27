@@ -60,12 +60,13 @@ namespace Game
         // Implement audio
         // Implement a simple file system.
         // Tilemap (rendering, ldtk file loading, colliders)
-        // Use Collider2D instead of shape in CollisionKey, so it can support colliders of multiples shapes.
         /* Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Investigate why colliders are not freed from memory automatically.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
         // Fix: polygon collider onEnter event with it's own shapes.
+        // Implement bounds in sprites/renderers.
+        // Implement event in transform to know when scale changed, and get the delta scale.
 
         public override void Initialize()
         {

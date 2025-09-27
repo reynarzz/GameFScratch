@@ -19,6 +19,8 @@ namespace Engine
 
     public static class Physics2D
     {
+        public static bool DrawColliders { get; set; }
+
         public static RaycastHit2D Raycast(vec2 origin, vec2 direction, ulong layer)
         {
             // TODO: use layer
