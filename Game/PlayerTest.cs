@@ -22,14 +22,19 @@ namespace Game
             Debug.Info("Awake");
             //new Actor<RotateTest>();
             _rigid = GetComponent<RigidBody2D>();
-            AddComponent<RigidBody2D>();
+          
             _rigid.IsContinuos = true;
             _rigid.GravityScale = 3;
+            _rigid.Interpolate = true;
 
             GetComponent<Collider2D>().Friction = 0;
-            var act = new Actor<SpriteRenderer>();
-            act.Transform.Parent = Transform;
-            act.Transform.LocalPosition = new vec3(-1, 1, 0);
+            //var act = new Actor<SpriteRenderer>();
+            //act.Transform.Parent = Transform;
+            //act.Transform.LocalPosition = new vec3(-1, 1, 0);
+
+            //var act2 = new Actor<SpriteRenderer>();
+            //act2.Transform.Parent = act.Transform;
+            //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
         }
 
         public override void OnStart()

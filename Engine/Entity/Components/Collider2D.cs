@@ -11,7 +11,17 @@ namespace Engine
     public abstract class Collider2D : Component
     {
         public RigidBody2D RigidBody { get; internal set; }
-        public float RotationOffset { get; set; } = 0;
+
+        private float _rotationOffset;
+        public float RotationOffset 
+        {
+            get => _rotationOffset;
+            set
+            {
+                _rotationOffset = value;
+                Create();
+            }
+        }
 
         private B2ShapeId[] _shapesID;
         private B2ShapeDef _shapeDef;

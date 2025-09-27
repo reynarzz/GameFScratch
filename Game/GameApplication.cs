@@ -151,24 +151,24 @@ namespace Game
 
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
-            //var polygon = actor4.AddComponent<PolygonCollider2D>();
-            //polygon.Points =
-            //[
-            //    new vec2(0, 0),  new vec2(4, 1),
-            //    new vec2(7, 0),  new vec2(9, 2),
-            //    new vec2(11, 1), new vec2(12, 4),
-            //    new vec2(10, 5), new vec2(12, 7),
-            //    new vec2(9, 9),  new vec2(7, 7),
-            //    new vec2(6, 10), new vec2(4, 8),
-            //    new vec2(3, 11), new vec2(0, 10),
-            //    new vec2(1, 7),  new vec2(-2, 6),
-            //    new vec2(0, 4),  new vec2(-3, 2),
-            //    new vec2(-1, 1), new vec2(-2, -1)
-            //];
-
-            //polygon.Offset = new vec2(-2, 0);
-            //polygon.RotationOffset = 49;
-            //polygon.Generate();
+            var polygon = actor4.AddComponent<PolygonCollider2D>();
+            polygon.Points =
+            [
+                new vec2(0, 0),  new vec2(4, 1),
+                new vec2(7, 0),  new vec2(9, 2),
+                new vec2(11, 1), new vec2(12, 4),
+                new vec2(10, 5), new vec2(12, 7),
+                new vec2(9, 9),  new vec2(7, 7),
+                new vec2(6, 10), new vec2(4, 8),
+                new vec2(3, 11), new vec2(0, 10),
+                new vec2(1, 7),  new vec2(-2, 6),
+                new vec2(0, 4),  new vec2(-3, 2),
+                new vec2(-1, 1), new vec2(-2, -1)
+            ];
+           
+            polygon.Generate();
+            polygon.Offset = new vec2(-2, 0);
+            polygon.RotationOffset = 49;
 
             var platform = new Actor<Platform>("Platform");
             var respawner = new Actor<Respawner>("Respawner");
