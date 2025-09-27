@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Box2D.NET;
+using Engine.Types;
 using Engine.Utils;
 using GlmNet;
 
@@ -22,6 +23,7 @@ namespace Engine
         Impulse
     }
 
+    [UniqueComponent]
     public class RigidBody2D : Component
     {
         private B2BodyId _bodyId;

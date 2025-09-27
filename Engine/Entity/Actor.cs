@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Engine.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,20 +14,20 @@ namespace Engine
         internal IReadOnlyList<Component> Components => _components;
 
         private Transform _transform;
-        public Transform Transform 
+        public Transform Transform
         {
             get { CheckIfValidObject(this); return _transform; }
             private set
             {
                 CheckIfValidObject(this);
                 _transform = value;
-            } 
+            }
         }
-      
+
         public Scene Scene { get; internal set; }
         public bool IsEnabled { get; set; } = true;
         public string Tag { get; set; }
-        
+
         private List<Component> _pendingToDeleteComponents;
 
         private List<Component> _onAwakeComponents;
@@ -78,6 +80,21 @@ namespace Engine
             else if (type.IsAssignableFrom(typeof(Transform)) && _components.Count > 0)
             {
                 return Transform;
+            }
+
+            var isUnique = type.GetCustomAttribute(typeof(UniqueComponentAttribute)) != null;
+
+            if (isUnique)
+            {
+                for (int i = 0; i < _components.Count; i++)
+                {
+                    var alreadyAdded = _components[i].GetType().IsAssignableFrom(type);
+                    if (alreadyAdded)
+                    {
+                        Debug.Warn($"Can't add component of type '{type.Name}', it should only appear once in an Actor. This will return the current one.");
+                        return _components[i];
+                    }
+                }
             }
 
             var component = Activator.CreateInstance(type) as Component;

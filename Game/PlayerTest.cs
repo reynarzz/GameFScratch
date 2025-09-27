@@ -22,6 +22,7 @@ namespace Game
             Debug.Info("Awake");
             //new Actor<RotateTest>();
             _rigid = GetComponent<RigidBody2D>();
+            AddComponent<RigidBody2D>();
             _rigid.IsContinuos = true;
             _rigid.GravityScale = 3;
 
