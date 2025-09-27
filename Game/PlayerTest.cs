@@ -122,7 +122,7 @@ namespace Game
                     {
                         Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitA.Point.y + 0.6f, 0);
                         _rigid.GravityScale = 0;
-                        _rigid.Velocity = new GlmNet.vec2(0, 0);
+                        //_rigid.Velocity = new GlmNet.vec2(0, 0);
                     }
                 }
 
@@ -136,7 +136,7 @@ namespace Game
                     {
                         Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitB.Point.y + 0.6f, 0);
                         _rigid.GravityScale = 0;
-                        _rigid.Velocity = new GlmNet.vec2(0, 0);
+                        //_rigid.Velocity = new GlmNet.vec2(0, 0);
                     }
                 }
 

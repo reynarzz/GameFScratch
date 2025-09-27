@@ -13,7 +13,7 @@ namespace Engine
         public RigidBody2D RigidBody { get; internal set; }
 
         private float _rotationOffset;
-        public float RotationOffset 
+        public float RotationOffset
         {
             get => _rotationOffset;
             set
@@ -134,7 +134,8 @@ namespace Engine
                 material = B2Types.b2DefaultSurfaceMaterial(),
                 filter = B2Types.b2DefaultFilter(),
                 internalValue = B2Constants.B2_SECRET_COOKIE,
-                userData = this
+                userData = this,
+                enableCustomFiltering = true
             };
 
 

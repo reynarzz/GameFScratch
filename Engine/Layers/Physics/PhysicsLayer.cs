@@ -77,6 +77,8 @@ namespace Engine.Layers
             //B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
             //B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
 
+            
+            Debug.Log("World is valid: " + B2Worlds.b2World_IsValid(PhysicWorld.WorldID));
             B2Worlds.b2World_SetCustomFilterCallback(PhysicWorld.WorldID, CustomFilter, this);
 
             B2QueryFilter castFilter = default;
@@ -90,7 +92,7 @@ namespace Engine.Layers
             // B2Geometries.b2RayCastPolygon();
         }
 
-        private bool CustomFilter(B2ShapeId shapeIdA, B2ShapeId shapeIdB, object context)
+        public bool CustomFilter(B2ShapeId shapeIdA, B2ShapeId shapeIdB, object context)
         {
             var colA = B2Shapes.b2Shape_GetUserData(shapeIdA) as Collider2D;
             var colB = B2Shapes.b2Shape_GetUserData(shapeIdB) as Collider2D;

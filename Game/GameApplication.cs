@@ -132,7 +132,7 @@ namespace Game
             LayerMaskManager.AssignName(layerMask2, "Enemy");
             LayerMaskManager.TurnOff("Player", "Player");
 
-            //  LayerMaskManager.TurnOn("Player", "Player");
+            LayerMaskManager.TurnOn("Player", "Player");
 
             Debug.Log("Enabled: " + LayerMaskManager.AreEnabled(layerMask, layerMask));
 
