@@ -26,6 +26,9 @@ namespace Game
             _rigid.GravityScale = 3;
 
             GetComponent<Collider2D>().Friction = 0;
+            var act = new Actor<SpriteRenderer>();
+            act.Transform.Parent = Transform;
+            act.Transform.LocalPosition = new vec3(-1, 1, 0);
         }
 
         public override void OnStart()

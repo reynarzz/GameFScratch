@@ -26,7 +26,7 @@ namespace Engine
         private vec3 _cachedWorldPosition = default;
         private quat _cachedWorldRotation = quat.Identity;
         private vec3 _cachedWorldScale = new vec3(1, 1, 1);
-
+       
         public vec3 LocalPosition
         {
             get => _localPosition;

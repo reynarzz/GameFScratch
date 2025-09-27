@@ -129,8 +129,8 @@ namespace Engine.Layers
                 foreach (var rigidbody in rigidBodies)
                 {
                     rigidbody.PreUpdateBody();
-                    rigidbody.PrevPhysicsPosition = rigidbody.Transform.WorldPosition;
-                    rigidbody.PrevRotation = rigidbody.Transform.WorldRotation;
+                    rigidbody.PrevLocalPosition = rigidbody.Transform.LocalPosition;
+                    rigidbody.PrevLocalRotation = rigidbody.Transform.LocalRotation;
                 }
 
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
@@ -149,7 +149,7 @@ namespace Engine.Layers
 
             foreach (var rigidbody in rigidBodies)
             {
-                rigidbody.CalculatePhysicsInterpolation(rigidbody.Transform, alpha);
+                rigidbody.CalculatePhysicsInterpolation(rigidbody.Transform, rigidbody.PrevLocalPosition, rigidbody.PrevLocalRotation, alpha);
 
                 if (Physics2D.DrawColliders)
                 {

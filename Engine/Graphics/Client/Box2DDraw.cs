@@ -13,21 +13,6 @@ namespace Engine.Graphics
     internal class Box2DDraw
     {
         private static B2Transform DefaultTransform = new B2Transform() { p = default, q = new B2Rot(1, 0) };
-        internal Box2DDraw()
-        {
-             
-        }
-
-        internal void Begin()
-        {
-            
-        }
-
-        internal void End()
-        {
-            // Draw all here in one go
-        }
-
         
         internal static void DrawPolygon(ReadOnlySpan<B2Vec2> vertices, int vertexCount, B2HexColor color, object context)
         {

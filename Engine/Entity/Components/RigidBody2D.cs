@@ -160,38 +160,50 @@ namespace Engine
             }
         }
 
-        internal vec3 PrevPhysicsPosition { get; set; }
-        internal quat PrevRotation { get; set; }
+        internal vec3 PrevLocalPosition { get; set; }
+        internal quat PrevLocalRotation { get; set; }
 
-        internal void CalculatePhysicsInterpolation(Transform transform, float alpha)
+        internal void CalculatePhysicsInterpolation(Transform transform, vec3 prevPos, quat prevRot, float alpha)
         {
+            // Parent world matrix (identity if no parent)
+            mat4 parentMatrix = transform.Parent?.InterpolatedWorldMatrix ?? _identity;
+
+            // Interpolated local transform
+            vec3 localPos;
+            quat localRot;
+
             if (Interpolate)
             {
-                vec3 interpolatedPos = Mathf.Lerp(PrevPhysicsPosition, transform.WorldPosition, alpha);
-                quat interpolatedRot = Mathf.Slerp(PrevRotation, transform.WorldRotation, alpha);
-                vec3 interpolatedScale = transform.WorldScale;
-
-                mat4 scaleMat = glm.scale(mat4.identity(), interpolatedScale);
-                mat4 rotMat = Mathf.QuatToMat4(interpolatedRot);
-                mat4 transMat = glm.translate(mat4.identity(), interpolatedPos);
-
-                mat4 localMatrix = transMat * rotMat * scaleMat;
-
-                transform.InterpolatedWorldMatrix = localMatrix;
+                transform.NeedsInterpolation = true;
+                // Interpolate in *local space*
+                localPos = Mathf.Lerp(prevPos, transform.LocalPosition, alpha);
+                localRot = Mathf.Slerp(prevRot, transform.LocalRotation, alpha);
             }
             else
             {
-                mat4 parentMatrix = transform.Parent?.InterpolatedWorldMatrix ?? _identity;
-                mat4 localMatrix = transform.LocalMatrix;
-                transform.InterpolatedWorldMatrix = parentMatrix * localMatrix;
+                localPos = transform.LocalPosition;
+                localRot = transform.LocalRotation;
             }
 
-            // TODO: Mark the child transform as needInterpolate
+            vec3 localScale = transform.LocalScale;
+
+            // Build local matrix from interpolated local values
+            mat4 scaleMat = glm.scale(mat4.identity(), localScale);
+            mat4 rotMat = Mathf.QuatToMat4(localRot);
+            mat4 transMat = glm.translate(mat4.identity(), localPos);
+
+            mat4 localMatrix = transMat * rotMat * scaleMat;
+
+            // Compose world matrix from parent
+            transform.InterpolatedWorldMatrix = parentMatrix * localMatrix;
+
             foreach (var child in transform.Children)
             {
-                CalculatePhysicsInterpolation(child.Transform, alpha);
+                child.NeedsInterpolation = Interpolate;
+                CalculatePhysicsInterpolation(child.Transform, child.LocalPosition, child.LocalRotation, alpha);
             }
         }
+
 
         internal override void OnInitialize()
         {
@@ -286,6 +298,11 @@ namespace Engine
 
             if (Transform)
             {
+                foreach (var child in Transform.Children)
+                {
+                    child.NeedsInterpolation = false;
+                }
+
                 Transform.NeedsInterpolation = false;
                 Transform.OnChanged -= OnTransformChanged;
             }
