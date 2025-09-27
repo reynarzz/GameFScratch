@@ -17,6 +17,9 @@ namespace Game
         private RigidBody2D _rigid;
         private bool _isOnGround = false;
         private float _gravityScale = 3;
+
+        private bool _jumped = false;
+
         public override void OnAwake()
         {
             Debug.Info("Awake");
@@ -48,6 +51,7 @@ namespace Game
             if ((_isOnGround || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
             {
                 _extraJumpAvailable = false;
+                _jumped = true;
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_rigid.Velocity.x, 0);
                 _rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
@@ -104,26 +108,25 @@ namespace Game
             var origin2 = Transform.WorldPosition + new vec3(0.45f, yOffset, 0);
             //Debug.DrawRay(Transform.WorldPosition, Transform.Up, Color.Green);
 
-            var hitA = Physics2D.Raycast(origin1, Transform.Down * length, 1UL << 1);
-            var hitB = Physics2D.Raycast(origin2, Transform.Down * length, 1UL << 1);
-
+            var hitA = Physics2D.Raycast(origin1, Transform.Down * length, LayerMask.NameToBit("Floor") | LayerMask.NameToBit("Platform"));
+            var hitB = Physics2D.Raycast(origin2, Transform.Down * length, LayerMask.NameToBit("Floor") | LayerMask.NameToBit("Platform"));
+            
             var color1 = Color.White;
             var color2 = Color.White;
             if (hitA.isHit || hitB.isHit)
             {
-
                 // Test code
-                var pressingKeysToMove = Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.A);
+                var pressingKeysToMove = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A);
                 if (hitA.isHit)
                 {
                     // Debug.Log("RayHit: " + hitA.Collider.Name);
                     color1 = Color.Red;
                     //Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
-                    if (_rigid.Velocity.y <= 0 && !pressingKeysToMove)
+                    if ( !pressingKeysToMove)
                     {
                         Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitA.Point.y + 0.6f, 0);
                         _rigid.GravityScale = 0;
-                        //_rigid.Velocity = new GlmNet.vec2(0, 0);
+                        _rigid.Velocity = new GlmNet.vec2(0, 0);
                     }
                 }
 
@@ -133,21 +136,24 @@ namespace Game
                     //Debug.DrawRay(origin2 + Transform.Down * length, new vec3(hitB.Normal.x, hitB.Normal.y, 0), Color.Blue);
                     color2 = Color.Red;
 
-                    if (_rigid.Velocity.y <= 0 && !pressingKeysToMove)
+                    if (!pressingKeysToMove && !_jumped)
                     {
                         Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitB.Point.y + 0.6f, 0);
                         _rigid.GravityScale = 0;
-                        //_rigid.Velocity = new GlmNet.vec2(0, 0);
+                        _rigid.Velocity = new GlmNet.vec2(0, 0);
                     }
                 }
 
-                if (!pressingKeysToMove)
+                if (!pressingKeysToMove && !_jumped)
                 {
                     _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
                 }
                 _isOnGround = true;
                 _extraJumpAvailable = true;
-
+                if(_rigid.Velocity.y <= 0)
+                {
+                    _jumped = false;
+                }
             }
             else
             {

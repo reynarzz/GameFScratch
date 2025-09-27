@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public static class LayerMaskManager
+    public static class LayerMask
     {
         private static ulong[] MaskBits;
         private static Dictionary<string, int> Names;
         private const int ARRAY_SIZE = sizeof(ulong) * 8;
-        static LayerMaskManager()
+        static LayerMask()
         {
             MaskBits = new ulong[ARRAY_SIZE];
             Names = new Dictionary<string, int>(ARRAY_SIZE);
@@ -65,11 +65,7 @@ namespace Engine
 
         private static void ModifyLayers(string nameA, string nameB, Func<ulong, ulong, ulong> op)
         {
-            var layerA = NameToLayer(nameA);
-            var layerB = NameToLayer(nameB);
-
-            MaskBits[layerA] = op(MaskBits[layerA], LayerToBits(layerB));
-            MaskBits[layerB] = op(MaskBits[layerB], LayerToBits(layerA));
+            ModifyLayers(NameToLayer(nameA), NameToLayer(nameB), op);
         }
 
         private static void ModifyLayers(int layerA, int layerB, Func<ulong, ulong, ulong> op)
@@ -80,7 +76,7 @@ namespace Engine
 
         public static bool AreEnabled(int layerA, int layerB)
         {
-            return (MaskBits[layerA] & LayerToBits(layerB)) != 0;
+            return (MaskBits[layerA] & LayerToBits(layerB)) != 0; // Checking just one since both MaskBits are in sync.
         }
 
         public static void AssignName(int layer, string name)
@@ -93,6 +89,21 @@ namespace Engine
             {
                 Names.Add(name, layer);
             }
+        }
+
+        public static IReadOnlyList<KeyValuePair<string, int>> GetAllAssignedNames() 
+        {
+            var validNames = new List<KeyValuePair<string, int>>();
+
+            foreach (var kvp in Names)
+            {
+                if(!string.IsNullOrEmpty(kvp.Key))
+                {
+                    validNames.Add(new KeyValuePair<string, int>(kvp.Key, kvp.Value));
+                }
+            }
+
+            return validNames;
         }
 
         public static string LayerToName(int layer)
@@ -110,6 +121,18 @@ namespace Engine
             if (Names.TryGetValue(name, out var layer))
             {
                 return layer;
+            }
+
+            return 0;
+        }
+
+        public static ulong NameToBit(string name)
+        {
+            var layer = NameToLayer(name);
+
+            if(layer > 0)
+            {
+                return LayerToBits(layer);
             }
 
             return 0;

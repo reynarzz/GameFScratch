@@ -55,7 +55,6 @@ namespace Game
         }}";
 
         // TODO:
-        // Implement layerMask
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
         // Implement a simple file system.
@@ -67,7 +66,6 @@ namespace Game
         // Fix: polygon collider onEnter event with it's own shapes.
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
-        // Fix rigidbody interpolation propagated to children
 
         public override void Initialize()
         {
@@ -122,23 +120,18 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            int layerMask = 0;
-            int layerMask2 = 1;
+            LayerMask.AssignName(3, "Player");
+            LayerMask.AssignName(1, "Floor");
+            LayerMask.AssignName(5, "Platform");
+            LayerMask.AssignName(4, "Enemy");
+            LayerMask.TurnOff("Player", "Player");
 
-            var maskBits = LayerMaskManager.GetMaskBits(layerMask);
-            // LayerMaskManager.TurnOff(layerMask, layerMask2);
-            // LayerMaskManager.TurnOn(layerMask, layerMask2);
-            LayerMaskManager.AssignName(layerMask, "Player");
-            LayerMaskManager.AssignName(layerMask2, "Enemy");
-            LayerMaskManager.TurnOff("Player", "Player");
+            // LayerMask.TurnOn("Player", "Player");
 
-            LayerMaskManager.TurnOn("Player", "Player");
-
-            Debug.Log("Enabled: " + LayerMaskManager.AreEnabled(layerMask, layerMask));
-
-            Debug.Log(maskBits);
+            Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
             var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
+            actor3.Layer = LayerMask.NameToLayer("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
@@ -190,7 +183,7 @@ namespace Game
             var platform = new Actor<Platform>("Platform");
             var respawner = new Actor<Respawner>("Respawner");
 
-
+            platform.Layer = LayerMask.NameToLayer("Platform");
             rigid4.BodyType = Body2DType.Kinematic;
 
             boxCollider.Size = new GlmNet.vec2(15, 1);

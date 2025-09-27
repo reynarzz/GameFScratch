@@ -97,7 +97,7 @@ namespace Engine.Layers
             var colA = B2Shapes.b2Shape_GetUserData(shapeIdA) as Collider2D;
             var colB = B2Shapes.b2Shape_GetUserData(shapeIdB) as Collider2D;
             
-            return LayerMaskManager.AreEnabled(colA.Actor.Layer, colB.Actor.Layer);
+            return LayerMask.AreEnabled(colA.Actor.Layer, colB.Actor.Layer);
         }
 
 

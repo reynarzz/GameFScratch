@@ -29,9 +29,9 @@ namespace Engine
             {
                 var collider = B2Shapes.b2Shape_GetUserData(shapeId) as Collider2D;
                 
-                if (!LayerMaskManager.AreValid(collider.Actor.Layer, layerMask))
+                if (!LayerMask.AreValid(collider.Actor.Layer, layerMask))
                 {
-                    return 0;
+                    return -1;
                 }
 
                 hit.Collider = collider;
