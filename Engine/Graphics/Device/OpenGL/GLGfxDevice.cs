@@ -107,6 +107,7 @@ namespace Engine.Graphics.OpenGL
                 DrawMode.Triangles => GL_TRIANGLES,
                 DrawMode.Lines => GL_LINES,
                 DrawMode.Points => GL_POINTS,
+                DrawMode.LineStrips => GL_LINE_STRIP,
                 _ => -1
             };
 

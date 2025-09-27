@@ -18,7 +18,7 @@ namespace Engine
         private static Shader _shader;
 
         private const int LINES_MAX_VERTICES = 10000;
-        private const float CIRCLE_MAX_SEGMENTS = 15;
+        private const float CIRCLE_MAX_SEGMENTS = 20;
 
         private static int _totalLinesVerticesToDraw = 0;
         private static bool _initializedGraphics = false;
@@ -34,10 +34,8 @@ namespace Engine
             #version 330 core
             layout(location = 0) in vec3 position;
             layout(location = 1) in uint color; 
-        
             out vec4 vColor;
             uniform mat4 uVP;
-        
             vec4 unpackColor(uint c) 
             {
                 float r = float((c >> 24) & 0xFFu) / 255.0;
@@ -56,11 +54,8 @@ namespace Engine
 
         private static string DebugFragmentShader = $@"
             #version 330 core
-        
             in vec4 vColor;
-        
             out vec4 fragColor;
-        
             void main()
             {{
                 fragColor = vColor;
@@ -103,16 +98,10 @@ namespace Engine
             _totalLinesVerticesToDraw += 2;
         }
 
-        public static void DrawBox(vec3 origin, vec3 size, vec3 eulerAngles, Color color)
-        {
-            Initialize();
-
-        }
-
         public static void DrawCircle(vec3 origin, float radius, Color color)
         {
             Initialize();
-           
+
             float angleStep = 2.0f * MathF.PI / CIRCLE_MAX_SEGMENTS;
 
             for (int i = 0; i < CIRCLE_MAX_SEGMENTS; i++)
@@ -127,6 +116,61 @@ namespace Engine
             }
         }
 
+        public static void DrawCapsule2D(vec3 start, vec3 end, float radius, Color color)
+        {
+            Initialize();
+
+            // Compute the vector along the capsule's main axis
+            vec3 axis = end - start;
+            vec3 dir = glm.normalize(axis);
+
+            // Perpendicular vector for rectangle sides
+            vec3 perp = new vec3(-dir.y, dir.x, 0) * radius;
+
+            // Draw rectangle connecting the two circles
+            DrawLine(start + perp, end + perp, color);
+            DrawLine(start - perp, end - perp, color);
+
+            // Draw semicircles at ends
+            DrawSemicircle(start, new vec3(-dir.x, -dir.y, -dir.z), radius, color, true);   // start end
+            DrawSemicircle(end, new vec3(dir.x, dir.y, dir.z), radius, color, true);    // end end flipped axis
+        }
+
+        // semicircle perpendicular to the axis
+        private static void DrawSemicircle(vec3 center, vec3 axisDir, float radius, Color color, bool clockwise)
+        {
+            float segments = CIRCLE_MAX_SEGMENTS / 2.0f;
+            float angleStep = MathF.PI / segments;
+
+            // Perpendicular vector
+            vec3 perp = new vec3(-axisDir.y, axisDir.x, 0);
+
+            for (int i = 0; i < segments; i++)
+            {
+                float angle0 = i * angleStep;
+                float angle1 = (i + 1) * angleStep;
+
+                if (!clockwise)
+                {
+                    angle0 = MathF.PI - angle0;
+                    angle1 = MathF.PI - angle1;
+                }
+
+                vec3 p0 = center + perp * MathF.Cos(angle0) * radius + axisDir * MathF.Sin(angle0) * radius;
+                vec3 p1 = center + perp * MathF.Cos(angle1) * radius + axisDir * MathF.Sin(angle1) * radius;
+
+                DrawLine(p0, p1, color);
+            }
+        }
+
+        public static void DrawBox(vec3 origin, vec3 size, vec3 eulerAngles, Color color)
+        {
+            Initialize();
+
+        }
+
+       
+        
         internal static void DrawGeometries(mat4 ViewProj)
         {
             if (_initializedGraphics)

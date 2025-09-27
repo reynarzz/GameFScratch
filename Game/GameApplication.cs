@@ -120,7 +120,7 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CircleCollider2D, PlayerTest>("Player");
+            var actor3 = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest>("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;

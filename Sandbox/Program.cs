@@ -14,7 +14,7 @@ namespace Sandbox
         {
 
 #if RELEASE
-            var libsPath = Path.Combine(AppContext.BaseDirectory, "libs");
+            var libsPath = Path.Combine(AppContext.BaseDirectory, "Data/Assemblies");
 
             foreach (var dll in Directory.GetFiles(libsPath, "*.dll"))
             {

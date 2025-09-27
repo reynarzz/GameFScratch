@@ -10,7 +10,8 @@ namespace Engine.Graphics
     {
         Triangles,
         Lines,
-        Points
+        Points,
+        LineStrips
     }
 
     internal struct GfxDeviceInfo 

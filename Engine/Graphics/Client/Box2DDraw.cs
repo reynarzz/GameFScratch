@@ -86,7 +86,7 @@ namespace Engine.Graphics
 
         internal static void DrawSolidCapsule(B2Vec2 p1, B2Vec2 p2, float radius, B2HexColor color, object context)
         {
-
+            Debug.DrawCapsule2D(new vec3(p1.X, p1.Y, 0), new vec3(p2.X, p2.Y, 0), radius, (uint)color);
         }
 
         internal static void DrawSegment(B2Vec2 p1, B2Vec2 p2, B2HexColor color, object context)

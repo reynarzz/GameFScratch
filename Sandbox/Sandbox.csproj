@@ -20,10 +20,10 @@
   
   </Target>
 	<Target Name="MoveAllDllsToLibs" AfterTargets="Publish">
-		<MakeDir Directories="$(TargetDir)libs" />
+		<MakeDir Directories="$(TargetDir)Data/Assemblies" />
 		<ItemGroup>
 			<DllsToMove Include="$(TargetDir)*.dll" Exclude="$(TargetDir)$(AssemblyName).dll" />
 		</ItemGroup>
-		<Move SourceFiles="@(DllsToMove)" DestinationFolder="$(TargetDir)libs" />
+		<Move SourceFiles="@(DllsToMove)" DestinationFolder="$(TargetDir)Data/Assemblies" />
 	</Target>
 </Project>
