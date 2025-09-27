@@ -33,15 +33,18 @@ namespace Game
 
             if (Input.GetKey(KeyCode.A))
             {
-                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(-1, GetComponent<RigidBody2D>().Velocity.y);
+                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(-2, GetComponent<RigidBody2D>().Velocity.y);
             }
             else if (Input.GetKey(KeyCode.D))
             {
-                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(1, GetComponent<RigidBody2D>().Velocity.y);
+                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(2, GetComponent<RigidBody2D>().Velocity.y);
             }
             else
             {
+                GetComponent<RigidBody2D>().Velocity = new GlmNet.vec2(0, GetComponent<RigidBody2D>().Velocity.y);
+
             }
+
 
             Debug.DrawRay(Transform.WorldPosition, Transform.Right, Color.Red);
             Debug.DrawRay(Transform.WorldPosition, Transform.Up, Color.Green);

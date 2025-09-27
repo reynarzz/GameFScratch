@@ -126,10 +126,12 @@ namespace Game
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
-            rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            rigid3.Transform.WorldPosition = new GlmNet.vec3(.0f, 9, 0);
+            //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
+            rigid3.Transform.WorldPosition = new GlmNet.vec3(-9.0f, 0, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
                                                                 actor3.Transform.WorldPosition.y, -12);
+            rigid3.LockZRotation = true;
+            
             camera.OrthographicSize = 7;
             // rigid3.Actor.IsEnabled = false;
             // actor3.GetComponent<BoxCollider2D>().IsTrigger = true;
@@ -163,6 +165,8 @@ namespace Game
             ];
 
             polygon.Generate();
+
+            var platform = new Actor<Platform>("Platform");
 
             polygon.Offset = new vec2(-2, 0);
             polygon.RotationOffset = 49;

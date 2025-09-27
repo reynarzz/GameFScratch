@@ -123,7 +123,10 @@ namespace Engine.Layers
             while (accumulator >= fixedTimeStep)
             {
                 SceneManager.ActiveScene.FixedUpdate();
-
+                foreach (var rigidbody in rigidBodies)
+                {
+                    rigidbody.PreUpdateBody();
+                }
                 B2Worlds.b2World_Step(PhysicWorld.WorldID, fixedTimeStep, 4);
                 accumulator -= fixedTimeStep;
 

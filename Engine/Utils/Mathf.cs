@@ -84,6 +84,39 @@ namespace Engine
 
         public static vec3 Lerp(vec3 a, vec3 b, float t)
             => a + (b - a) * Clamp01(t);
+        public static vec2 MoveTowards(vec2 current, vec2 target, float maxDistanceDelta)
+        {
+            vec2 toVector = target - current;
+            float dist = MathF.Sqrt(toVector.x * toVector.x + toVector.y * toVector.y);
+
+            if (dist <= maxDistanceDelta || dist == 0f)
+                return target;
+
+            return current + toVector / dist * maxDistanceDelta;
+        }
+
+        public static vec3 MoveTowards(vec3 current, vec3 target, float maxDistanceDelta)
+        {
+            vec3 toVector = target - current;
+            float dist = MathF.Sqrt(toVector.x * toVector.x + toVector.y * toVector.y + toVector.z * toVector.z);
+
+            if (dist <= maxDistanceDelta || dist == 0f)
+                return target;
+
+            return current + toVector / dist * maxDistanceDelta;
+        }
+
+        public static float Distance(vec3 a, vec3 b)
+        {
+            vec3 c = a - b;
+            return MathF.Sqrt(c.x * c.x + c.y * c.y + c.z * c.z);
+        }
+
+        public static float Distance(vec2 a, vec2 b)
+        {
+            vec2 c = a - b;
+            return MathF.Sqrt(c.x * c.x + c.y * c.y);
+        }
 
         public static vec2 Clamp(vec2 v, vec2 min, vec2 max)
             => new vec2(
