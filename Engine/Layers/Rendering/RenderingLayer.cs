@@ -44,6 +44,7 @@ namespace Engine.Layers
                 return;
             }
 
+            GfxDeviceManager.Current.SetViewport(_mainCamera.Viewport);
             // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlmNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,6 +42,7 @@ namespace Engine.Graphics
         internal abstract GfxResource CreateVertexBuffer(VertexDataDescriptor desc);
 
         internal abstract void UpdateGeometry(GfxResource resource, GeometryDescriptor desc);
+        internal abstract void SetViewport(vec4 viewport);
 
         internal abstract void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc);
         internal abstract void SetPipelineFeatures(PipelineFeatures features);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlmNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -148,6 +149,9 @@ namespace Engine.Graphics.OpenGL
             (resource as GLGeometry).UpdateResource(desc);
         }
 
-       
+        internal override void SetViewport(vec4 viewport)
+        {
+            glViewport((int)viewport.x, (int)viewport.y, (int)viewport.z, (int)viewport.w);
+        }
     }
 }

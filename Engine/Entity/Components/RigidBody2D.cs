@@ -39,7 +39,7 @@ namespace Engine
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
-
+        public bool Interpolate { get; set; }
         public override bool IsEnabled
         {
             get => base.IsEnabled;

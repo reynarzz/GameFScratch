@@ -61,6 +61,15 @@ namespace Game
             {
                 Physics2D.DrawColliders = !Physics2D.DrawColliders;
             }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Window.FullScreen(!Window.IsFullScreen);
+            }
+
+
+            
+
         }
 
         public override void OnFixedUpdate()

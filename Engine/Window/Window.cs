@@ -16,7 +16,11 @@ namespace Engine
         public static int Width { get; private set; } = 920;
         public static int Height { get; private set; } = 600;
 
+        private static int _startWidth;
+        private static int _startHeight;
         private static string _windowName = "Game";
+        public static event Action<int, int> OnWindowChanged;
+
         public static string Name
         {
             get => _windowName;
@@ -43,6 +47,8 @@ namespace Engine
             _windowName = name;
             Width = width;
             Height = height;
+            _startWidth = width;
+            _startHeight = height;
 
             Glfw.Init();
 
@@ -80,6 +86,8 @@ namespace Engine
             Height = Math.Clamp(height, 1, mode.Height);
 
             Glfw.SetWindowSize(NativeWindow, Width, Height);
+
+            OnWindowChanged?.Invoke(Width, Height);
         }
 
         public static void SetWindowPosition(int x, int y)
@@ -92,10 +100,10 @@ namespace Engine
             if (IsFullScreen == fullscreen)
                 return;
 
+            IsFullScreen = fullscreen;
+
             if (fullscreen)
             {
-                IsFullScreen = fullscreen;
-
                 if (Glfw.Monitors.Length <= monitorIndex)
                 {
                     Debug.Error($"Monitor index '{monitorIndex}' is bigger than physical monitors '{Glfw.Monitors.Length}'.");
@@ -106,6 +114,11 @@ namespace Engine
                 GLFW.Monitor monitor = Glfw.Monitors[monitorIndex];
                 var mode = Glfw.GetVideoMode(monitor);
 
+                Width = mode.Width; 
+                Height = mode.Height;
+
+                OnWindowChanged?.Invoke(Width, Height);
+
                 // Switch to fullscreen
                 Glfw.SetWindowMonitor(
                     NativeWindow,
@@ -115,9 +128,14 @@ namespace Engine
                     mode.Height,
                     mode.RefreshRate
                 );
+
             }
             else
             {
+                Width = _startWidth;
+                Height = _startHeight;
+                OnWindowChanged?.Invoke(_startWidth, _startHeight);
+
                 // Switch back to windowed mode
                 Glfw.SetWindowMonitor(
                     NativeWindow,
@@ -128,6 +146,8 @@ namespace Engine
                     Height,
                     0
                 );
+
+              
             }
         }
     }

@@ -49,9 +49,14 @@ namespace Engine
         {
             OrthographicSize = 32;
             Fov = 60.0f;
-
+            Window.OnWindowChanged += OnWindowChanged;
             UpdateOrthographic();
             //UpdatePerspective();
+        }
+
+        private void OnWindowChanged(int width, int height)
+        {
+            UpdateOrthographic();
         }
 
         private void UpdateOrthographic()
@@ -67,6 +72,12 @@ namespace Engine
         {
             float aspectRatio = Viewport.z / Viewport.w;
             Projection = MathUtils.Perspective(Fov, aspectRatio, NearPlane, FarPlane);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            Window.OnWindowChanged -= OnWindowChanged;
         }
     }
 }
