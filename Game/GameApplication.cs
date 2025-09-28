@@ -43,7 +43,7 @@ namespace Game
         #version 330 core
         
         uniform sampler2D uTextures[{32}];
-        in vec2 vUV;
+        in vec2 fragUV;
         in vec4 vColor;
         
         flat in int fragTexIndex;
@@ -51,7 +51,7 @@ namespace Game
         
         void main()
         {{
-            fragColor = texture(uTextures[fragTexIndex], vUV) * vColor;
+            fragColor = texture(uTextures[fragTexIndex], fragUV) * vColor;
         }}";
 
         // TODO:
@@ -70,6 +70,12 @@ namespace Game
 
         public override void Initialize()
         {
+            var pTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\Idle.png");
+
+            var sprite4 = new Sprite();
+            sprite4.Texture = pTexture;
+            sprite4.Texture.PixelPerUnit = 14;
+
             var sprite1 = new Sprite();
             sprite1.Texture = new Texture2D(1, 1, 4, [0xFF, 0, 0, 0xFF]);
             sprite1.Texture.PixelPerUnit = 1;
@@ -81,6 +87,9 @@ namespace Game
             var sprite3 = new Sprite();
             sprite3.Texture = new Texture2D(1, 1, 4, [0, 0, 0xFF, 0xFF]);
             sprite3.Texture.PixelPerUnit = 1;
+
+
+            
 
             var mainShader = new Shader(SpriteVertexShader, SpriteFragmentShader);
 
@@ -134,7 +143,7 @@ namespace Game
             var tilemapActor = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
             tilemap.Material = mat1;
-            tilemap.Sprite = sprite1;
+            tilemap.Sprite = sprite2;
            
             tilemap.AddTile(new Tile(), default);
             tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
@@ -149,7 +158,7 @@ namespace Game
             actor3.Layer = LayerMask.NameToLayer("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
-            actor3.GetComponent<SpriteRenderer>().Sprite = sprite3;
+            actor3.GetComponent<SpriteRenderer>().Sprite = sprite4;
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);

@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Folder Include="Graphics\Device\Null\" />
-    <Folder Include="IO\" />
     <Folder Include="Scene\" />
   </ItemGroup>
 
@@ -18,6 +17,7 @@
     <PackageReference Include="GlmNet" Version="0.7.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
   </ItemGroup>
 
 </Project>

@@ -150,6 +150,7 @@ namespace Engine.Rendering
                     }
                     else
                     {
+                        // TODO: implement proper mesh drawing, for now, since it is used just for tilemap, this works
                         var vertexCount = Math.Max(MaxBatchVertexSize, renderer.Mesh.Vertices.Count);
 
                         if (currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture))

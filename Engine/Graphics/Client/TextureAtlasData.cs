@@ -27,7 +27,7 @@ namespace Engine
                 BottomLeftUV = new vec2(0, 0),
                 TopLeftUV = new vec2(0, 1),
                 TopRightUV = new vec2(1, 1),
-                BottomRightUV = new vec2(0, 1)
+                BottomRightUV = new vec2(1, 0)
             },
             Width = 1,
             Height = 1,
