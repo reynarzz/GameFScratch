@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Engine.Graphics.OpenGL;
+using GlmNet;
 
 namespace Engine.Rendering
 {
@@ -21,6 +22,7 @@ namespace Engine.Rendering
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
         internal bool IsFlushed { get; private set; } = false;
+        public mat4 WorldMatrix = mat4.identity();
 
         private GeometryDescriptor _geoDescriptor;
         private Vertex[] _verticesData;
@@ -83,7 +85,7 @@ namespace Engine.Rendering
             }
         }
 
-        internal void PushGeometry(Material material, Texture texture, int indicesCount, params Vertex[] vertices)
+        internal void PushGeometry(Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
         {
             if (!Material)
             {

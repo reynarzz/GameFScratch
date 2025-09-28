@@ -22,7 +22,7 @@ namespace Engine.Rendering
         {
             foreach (var batch in _batches)
             {
-                if (batch.IsFlushed && batch.MaxVertexSize >= maxVertexSize) 
+                if (batch.IsFlushed && batch.MaxVertexSize >= maxVertexSize)
                 {
                     batch.Initialize();
                     return batch;
@@ -31,7 +31,8 @@ namespace Engine.Rendering
 
             // TODO: find min that can fit this maxVertexSize, and has this indexBuffer, if no available, create one.
             //GfxDeviceManager.Current.CreateIndexBuffer();
-            var newBatch = new Batch2D(maxVertexSize, _sharedIndexBuffer);
+
+            Batch2D newBatch = new Batch2D(maxVertexSize, indexBuffer == null ? _sharedIndexBuffer : indexBuffer);
 
             // Initialize to clear any old states.
             newBatch.Initialize();
@@ -41,7 +42,7 @@ namespace Engine.Rendering
             return newBatch;
         }
 
-        internal void ClearPool() 
+        internal void ClearPool()
         {
             // Delete all elements
         }

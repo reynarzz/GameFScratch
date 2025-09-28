@@ -7,26 +7,35 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
+    public struct QuadUV
+    {
+        // Uv's for quad vertices.
+        public vec2 BottomLeftUV { get; set; }
+        public vec2 TopLeftUV { get; set; }
+        public vec2 TopRightUV { get; set; }
+        public vec2 BottomRightUV { get; set; }
+
+    }
+
     public struct AtlasChunk 
     {
         public static AtlasChunk DefaultChunk = new AtlasChunk()
         {
             Pivot = new vec2(0.5f, 0.5f),
-            BottomLeftUV = new vec2(0, 0),
-            TopLeftUV = new vec2(0, 1),
-            TopRightUV = new vec2(1, 1),
-            BottomRightUV = new vec2(0, 1),
+            Uvs = new QuadUV()
+            {
+                BottomLeftUV = new vec2(0, 0),
+                TopLeftUV = new vec2(0, 1),
+                TopRightUV = new vec2(1, 1),
+                BottomRightUV = new vec2(0, 1)
+            },
             Width = 1,
             Height = 1,
         };
 
         public vec2 Pivot { get; set; }
 
-        // Uv's for quad vertices.
-        public vec2 BottomLeftUV { get; set; }
-        public vec2 TopLeftUV { get; set; }
-        public vec2 TopRightUV { get; set; }
-        public vec2 BottomRightUV { get; set; }
+        public QuadUV Uvs { get; set; }
 
         public int Width { get; set; }
         public int Height { get; set; }
@@ -40,8 +49,8 @@ namespace Engine
         public TextureAtlasData()
         {
             var defaultChunk = AtlasChunk.DefaultChunk;
-            defaultChunk.Width = 0;
-            defaultChunk.Height = 0;
+            defaultChunk.Width = 1;
+            defaultChunk.Height = 1;
 
             _chunks = new AtlasChunk[1]
             {

@@ -131,6 +131,20 @@ namespace Game
 
             Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
+            var tilemapActor = new Actor<TilemapRenderer>();
+            var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
+            tilemap.Material = mat1;
+            tilemap.Sprite = sprite1;
+           
+            tilemap.AddTile(new Tile(), default);
+            tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
+            tilemap.AddTile(new Tile(), new vec3(-1, -1, 0));
+            tilemap.AddTile(new Tile(), new vec3(2, 0, 0));
+            tilemap.AddTile(new Tile(), new vec3(1, 1, 0));
+            tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
+            tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
+            tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
+
             var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
             actor3.Layer = LayerMask.NameToLayer("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;

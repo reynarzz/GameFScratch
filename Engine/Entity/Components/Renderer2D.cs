@@ -10,7 +10,7 @@ namespace Engine
     {
         public int SortOrder { get; set; } = 0;
         public Color Color { get => PacketColor; set => PacketColor = value; }
-        public ColorPacketRGBA PacketColor { get; set; } = 0xFFFFFFFF;
+        public ColorPacketRGBA PacketColor { get; set; } = Color.White;
         public Sprite Sprite { get; set; }
         public bool FlipX { get; set; }
         public bool FlipY { get; set; }

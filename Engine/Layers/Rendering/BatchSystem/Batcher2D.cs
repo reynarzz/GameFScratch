@@ -27,6 +27,7 @@ namespace Engine.Rendering
         private BatchesPool _batchesPool;
         private Material _pinkMaterial;
         private Texture2D _whiteTexture;
+        private readonly Vertex[] _quadVertexArray = new Vertex[4];
 
         private struct BucketKey : IEquatable<BucketKey>
         {
@@ -64,9 +65,15 @@ namespace Engine.Rendering
 
         internal void Initialize()
         {
-            var indices = new uint[MaxQuadsPerBatch * IndicesPerQuad];
+            _sharedIndexBuffer = CreateIndexBuffer(MaxQuadsPerBatch * IndicesPerQuad);
+            _batchesPool = new BatchesPool(_sharedIndexBuffer);
+        }
 
-            for (uint i = 0; i < MaxQuadsPerBatch; i++)
+        private GfxResource CreateIndexBuffer(int maxQuads)
+        {
+            var indices = new uint[maxQuads];
+
+            for (uint i = 0; i < maxQuads / 6; i++)
             {
                 indices[i * 6 + 0] = i * 4 + 0;
                 indices[i * 6 + 1] = i * 4 + 1;
@@ -80,8 +87,7 @@ namespace Engine.Rendering
             desc.Usage = BufferUsage.Static;
             desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
 
-            _sharedIndexBuffer = GfxDeviceManager.Current.CreateIndexBuffer(desc);
-            _batchesPool = new BatchesPool(_sharedIndexBuffer);
+            return GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
         internal IEnumerable<Batch2D> CreateBatches(List<Renderer2D> renderers)
@@ -110,64 +116,48 @@ namespace Engine.Rendering
             // TODO: improve performance of order by sorting, is allocating every frame
             foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))
             {
-                Batch2D currentBatch = null;
 
                 foreach (var renderer in bucket)
                 {
+                    var texture = renderer.Sprite?.Texture ?? _whiteTexture;
+                    var material = renderer.Material ?? _pinkMaterial;
+
+                    Batch2D currentBatch = null;
+
                     if (renderer.Mesh == null)
                     {
                         var chunk = renderer.Sprite?.GetAtlasChunk() ?? AtlasChunk.DefaultChunk;
-
                         var worldMatrix = renderer.Transform.GetRenderingWorldMatrix();
-                      
-                        var texture = renderer.Sprite?.Texture ?? _whiteTexture;
-                        var material = renderer.Material ?? _pinkMaterial;
 
                         float ppu = texture.PixelPerUnit;
                         var width = (float)chunk.Width / ppu;
                         var height = (float)chunk.Height / ppu;
 
-                        float px = chunk.Pivot.x * width;
-                        float py = chunk.Pivot.y * height;
-
-                        var v0 = new Vertex()
-                        {
-                            Color = renderer.PacketColor,
-                            Position = new vec3(worldMatrix * new vec4(-px, -py, 0, 1)),
-                            UV = chunk.BottomLeftUV,
-                        };
-
-                        var v1 = new Vertex()
-                        {
-                            Color = renderer.PacketColor,
-                            Position = new vec3(worldMatrix * new vec4(-px, height - py, 0, 1)),
-                            UV = chunk.TopLeftUV,
-                        };
-
-                        var v2 = new Vertex()
-                        {
-                            Color = renderer.PacketColor,
-                            Position = new vec3(worldMatrix * new vec4(width - px, height - py, 0, 1)),
-                            UV = chunk.TopRightUV,
-                        };
-
-                        var v3 = new Vertex()
-                        {
-                            Color = renderer.PacketColor,
-                            Position = new vec3(worldMatrix * new vec4(width - px, -py, 0, 1)),
-                            UV = chunk.BottomRightUV
-                        };
+                        QuadVertices quad = default;
+                        GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.PacketColor, worldMatrix);
 
                         if (currentBatch == null || !currentBatch.CanPushGeometry(4, texture))
                         {
                             currentBatch = _batchesPool.Get(MaxBatchVertexSize);
                         }
+                        
+                        _quadVertexArray[0] = quad.v0;
+                        _quadVertexArray[1] = quad.v1;
+                        _quadVertexArray[2] = quad.v2;
+                        _quadVertexArray[3] = quad.v3;
 
-                        currentBatch.PushGeometry(material, texture, 6, v0, v1, v2, v3);
+                        currentBatch.PushGeometry(material, texture, 6, _quadVertexArray);
                     }
                     else
                     {
-                        // TODO: Populate batch with mesh data
+                        var vertexCount = Math.Max(MaxBatchVertexSize, renderer.Mesh.Vertices.Count);
+
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture))
+                        {
+                            currentBatch = _batchesPool.Get(vertexCount, CreateIndexBuffer(vertexCount / 4));
+                        }
+
+                        currentBatch.PushGeometry(material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));
                     }
                 }
             }

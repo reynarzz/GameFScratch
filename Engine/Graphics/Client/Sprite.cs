@@ -18,7 +18,7 @@ namespace Engine
             {
                 var chunk = Texture.Atlas.GetChunk(AtlasIndex);
 
-                if (chunk.Width == 0 && chunk.Height == 0)
+                if (chunk.Width <= 1 && chunk.Height <= 1)
                 {
                     chunk.Width = Texture.Width;
                     chunk.Height = Texture.Height;
