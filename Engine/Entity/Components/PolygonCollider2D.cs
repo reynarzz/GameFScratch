@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Engine.Utils.Polygon;
 using Engine.Utils;
 using GlmNet;
+using System.Runtime.InteropServices;
 
 namespace Engine
 {
@@ -84,10 +85,11 @@ namespace Engine
 
         protected override void UpdateShape()
         {
-            for (int i = 0; i < _hulls.Count; i++)
+            var hulls = CollectionsMarshal.AsSpan(_hulls);
+
+            for (int i = 0; i < hulls.Length; i++)
             {
-                var hull = _hulls[i];
-                var polygon = GetPolygon(ref hull);
+                var polygon = GetPolygon(ref hulls[i]);
                 B2Shapes.b2Shape_SetPolygon(ShapesId[i], ref polygon);
             }
         }
