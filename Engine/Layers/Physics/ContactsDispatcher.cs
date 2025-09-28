@@ -145,6 +145,7 @@ namespace Engine.Layers
             }
         }
 
+      
         private bool GetCollisionKey(B2ShapeId shapeA, B2ShapeId shapeB, out CollisionKey key)
         {
             key = default;
@@ -234,7 +235,7 @@ namespace Engine.Layers
                     {
                         current = key;
                     }
-                        _triggerEnter.Add(current);
+                    _triggerEnter.Add(current);
                 }
             }
 
@@ -332,23 +333,38 @@ namespace Engine.Layers
         }
 
 
-        internal void NotifyColliderToDestroy(Collider2D collider)
+        internal void NotifyColliderToDestroy(Collider2D currentCollider)
         {
             // TODO: Implement early OnCollisionExit/OnTriggerExit
 
-            /* Note: OnCollisionExit/OnTriggerExit will not be called automatically after a shape is
-               destroyed when an actor is destroyed because doing so will send invalid/destroyed actors
-               so this function takes care of calling OnCollisionExit/OnTriggerExit 
-               before the actors become invalid, and in the same frame.
+            /* Note: OnCollisionExit/OnTriggerExit can't be called automatically after a shape is
+               destroyed when an actor/collider is destroyed because doing so will send invalid/destroyed actors.
+               This function takes care of collecting all the OnCollisionExit/OnTriggerExit from collisions
+               before the actors become invalid, so they can be called in the same frame.
             */
 
-            if (collider.IsTrigger)
+            void AddToExit(HashSet<CollisionKey> enter, HashSet<CollisionKey> exit)
             {
-                //_triggerExit.Add(collider);
+                for (int i = 0; i < enter.Count; i++)
+                {
+                    var enterKey = enter.ElementAt(i);
+
+                    if (enterKey.colliderA == currentCollider ||
+                        enterKey.colliderB == currentCollider)
+                    {
+                        // Add all the colliders that should be notified of exit because of the incoming destruction of the actor/collider.
+                        exit.Add(enterKey);
+                    }
+                }
+            }
+
+            if (currentCollider.IsTrigger)
+            {
+                AddToExit(_triggerEnter, _triggerExit);
             }
             else
             {
-                //_contactExit
+                AddToExit(_contactEnter, _contactExit);
             }
         }
 

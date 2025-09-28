@@ -63,7 +63,6 @@ namespace Game
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Investigate why colliders are not freed from memory automatically.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
-        // Fix: polygon collider onEnter event with it's own shapes.
 
         // Stretch:
         // Implement bounds in sprites/renderers.
@@ -164,7 +163,7 @@ namespace Game
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
             var polygon = actor4.AddComponent<PolygonCollider2D>();
-            // polygon.IsTrigger = true;
+            polygon.IsTrigger = true;
 
             polygon.Points =
             [
