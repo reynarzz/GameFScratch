@@ -30,11 +30,16 @@ namespace GameAssetsEditor
             InitializeComponent();
             FileListView.ItemsSource = FileItems;
 
+            // File list drag/drop & selection helpers
             FileListView.PreviewMouseLeftButtonDown += FileListView_PreviewMouseLeftButtonDown;
             FileListView.MouseMove += FileListView_MouseMove;
             FileListView.AllowDrop = true;
+
+            // Ensure right-click selects an item in the file list before showing the context menu
+            FileListView.PreviewMouseRightButtonDown += FileListView_PreviewMouseRightButtonDown;
             FileListView.MouseRightButtonUp += FileListView_MouseRightButtonUp;
 
+            // Folder tree drag/drop & selection helpers
             FolderTreeView.PreviewMouseRightButtonDown += FolderTreeView_PreviewMouseRightButtonDown;
             FolderTreeView.Drop += FolderTreeView_Drop;
             FolderTreeView.MouseRightButtonUp += FolderTreeView_MouseRightButtonUp;
@@ -48,10 +53,10 @@ namespace GameAssetsEditor
         private void RefreshFolderTree()
         {
             // Remember expanded folders
-            var expandedPaths = new HashSet<string>();
+            var expandedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             GetExpandedFolders(FolderTreeView.Items, expandedPaths);
 
-            // Remember selected folder
+            // Remember selected folder path (if any)
             string selectedPath = (FolderTreeView.SelectedItem as TreeViewItem)?.Tag as string;
 
             // Reload drives
@@ -64,7 +69,7 @@ namespace GameAssetsEditor
                 RestoreExpandedState(driveItem, expandedPaths);
             }
 
-            // Restore selection
+            // Restore selection (try to select previous selected path)
             if (!string.IsNullOrEmpty(selectedPath))
             {
                 SelectTreeViewItemByPath(FolderTreeView.Items, selectedPath);
@@ -75,9 +80,9 @@ namespace GameAssetsEditor
         {
             foreach (var obj in items)
             {
-                if (obj is not TreeViewItem item) continue; // skip nulls
-                if (item.IsExpanded && item.Tag is string path)
-                    expandedPaths.Add(path);
+                if (obj is not TreeViewItem item) continue; // skip placeholders/nulls
+                if (item.IsExpanded && item.Tag is string p && !string.IsNullOrEmpty(p))
+                    expandedPaths.Add(p);
 
                 if (item.Items != null && item.Items.Count > 0)
                     GetExpandedFolders(item.Items, expandedPaths);
@@ -90,6 +95,7 @@ namespace GameAssetsEditor
 
             if (expandedPaths.Contains(path))
             {
+                // expand and populate children
                 item.IsExpanded = true;
                 item.Items.Clear();
                 try
@@ -101,19 +107,19 @@ namespace GameAssetsEditor
                         RestoreExpandedState(subItem, expandedPaths);
                     }
                 }
-                catch { }
+                catch { /* ignore access exceptions */ }
             }
         }
-
 
         private bool SelectTreeViewItemByPath(ItemCollection items, string path)
         {
             foreach (var obj in items)
             {
-                if (obj is not TreeViewItem item) continue; // skip nulls and non-TreeViewItems
+                if (obj is not TreeViewItem item) continue;
                 if (item.Tag as string == path)
                 {
                     item.IsSelected = true;
+                    item.BringIntoView();
                     return true;
                 }
                 if (SelectTreeViewItemByPath(item.Items, path))
@@ -129,10 +135,10 @@ namespace GameAssetsEditor
                 Header = header,
                 Tag = path
             };
-            item.Items.Add(null);
+            item.Items.Add(null); // placeholder for lazy expand
             item.Expanded += Folder_Expanded;
 
-            // Drag & drop events
+            // Drag & drop events for folder items
             item.PreviewMouseLeftButtonDown += TreeViewItem_PreviewMouseLeftButtonDown;
             item.MouseMove += TreeViewItem_MouseMove;
             item.AllowDrop = true;
@@ -158,7 +164,7 @@ namespace GameAssetsEditor
                         item.Items.Add(subItem);
                     }
                 }
-                catch { }
+                catch { /* ignore access exceptions */ }
             }
         }
 
@@ -202,6 +208,16 @@ namespace GameAssetsEditor
                 string[] paths = FileListView.SelectedItems.Cast<FileItem>().Select(f => f.FullPath).ToArray();
                 DataObject data = new DataObject(DataFormats.FileDrop, paths);
                 DragDrop.DoDragDrop(FileListView, data, DragDropEffects.Move);
+            }
+        }
+
+        // Ensure right-click selects the item under the cursor before menu appears
+        private void FileListView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var lvItem = FindAncestor<ListViewItem>((DependencyObject)e.OriginalSource);
+            if (lvItem != null)
+            {
+                lvItem.IsSelected = true;
             }
         }
 
@@ -287,54 +303,72 @@ namespace GameAssetsEditor
 
         #endregion
 
-        #region Right Click Menus
+        #region Right Click Menus (with Rename)
 
         private void FileListView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (FileListView.SelectedItem is FileItem item)
+            if (FileListView.SelectedItem is not FileItem item) return;
+
+            ContextMenu menu = new ContextMenu();
+
+            MenuItem rename = new MenuItem { Header = "Rename" };
+            rename.Click += (_, _) =>
             {
-                ContextMenu menu = new ContextMenu();
-                MenuItem delete = new MenuItem { Header = "Delete" };
-                delete.Click += (_, _) =>
+                RenameFile(item);
+            };
+
+            MenuItem delete = new MenuItem { Header = "Delete" };
+            delete.Click += (_, _) =>
+            {
+                try
                 {
-                    try
-                    {
-                        File.Delete(item.FullPath);
-                        RefreshFolderTree();
-                        RefreshFileList();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error deleting file: {ex.Message}");
-                    }
-                };
-                menu.Items.Add(delete);
-                menu.IsOpen = true;
-            }
+                    File.Delete(item.FullPath);
+                    RefreshFolderTree();
+                    RefreshFileList();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error deleting file: {ex.Message}");
+                }
+            };
+
+            menu.Items.Add(rename);
+            menu.Items.Add(new Separator());
+            menu.Items.Add(delete);
+            menu.IsOpen = true;
         }
 
         private void FolderTreeView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (FolderTreeView.SelectedItem is TreeViewItem item)
+            if (FolderTreeView.SelectedItem is not TreeViewItem item) return;
+
+            ContextMenu menu = new ContextMenu();
+
+            MenuItem rename = new MenuItem { Header = "Rename Folder" };
+            rename.Click += (_, _) =>
             {
-                ContextMenu menu = new ContextMenu();
-                MenuItem delete = new MenuItem { Header = "Delete Folder" };
-                delete.Click += (_, _) =>
+                RenameFolder(item);
+            };
+
+            MenuItem delete = new MenuItem { Header = "Delete Folder" };
+            delete.Click += (_, _) =>
+            {
+                try
                 {
-                    try
-                    {
-                        Directory.Delete(item.Tag as string, true);
-                        RefreshFolderTree();
-                        RefreshFileList();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error deleting folder: {ex.Message}");
-                    }
-                };
-                menu.Items.Add(delete);
-                menu.IsOpen = true;
-            }
+                    Directory.Delete(item.Tag as string, true);
+                    RefreshFolderTree();
+                    RefreshFileList();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error deleting folder: {ex.Message}");
+                }
+            };
+
+            menu.Items.Add(rename);
+            menu.Items.Add(new Separator());
+            menu.Items.Add(delete);
+            menu.IsOpen = true;
         }
 
         private void FolderTreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -352,7 +386,166 @@ namespace GameAssetsEditor
 
         #endregion
 
-        #region Refresh Helpers
+        #region Rename Implementations
+
+        private void RenameFile(FileItem item)
+        {
+            string oldFullPath = item.FullPath;
+            string oldName = item.Name;
+            string dir = Path.GetDirectoryName(oldFullPath);
+            if (string.IsNullOrEmpty(dir))
+            {
+                MessageBox.Show("Cannot determine file directory.");
+                return;
+            }
+
+            string newName = PromptForInput("Rename file", oldName);
+            if (string.IsNullOrEmpty(newName) || newName == oldName) return;
+
+            if (!IsValidFileName(newName))
+            {
+                MessageBox.Show("Invalid file name.");
+                return;
+            }
+
+            string newFullPath = Path.Combine(dir, newName);
+            if (File.Exists(newFullPath) || Directory.Exists(newFullPath))
+            {
+                MessageBox.Show("A file or folder with that name already exists.");
+                return;
+            }
+
+            try
+            {
+                File.Move(oldFullPath, newFullPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to rename file: {ex.Message}");
+                return;
+            }
+
+            // Refresh and select renamed file
+            RefreshFolderTree();
+            RefreshFileList();
+
+            var renamed = FileItems.FirstOrDefault(f => string.Equals(f.FullPath, newFullPath, StringComparison.OrdinalIgnoreCase));
+            if (renamed != null)
+                FileListView.SelectedItem = renamed;
+        }
+
+        private void RenameFolder(TreeViewItem item)
+        {
+            string oldPath = item.Tag as string;
+            if (string.IsNullOrEmpty(oldPath))
+            {
+                MessageBox.Show("Cannot determine folder path.");
+                return;
+            }
+
+            // Do not allow renaming drive roots
+            string root = Path.GetPathRoot(oldPath);
+            if (!string.IsNullOrEmpty(root) && string.Equals(root.TrimEnd('\\', '/'), oldPath.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Cannot rename a drive root.");
+                return;
+            }
+
+            string parentDir = Path.GetDirectoryName(oldPath);
+            if (string.IsNullOrEmpty(parentDir))
+            {
+                MessageBox.Show("Cannot determine parent directory.");
+                return;
+            }
+
+            string oldName = Path.GetFileName(oldPath);
+            string newName = PromptForInput("Rename folder", oldName);
+            if (string.IsNullOrEmpty(newName) || newName == oldName) return;
+
+            if (!IsValidFileName(newName))
+            {
+                MessageBox.Show("Invalid folder name.");
+                return;
+            }
+
+            string newPath = Path.Combine(parentDir, newName);
+            if (Directory.Exists(newPath) || File.Exists(newPath))
+            {
+                MessageBox.Show("A file or folder with that name already exists.");
+                return;
+            }
+
+            try
+            {
+                Directory.Move(oldPath, newPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to rename folder: {ex.Message}");
+                return;
+            }
+
+            // Refresh tree and select the renamed folder
+            RefreshFolderTree();
+            SelectTreeViewItemByPath(FolderTreeView.Items, newPath);
+            RefreshFileList();
+        }
+
+        #endregion
+
+        #region Helpers & Refresh
+
+        private static bool IsValidFileName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+            char[] invalid = Path.GetInvalidFileNameChars();
+            return name.IndexOfAny(invalid) < 0;
+        }
+
+        // Prompt small dialog to get new name (returns null if canceled)
+        private string PromptForInput(string title, string defaultValue)
+        {
+            Window dialog = new Window
+            {
+                Title = title,
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Width = 360,
+                Height = 130,
+                ResizeMode = ResizeMode.NoResize,
+                Background = Brushes.White,
+                WindowStyle = WindowStyle.ToolWindow,
+                ShowInTaskbar = false
+            };
+
+            var panel = new StackPanel { Margin = new Thickness(10) };
+            var tbLabel = new TextBlock { Text = "New name:", Margin = new Thickness(0, 0, 0, 6) };
+            var textBox = new TextBox { Text = defaultValue ?? "", Margin = new Thickness(0, 0, 0, 10) };
+            textBox.SelectAll();
+
+            var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+            var okButton = new Button { Content = "OK", Width = 80, IsDefault = true, Margin = new Thickness(0, 0, 6, 0) };
+            var cancelButton = new Button { Content = "Cancel", Width = 80, IsCancel = true };
+
+            okButton.Click += (_, _) => { dialog.DialogResult = true; dialog.Close(); };
+            cancelButton.Click += (_, _) => { dialog.DialogResult = false; dialog.Close(); };
+
+            buttons.Children.Add(okButton);
+            buttons.Children.Add(cancelButton);
+
+            panel.Children.Add(tbLabel);
+            panel.Children.Add(textBox);
+            panel.Children.Add(buttons);
+
+            dialog.Content = panel;
+
+            bool? result = dialog.ShowDialog();
+            if (result == true)
+            {
+                return textBox.Text.Trim();
+            }
+            return null;
+        }
 
         private void RefreshFileList()
         {
@@ -364,10 +557,7 @@ namespace GameAssetsEditor
 
             try
             {
-                var files = Directory.GetFiles(path)
-                    .Where(f => imageExtensions.Contains(System.IO.Path.GetExtension(f).ToLower()) ||
-                                audioExtensions.Contains(System.IO.Path.GetExtension(f).ToLower()) ||
-                                textExtensions.Contains(System.IO.Path.GetExtension(f).ToLower()));
+                var files = Directory.GetFiles(path);
 
                 foreach (var file in files)
                 {
@@ -381,7 +571,18 @@ namespace GameAssetsEditor
                     });
                 }
             }
-            catch { }
+            catch { /* ignore access exceptions */ }
+        }
+
+        // Generic VisualTreeWalker helper
+        private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T t) return t;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
         }
 
         #endregion
