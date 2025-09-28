@@ -65,15 +65,15 @@ namespace Engine.Rendering
 
         internal void Initialize()
         {
-            _sharedIndexBuffer = CreateIndexBuffer(MaxQuadsPerBatch * IndicesPerQuad);
+            _sharedIndexBuffer = CreateIndexBuffer(MaxQuadsPerBatch);
             _batchesPool = new BatchesPool(_sharedIndexBuffer);
         }
 
         private GfxResource CreateIndexBuffer(int maxQuads)
         {
-            var indices = new uint[maxQuads];
+            var indices = new uint[maxQuads * IndicesPerQuad];
 
-            for (uint i = 0; i < maxQuads / 6; i++)
+            for (uint i = 0; i < maxQuads; i++)
             {
                 indices[i * 6 + 0] = i * 4 + 0;
                 indices[i * 6 + 1] = i * 4 + 1;
@@ -116,13 +116,13 @@ namespace Engine.Rendering
             // TODO: improve performance of order by sorting, is allocating every frame
             foreach (var bucket in _renderBuckets.Values.OrderBy(x => x[0].SortOrder))
             {
+                Batch2D currentBatch = null;
 
                 foreach (var renderer in bucket)
                 {
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
-                    Batch2D currentBatch = null;
 
                     if (renderer.Mesh == null)
                     {
