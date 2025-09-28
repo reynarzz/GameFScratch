@@ -3,7 +3,7 @@ using Engine;
 using Engine.Layers;
 using Engine.Utils;
 using GlmNet;
-
+using LDtk;
 using System.Text.Json;
 
 namespace Game
@@ -75,13 +75,13 @@ namespace Game
         {
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\";
 
-            var tilemapTexture = Assets.GetTexture(rootPathTest + "/monochrome_tilemap_transparent_packed.png");
+            var tilemapTexture = Assets.GetTexture(rootPathTest + "/Cavernas_by_Adam_Saltsman.png");
 
-            TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
+            TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 8, 8, tilemapTexture.Width, tilemapTexture.Height);
 
             var tilemapSprite = new Sprite();
             tilemapSprite.Texture = tilemapTexture;
-            tilemapSprite.Texture.PixelPerUnit = 16;
+            tilemapSprite.Texture.PixelPerUnit = 8;
 
             string json = File.ReadAllText(rootPathTest + "\\LevelTestLTilemap.ldtk");
 
@@ -93,12 +93,10 @@ namespace Game
 
 
             var project = LDtk.LDtkProject.LoadProject(element, rootPathTest + "\\LevelTestLTilemap.ldtk");
-            
-            //LdtkJson.FromJson(rootPathTest + "\\LevelTestLTilemap.ldtk");
 
             var tilemapActor = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
-            
+
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
@@ -111,6 +109,44 @@ namespace Game
             //tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
             //tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
             //tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
+
+            foreach (var level in project.Levels)
+            {
+                foreach (var layer in level.LayerInstances)
+                {
+
+                    switch (layer.Type)
+                    {
+                        case LDtk.LayerType.IntGrid:
+                            var intGridLayer = layer as IntGridLayer; //It seems that the tiles are coming from here.
+
+                            foreach (var tile in intGridLayer.AutoLayerTiles)
+                            {
+                                var tileId = tile.TileId;
+                                var position = new vec3((tile.Coordinates.X + layer.Offset.x) / tilemapSprite.Texture.PixelPerUnit, (tile.Coordinates.Y + layer.Offset.y) / tilemapSprite.Texture.PixelPerUnit, 0);
+
+                                tilemap.AddTile(new Engine.Tile(tileId), position);
+                                //Debug.Log(new vec2(position.x, position.y));
+                            }
+
+                            break;
+                        case LDtk.LayerType.Entities:
+                            var entitiesLayer = layer as EntitieLayer;
+
+                            break;
+                        case LDtk.LayerType.Tiles:
+                            var tilesLayer = layer as TileLayer;
+
+                            break;
+                        case LDtk.LayerType.AutoLayer:
+                            var autoLayer = layer as AutoLayer;
+
+                            break;
+                    }
+                }
+
+            }
+
 
         }
 

@@ -48,7 +48,7 @@ namespace Game
 
         public override void OnUpdate()
         {
-            if ((_isOnGround || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
+            if (/*(_isOnGround || _extraJumpAvailable) && */Input.GetKeyDown(KeyCode.Space))
             {
                 _extraJumpAvailable = false;
                 _jumped = true;
