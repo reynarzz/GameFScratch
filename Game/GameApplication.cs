@@ -3,7 +3,8 @@ using Engine;
 using Engine.Layers;
 using Engine.Utils;
 using GlmNet;
-using ldtk;
+
+using System.Text.Json;
 
 namespace Game
 {
@@ -72,7 +73,9 @@ namespace Game
 
         private void LoadTilemap()
         {
-            var tilemapTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\monochrome_tilemap_transparent_packed.png");
+            var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\";
+
+            var tilemapTexture = Assets.GetTexture(rootPathTest + "/monochrome_tilemap_transparent_packed.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
@@ -80,23 +83,34 @@ namespace Game
             tilemapSprite.Texture = tilemapTexture;
             tilemapSprite.Texture.PixelPerUnit = 16;
 
-            // LdtkJson.FromJson();
+            string json = File.ReadAllText(rootPathTest + "\\LevelTestLTilemap.ldtk");
+
+            // Parse it
+            using JsonDocument doc = JsonDocument.Parse(json);
+
+            // Get the root element (this is the valid JsonElement)
+            JsonElement element = doc.RootElement;
+
+
+            var project = LDtk.LDtkProject.LoadProject(element, rootPathTest + "\\LevelTestLTilemap.ldtk");
+            
+            //LdtkJson.FromJson(rootPathTest + "\\LevelTestLTilemap.ldtk");
 
             var tilemapActor = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
-
+            
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
 
-            tilemap.AddTile(new Tile(220), default);
-            tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
-            tilemap.AddTile(new Tile(), new vec3(-1, -1, 0));
-            tilemap.AddTile(new Tile(), new vec3(2, 0, 0));
-            tilemap.AddTile(new Tile(), new vec3(1, 1, 0));
-            tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
-            tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
-            tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
+            //tilemap.AddTile(new Tile(220), default);
+            //tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
+            //tilemap.AddTile(new Tile(), new vec3(-1, -1, 0));
+            //tilemap.AddTile(new Tile(), new vec3(2, 0, 0));
+            //tilemap.AddTile(new Tile(), new vec3(1, 1, 0));
+            //tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
+            //tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
+            //tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
 
         }
 
@@ -123,7 +137,7 @@ namespace Game
             sprite3.Texture.PixelPerUnit = 1;
 
 
-            
+
 
             var mainShader = new Shader(SpriteVertexShader, SpriteFragmentShader);
 
@@ -174,7 +188,7 @@ namespace Game
 
             Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
-          
+
             var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
             actor3.Layer = LayerMask.NameToLayer("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
