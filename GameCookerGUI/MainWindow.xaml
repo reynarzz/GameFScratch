@@ -5,8 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameAssetsEditor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-    
-    </Grid>
+        Title="Game Assets Editor" Height="450" Width="800">
+    <DockPanel>
+
+        <!-- Build Section -->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
+            <Button Name="BuildButton" Content="Build" Width="100" Margin="5" Click="BuildButton_Click"/>
+            <Button Name="BuildConfigButton" Content="Build Configuration" Width="150" Margin="5" Click="BuildConfigButton_Click"/>
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Folder Tree -->
+            <TreeView Name="FolderTreeView" SelectedItemChanged="FolderTreeView_SelectedItemChanged" Grid.Column="0" Margin="5"/>
+
+            <!-- File List -->
+            <ListView Name="FileListView" Grid.Column="1" Margin="5">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200"/>
+                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="100"/>
+                        <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" Width="100"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+    </DockPanel>
 </Window>

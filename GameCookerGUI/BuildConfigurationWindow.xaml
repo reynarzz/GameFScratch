@@ -1,0 +1,50 @@
+﻿<Window x:Class="GameAssetsEditor.BuildConfigurationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Build Configuration"
+        Width="350"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        Background="White">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Options StackPanel -->
+        <StackPanel Grid.Row="0" VerticalAlignment="Center" >
+
+            <!-- Compression Section -->
+            <GroupBox Header="Compression" Margin="0,0,0,10">
+                <StackPanel Margin="10,5,0,5">
+                    <CheckBox Name="CompressCheckBox" Content="Compress Files" Margin="0,5,0,5" Checked="CompressCheckBox_Checked" Unchecked="CompressCheckBox_Checked"/>
+                    <TextBlock Text="File Types to Compress:" FontStyle="Italic" Margin="0,5,0,5"/>
+                    <CheckBox Name="CompressImagesCheckBox" Content="Textures (.png, .jpg)" IsChecked="True" Margin="0,0,0,5"/>
+                    <CheckBox Name="CompressAudioCheckBox" Content="Audio (.mp3, .wav)" IsChecked="True" Margin="0,0,0,5"/>
+                    <CheckBox Name="CompressTextCheckBox" Content="Text (.txt, .json)" IsChecked="True"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Encryption Section -->
+            <GroupBox Header="Encryption">
+                <StackPanel Margin="10,5,0,5">
+                    <CheckBox Name="EnableEncryptionCheckBox" Content="Enable Encryption" Checked="EnableEncryptionCheckBox_Checked" Margin="0,0,0,5"/>
+                    <TextBlock Text="File Types to Encrypt:" FontStyle="Italic" Margin="0,5,0,5"/>
+                    <CheckBox Name="EncryptImagesCheckBox" Content="Textures (.png, .jpg)" IsChecked="True" Margin="0,0,0,5"/>
+                    <CheckBox Name="EncryptAudioCheckBox" Content="Audio (.mp3, .wav)" IsChecked="True" Margin="0,0,0,5"/>
+                    <CheckBox Name="EncryptTextCheckBox" Content="Text (.txt, .json)" IsChecked="True"/>
+                </StackPanel>
+            </GroupBox>
+
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+            <Button Content="OK" Width="100" Margin="10,0" Click="OkButton_Click"/>
+            <Button Content="Cancel" Width="100" Margin="10,0" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -57,7 +57,7 @@ namespace Game
         // TODO:
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
-        // Implement a simple file system.
+        // Implement a simple file system (compression+encryption) (texture, audio, text)
         // Tilemap (rendering, ldtk file loading, colliders)
         /* Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
