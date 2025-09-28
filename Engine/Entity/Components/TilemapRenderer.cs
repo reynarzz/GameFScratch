@@ -12,6 +12,10 @@ namespace Engine
     {
         public int Index { get; set; }
 
+        public Tile(int index)
+        {
+            Index = index;
+        }
     }
 
     public class TilemapRenderer : Renderer2D

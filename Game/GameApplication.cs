@@ -1,7 +1,9 @@
 ﻿
 using Engine;
 using Engine.Layers;
+using Engine.Utils;
 using GlmNet;
+using ldtk;
 
 namespace Game
 {
@@ -68,9 +70,41 @@ namespace Game
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
 
+        private void LoadTilemap()
+        {
+            var tilemapTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\monochrome_tilemap_transparent_packed.png");
+
+            TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
+
+            var tilemapSprite = new Sprite();
+            tilemapSprite.Texture = tilemapTexture;
+            tilemapSprite.Texture.PixelPerUnit = 16;
+
+            // LdtkJson.FromJson();
+
+            var tilemapActor = new Actor<TilemapRenderer>();
+            var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
+
+            var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
+            tilemap.Material = mat1;
+            tilemap.Sprite = tilemapSprite;
+
+            tilemap.AddTile(new Tile(220), default);
+            tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
+            tilemap.AddTile(new Tile(), new vec3(-1, -1, 0));
+            tilemap.AddTile(new Tile(), new vec3(2, 0, 0));
+            tilemap.AddTile(new Tile(), new vec3(1, 1, 0));
+            tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
+            tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
+            tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
+
+        }
+
         public override void Initialize()
         {
             var pTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\Idle.png");
+
+            LoadTilemap();
 
             var sprite4 = new Sprite();
             sprite4.Texture = pTexture;
@@ -99,7 +133,7 @@ namespace Game
 
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
-            camera.OrthographicSize = 5;
+            camera.OrthographicSize = 256.0f / 2.0f / 16.0f;
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -140,20 +174,7 @@ namespace Game
 
             Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
-            var tilemapActor = new Actor<TilemapRenderer>();
-            var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
-            tilemap.Material = mat1;
-            tilemap.Sprite = sprite2;
-           
-            tilemap.AddTile(new Tile(), default);
-            tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
-            tilemap.AddTile(new Tile(), new vec3(-1, -1, 0));
-            tilemap.AddTile(new Tile(), new vec3(2, 0, 0));
-            tilemap.AddTile(new Tile(), new vec3(1, 1, 0));
-            tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
-            tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
-            tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
-
+          
             var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
             actor3.Layer = LayerMask.NameToLayer("Player");
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
@@ -164,10 +185,9 @@ namespace Game
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(-6.5f, 0, 0);
             camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
-                                                                actor3.Transform.WorldPosition.y, -12);
+                                                             actor3.Transform.WorldPosition.y, -12);
             rigid3.LockZRotation = true;
 
-            camera.OrthographicSize = 8;
             // rigid3.Actor.IsEnabled = false;
             // actor3.GetComponent<BoxCollider2D>().IsTrigger = true;
 

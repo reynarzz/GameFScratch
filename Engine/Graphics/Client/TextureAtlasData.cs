@@ -10,11 +10,10 @@ namespace Engine
     public struct QuadUV
     {
         // Uv's for quad vertices.
-        public vec2 BottomLeftUV { get; set; }
-        public vec2 TopLeftUV { get; set; }
-        public vec2 TopRightUV { get; set; }
-        public vec2 BottomRightUV { get; set; }
-
+        public vec2 BottomLeftUV;
+        public vec2 TopLeftUV;
+        public vec2 TopRightUV;
+        public vec2 BottomRightUV;
     }
 
     public struct AtlasChunk 
@@ -85,6 +84,11 @@ namespace Engine
         public void UpdateChunk(int index, AtlasChunk chunk)
         {
             _chunks[index] = chunk;
+        }
+
+        public void SetChunks(AtlasChunk[] chunks)
+        {
+            _chunks = chunks.ToArray();
         }
     }
 }

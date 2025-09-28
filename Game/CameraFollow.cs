@@ -18,7 +18,14 @@ namespace Game
                 var targetPos = Target.WorldPosition;
                 targetPos.z = Transform.WorldPosition.z;
 
-                Transform.WorldPosition = Mathf.Lerp(Transform.WorldPosition, targetPos, Time.DeltaTime);
+                var smoothPos = Mathf.Lerp(Transform.WorldPosition, targetPos, Time.DeltaTime); 
+                vec2 pixelSize = new vec2(1f / 16.0f);
+                vec2 snappedPos = new vec2(
+                    MathF.Round(smoothPos.x / pixelSize.x) * pixelSize.x,
+                    MathF.Round(smoothPos.y / pixelSize.y) * pixelSize.y
+                );
+
+                Transform.WorldPosition = smoothPos; // new vec3(snappedPos, Transform.WorldPosition.z);
             }
         }
     }
