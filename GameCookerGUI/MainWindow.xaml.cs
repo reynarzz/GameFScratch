@@ -54,6 +54,16 @@ namespace GameAssetsEditor
             this.Deactivated += MainWindow_Deactivated;
             FileListView.MouseDoubleClick += FileListView_MouseDoubleClick;
 
+            var buildGesture = new KeyGesture(Key.B, ModifierKeys.Control);
+            var buildCommand = new RoutedCommand();
+            CommandBindings.Add(new CommandBinding(buildCommand, BuildButton_Click));
+            InputBindings.Add(new KeyBinding(buildCommand, buildGesture));
+
+            var settingsGesture = new KeyGesture(Key.G, ModifierKeys.Control);
+            var settingsCommand = new RoutedCommand();
+            CommandBindings.Add(new CommandBinding(settingsCommand, BuildConfigButton_Click));
+            InputBindings.Add(new KeyBinding(settingsCommand, settingsGesture));
+
             RefreshFolderTree();
         }
 

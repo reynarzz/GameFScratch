@@ -6,15 +6,26 @@
         xmlns:local="clr-namespace:GameAssetsEditor"
         mc:Ignorable="d"
         Title="Game Assets Editor" Height="450" Width="800">
-    
-    
+
+    <Window.InputBindings>
+        <!-- Keyboard shortcuts -->
+        <KeyBinding Key="B" Modifiers="Control" Command="{Binding BuildCommand}"/>
+        <KeyBinding Key="G" Modifiers="Control" Command="{Binding SettingsCommand}"/>
+    </Window.InputBindings>
+
     <DockPanel>
 
-        <!-- Build Section -->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
-            <Button Name="BuildButton" Content="Build" Width="80" Margin="5" Click="BuildButton_Click"/>
-            <Button Name="BuildConfigButton" Content="Settings" Width="90" Margin="5" Click="BuildConfigButton_Click"/>
-        </StackPanel>
+        <!-- Menu bar -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File" FontSize="13">
+                <MenuItem Header="_Build" 
+                          Click="BuildButton_Click" 
+                          InputGestureText="Ctrl+B"/>
+                <MenuItem Header="_Settings" 
+                          Click="BuildConfigButton_Click" 
+                          InputGestureText="Ctrl+S"/>
+            </MenuItem>
+        </Menu>
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -32,9 +43,7 @@
             <Grid Grid.Column="1" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
-                    <!-- list row -->
                     <RowDefinition Height="Auto"/>
-                    <!-- label row -->
                 </Grid.RowDefinitions>
 
                 <ListView Name="FileListView" Grid.Row="0" MouseDoubleClick="FileListView_MouseDoubleClick">
@@ -53,11 +62,10 @@
                             <GridViewColumn Header="Type" Width="100">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Type}"  HorizontalAlignment="Center" Foreground="Black"/>
+                                        <TextBlock Text="{Binding Type}" HorizontalAlignment="Center" Foreground="Black"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-
                             <GridViewColumn Header="Size" Width="100">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
@@ -71,11 +79,11 @@
 
                 <!-- current folder path at the bottom -->
                 <TextBlock Name="CurrentPathLabel"
-               Grid.Row="1"
-               FontWeight="Bold"
-               Margin="0,5,0,0"
-               Text=""
-               TextWrapping="Wrap"/>
+                           Grid.Row="1"
+                           FontWeight="Bold"
+                           Margin="0,5,0,0"
+                           Text=""
+                           TextWrapping="Wrap"/>
             </Grid>
         </Grid>
     </DockPanel>
