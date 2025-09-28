@@ -24,6 +24,8 @@ namespace GameAssetsEditor
         public ObservableCollection<FileItem> FileItems { get; set; } = new ObservableCollection<FileItem>();
         private Point _fileStartPoint;
         private Point _folderStartPoint;
+        private string RootAssetsFolderPath { get; set; } = "D:/Projects/Zkate";
+        private const string AssetsFolderName = "Assets";
 
         public MainWindow()
         {
@@ -45,6 +47,19 @@ namespace GameAssetsEditor
             FolderTreeView.MouseRightButtonUp += FolderTreeView_MouseRightButtonUp;
             FolderTreeView.AllowDrop = true;
 
+            this.Activated += MainWindow_Activated;
+            this.Deactivated += MainWindow_Deactivated;
+
+            RefreshFolderTree();
+        }
+
+        private void MainWindow_Deactivated(object? sender, EventArgs e)
+        {
+        }
+
+        private void MainWindow_Activated(object? sender, EventArgs e)
+        {
+            RefreshFileList();
             RefreshFolderTree();
         }
 
@@ -59,15 +74,13 @@ namespace GameAssetsEditor
             // Remember selected folder path (if any)
             string selectedPath = (FolderTreeView.SelectedItem as TreeViewItem)?.Tag as string;
 
-            // Reload drives
             FolderTreeView.Items.Clear();
-            DriveInfo[] drives = DriveInfo.GetDrives();
-            foreach (var drive in drives)
-            {
-                var driveItem = CreateTreeViewItem(drive.RootDirectory.FullName, drive.Name);
-                FolderTreeView.Items.Add(driveItem);
-                RestoreExpandedState(driveItem, expandedPaths);
-            }
+            
+            var rootFolder = CreateTreeViewItem(RootAssetsFolderPath, AssetsFolderName);
+            rootFolder.IsExpanded = true;
+            
+            FolderTreeView.Items.Add(rootFolder);
+            RestoreExpandedState(rootFolder, expandedPaths);
 
             // Restore selection (try to select previous selected path)
             if (!string.IsNullOrEmpty(selectedPath))
@@ -107,7 +120,7 @@ namespace GameAssetsEditor
                         RestoreExpandedState(subItem, expandedPaths);
                     }
                 }
-                catch { /* ignore access exceptions */ }
+                catch {  }
             }
         }
 
@@ -133,11 +146,15 @@ namespace GameAssetsEditor
             TreeViewItem item = new TreeViewItem
             {
                 Header = header,
-                Tag = path
+                Tag = path,
+                
             };
-            item.Items.Add(null); // placeholder for lazy expand
-            item.Expanded += Folder_Expanded;
-
+            if (Directory.EnumerateDirectories(path).Any())
+            {
+                // Only add dummy child if there are subfolders
+                item.Items.Add(null);
+                item.Expanded += Folder_Expanded; // lazy load
+            }
             // Drag & drop events for folder items
             item.PreviewMouseLeftButtonDown += TreeViewItem_PreviewMouseLeftButtonDown;
             item.MouseMove += TreeViewItem_MouseMove;
@@ -550,9 +567,16 @@ namespace GameAssetsEditor
         private void RefreshFileList()
         {
             FileItems.Clear();
-            if (FolderTreeView.SelectedItem is not TreeViewItem selectedItem) return;
+
+            if (FolderTreeView.SelectedItem is not TreeViewItem selectedItem)
+            {
+                CurrentPathLabel.Text = string.Empty;
+                return;
+            }
 
             string path = selectedItem.Tag as string;
+            CurrentPathLabel.Text = path ?? string.Empty;
+
             if (string.IsNullOrEmpty(path)) return;
 
             try
@@ -571,7 +595,10 @@ namespace GameAssetsEditor
                     });
                 }
             }
-            catch { /* ignore access exceptions */ }
+            catch
+            {
+                // ignore access exceptions
+            }
         }
 
         // Generic VisualTreeWalker helper

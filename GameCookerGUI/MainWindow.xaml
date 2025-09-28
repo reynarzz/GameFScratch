@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:GameAssetsEditor"
         mc:Ignorable="d"
         Title="Game Assets Editor" Height="450" Width="800">
+    
+    
     <DockPanel>
 
         <!-- Build Section -->
@@ -21,18 +23,39 @@
             </Grid.ColumnDefinitions>
 
             <!-- Folder Tree -->
-            <TreeView Name="FolderTreeView" SelectedItemChanged="FolderTreeView_SelectedItemChanged" Grid.Column="0" Margin="5"/>
+            <TreeView Name="FolderTreeView"
+                      SelectedItemChanged="FolderTreeView_SelectedItemChanged"
+                      Grid.Column="0"
+                      Margin="5"/>
 
-            <!-- File List -->
-            <ListView Name="FileListView" Grid.Column="1" Margin="5">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200"/>
-                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="100"/>
-                        <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" Width="100"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <!-- Right side: path label + file list -->
+            <Grid Grid.Column="1" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <!-- list row -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- label row -->
+                </Grid.RowDefinitions>
+
+                <!-- File List -->
+                <ListView Name="FileListView" Grid.Row="0">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200"/>
+                            <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="100"/>
+                            <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" Width="100"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <!-- current folder path at the bottom -->
+                <TextBlock Name="CurrentPathLabel"
+               Grid.Row="1"
+               FontWeight="Bold"
+               Margin="0,5,0,0"
+               Text=""
+               TextWrapping="Wrap"/>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>
