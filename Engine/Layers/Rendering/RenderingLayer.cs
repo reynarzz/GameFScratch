@@ -40,7 +40,7 @@ namespace Engine.Layers
             if (!_mainCamera || !_mainCamera.IsEnabled)
             {
                 Debug.Error("No cameras found in scene.");
-                GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = new vec4(1, 0, 1, 1) });
+                GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = new Color(1, 0, 1, 1) });
                 return;
             }
 
@@ -54,6 +54,8 @@ namespace Engine.Layers
 
             foreach (var batch in batches)
             {
+                GfxDeviceManager.Current.SetPipelineFeatures(new PipelineFeatures() { Blending = new Blending() { Enabled = true } });
+
                 batch.Flush();
                 (batch.Geometry as GLGeometry).Bind();
                 var shader = batch.Material.Shader.NativeShader as GLShader;

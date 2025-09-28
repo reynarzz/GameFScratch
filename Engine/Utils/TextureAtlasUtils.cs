@@ -43,14 +43,11 @@ namespace Engine.Utils
             int tilesX = baseTextureWidth / width;
             int tilesY = baseTextureHeight / height;
 
-            //info.sliceWidth = width;
-            //info.sliceHeight = height;
-
             var length = tilesX * tilesY;
             var atlasChunks = new AtlasChunk[length];
 
             int index = 0;
-            for (int y = 0; y < tilesY; ++y)
+            for (int y = tilesY - 1; y >= 0; --y)
             {
                 for (int x = 0; x < tilesX; ++x)
                 {
@@ -61,7 +58,7 @@ namespace Engine.Utils
             data.SetChunks(atlasChunks);
         }
 
-        QuadUV ConvertTexCoordToGraphicsApiCompatible(QuadUV coord)
+        public QuadUV ConvertTexCoordToGraphicsApiCompatible(QuadUV coord)
         {
             // TODO: Since the engine is rendering in OpengL, the uv is always reversed,
             //       This must change when api is changed to another that texCoord do not start from the bottom 
@@ -72,18 +69,18 @@ namespace Engine.Utils
             if (flipDueGraphicsApi)
             {
                 // Flip whole textCoord
-                outCoords.BottomLeftUV.y  = 1.0f - coord.BottomLeftUV.y;
-                outCoords.TopLeftUV.y     = 1.0f - coord.TopLeftUV.y;
-                outCoords.TopRightUV.y    = 1.0f - coord.TopRightUV.y;
+                outCoords.BottomLeftUV.y = 1.0f - coord.BottomLeftUV.y;
+                outCoords.TopLeftUV.y = 1.0f - coord.TopLeftUV.y;
+                outCoords.TopRightUV.y = 1.0f - coord.TopRightUV.y;
                 outCoords.BottomRightUV.y = 1.0f - coord.BottomRightUV.y;
 
                 // Flip cell y
                 float leftTempY = outCoords.TopLeftUV.y;
                 float rightTempY = outCoords.TopRightUV.y;
 
-                outCoords.BottomLeftUV.y  = outCoords.TopLeftUV.y;
-                outCoords.TopLeftUV.y     = leftTempY;
-                outCoords.TopRightUV.y    = outCoords.BottomRightUV.y;
+                outCoords.BottomLeftUV.y = outCoords.TopLeftUV.y;
+                outCoords.TopLeftUV.y = leftTempY;
+                outCoords.TopRightUV.y = outCoords.BottomRightUV.y;
                 outCoords.BottomRightUV.y = rightTempY;
             }
 

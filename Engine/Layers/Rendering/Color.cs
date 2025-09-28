@@ -8,10 +8,7 @@ namespace Engine
 {
     public struct Color
     {
-        public float R;
-        public float G;
-        public float B;
-        public float A;
+        public float R,G,B,A;
         public static Color Red => new Color(1, 0, 0, 1);
         public static Color Green => new Color(0, 1, 0, 1);
         public static Color Blue => new Color(0, 0, 1, 1);
@@ -64,10 +61,10 @@ namespace Engine
         public static implicit operator Color(Color32 c32)
         {
             return new Color(
-                c32.R / 255f,
-                c32.G / 255f,
-                c32.B / 255f,
-                c32.A / 255f);
+                c32.R / 255.0f,
+                c32.G / 255.0f,
+                c32.B / 255.0f,
+                c32.A / 255.0f);
         }
 
         public static implicit operator ColorPacketRGBA(Color32 c32)

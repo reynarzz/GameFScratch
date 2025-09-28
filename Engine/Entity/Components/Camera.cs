@@ -15,7 +15,7 @@ namespace Engine
         public int Priority { get; set; } = 0;
         public float NearPlane { get; set; } = 0.1f;
         public float FarPlane { get; set; } = 100;
-        public vec4 BackgroundColor { get; set; } = new(1, 1, 1, 1);
+        public Color BackgroundColor { get; set; } = new(1, 1, 1, 1);
 
         private float _orthoSize;
         public float OrthographicSize { get => _orthoSize; 

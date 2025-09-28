@@ -9,7 +9,7 @@ namespace Engine.Graphics
 {
     internal struct ClearDeviceConfig
     {
-        public vec4 Color { get; set; }
+        public Color Color { get; set; }
 
     }
 }

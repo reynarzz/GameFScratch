@@ -71,7 +71,7 @@ namespace Game
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
 
-        private void LoadTilemap()
+        private void LoadTilemap(Camera cam)
         {
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\";
 
@@ -101,20 +101,13 @@ namespace Game
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
 
-            //tilemap.AddTile(new Tile(220), default);
-            //tilemap.AddTile(new Tile(), new vec3(1, 0, 0));
-            //tilemap.AddTile(new Tile(), new vec3(-1, -1, 0));
-            //tilemap.AddTile(new Tile(), new vec3(2, 0, 0));
-            //tilemap.AddTile(new Tile(), new vec3(1, 1, 0));
-            //tilemap.AddTile(new Tile(), new vec3(2, 1, 0));
-            //tilemap.AddTile(new Tile(), new vec3(3, 2, 0));
-            //tilemap.AddTile(new Tile(), new vec3(1, -1, 0));
-
             foreach (var level in project.Levels)
             {
+                cam.BackgroundColor = new Color32(level.BackgroundColor.R, level.BackgroundColor.G, level.BackgroundColor.B, level.BackgroundColor.A);
+
                 foreach (var layer in level.LayerInstances)
                 {
-
+                    int totalFlipped = 0;
                     switch (layer.Type)
                     {
                         case LDtk.LayerType.IntGrid:
@@ -123,9 +116,22 @@ namespace Game
                             foreach (var tile in intGridLayer.AutoLayerTiles)
                             {
                                 var tileId = tile.TileId;
-                                var position = new vec3((tile.Coordinates.X + layer.Offset.x) / tilemapSprite.Texture.PixelPerUnit, (tile.Coordinates.Y + layer.Offset.y) / tilemapSprite.Texture.PixelPerUnit, 0);
+                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x) - 140;
+                                var yPos = (level.WorldCoordinates.y + -tile.Coordinates.Y + layer.Offset.y);
+                                
+                                var position = new vec3(xPos / tilemapSprite.Texture.PixelPerUnit, yPos / tilemapSprite.Texture.PixelPerUnit, 0);
+                                if (tile.IsFlippedOnX)
+                                {
+                                    Debug.Log("flipped on X");
+                                    totalFlipped++;
+                                }
+                                else if (tile.IsFlippedOnY)
+                                {
+                                    Debug.Log("flipped on Y");
+                                    totalFlipped++;
 
-                                tilemap.AddTile(new Engine.Tile(tileId), position);
+                                }
+                                tilemap.AddTile(new Engine.Tile(tileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
                                 //Debug.Log(new vec2(position.x, position.y));
                             }
 
@@ -143,18 +149,18 @@ namespace Game
 
                             break;
                     }
+                    Debug.Warn("Total flipped: " + totalFlipped);
+
                 }
 
+                break;
             }
-
-
         }
 
         public override void Initialize()
         {
             var pTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\Idle.png");
 
-            LoadTilemap();
 
             var sprite4 = new Sprite();
             sprite4.Texture = pTexture;
@@ -182,8 +188,9 @@ namespace Game
             var mat3 = new Material(mainShader);
 
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
-            camera.BackgroundColor = new GlmNet.vec4(0.2f, 0.2f, 0.2f, 1);
+            camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 256.0f / 2.0f / 16.0f;
+            LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -278,7 +285,7 @@ namespace Game
             // polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
-            var respawner = new Actor<Respawner>("Respawner");
+            // var respawner = new Actor<Respawner>("Respawner");
 
             platform.Layer = LayerMask.NameToLayer("Platform");
             rigid4.BodyType = Body2DType.Kinematic;

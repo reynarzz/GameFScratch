@@ -42,7 +42,7 @@ namespace Engine.Graphics.OpenGL
 
         internal override void Clear(ClearDeviceConfig config)
         {
-            glClearColor(config.Color.x, config.Color.y, config.Color.z, config.Color.w);
+            glClearColor(config.Color.R, config.Color.G, config.Color.B, config.Color.A);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
@@ -124,6 +124,7 @@ namespace Engine.Graphics.OpenGL
             if (features.Blending.Enabled)
             {
                 glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             }
             else
             {

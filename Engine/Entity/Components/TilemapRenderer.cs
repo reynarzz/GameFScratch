@@ -1,4 +1,5 @@
-﻿using GlmNet;
+﻿using Engine.Utils;
+using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,14 @@ namespace Engine
     public struct Tile
     {
         public int Index { get; set; }
+        public bool FlipX { get; set; }
+        public bool FlipY { get; set; }
 
-        public Tile(int index)
+        public Tile(int index, bool flipX, bool flipY)
         {
             Index = index;
+            FlipX = flipX;
+            FlipY = flipY;
         }
     }
 
@@ -38,6 +43,11 @@ namespace Engine
             var height = (float)chunk.Height / ppu;
 
             var tileMatrix = Transform.WorldMatrix * glm.translate(mat4.identity(), position) * glm.rotate(rot, new vec3(0, 0, glm.radians(1)));
+
+            // chunk.Uvs = TextureAtlasUtils.ConvertTexCoordToGraphicsApiCompatible(chunk.Uvs);
+
+
+            chunk.Uvs = QuadUV.FlipUV(chunk.Uvs, tile.FlipX, tile.FlipY);
 
             GraphicsHelper.CreateQuad(ref vertices, chunk.Uvs, width, height, chunk.Pivot, Color, tileMatrix);
 

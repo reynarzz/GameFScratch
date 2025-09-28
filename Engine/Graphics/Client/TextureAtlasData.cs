@@ -14,6 +14,35 @@ namespace Engine
         public vec2 TopLeftUV;
         public vec2 TopRightUV;
         public vec2 BottomRightUV;
+
+        public static QuadUV FlipUV(QuadUV uv, bool flipX, bool flipY)
+        {
+            QuadUV result = uv;
+
+            if (flipX)
+            {
+                (result.BottomLeftUV, result.BottomRightUV) = (result.BottomRightUV, result.BottomLeftUV);
+                (result.TopLeftUV, result.TopRightUV) = (result.TopRightUV, result.TopLeftUV);
+            }
+
+            if (flipY)
+            {
+                (result.BottomLeftUV, result.TopLeftUV) = (result.TopLeftUV, result.BottomLeftUV);
+                (result.BottomRightUV, result.TopRightUV) = (result.TopRightUV, result.BottomRightUV);
+            }
+
+            /* if (flipX)
+            {
+                (result.BottomLeftUV, result.TopLeftUV) = (result.BottomRightUV, result.TopRightUV);
+            }
+
+            if (flipY)
+            {
+                (result.BottomLeftUV, result.BottomRightUV) = (result.TopLeftUV, result.TopRightUV);
+            }*/
+
+            return result;
+        }
     }
 
     public struct AtlasChunk 
