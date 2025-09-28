@@ -125,8 +125,8 @@ namespace Game
                     //Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
                     if ( !pressingKeysToMove)
                     {
-                        _rigid.GravityScale = 0;
-                        _rigid.Velocity = new GlmNet.vec2(0, 0);
+                        //_rigid.GravityScale = 0;
+                        _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
                     }
                 }
 
@@ -138,8 +138,8 @@ namespace Game
 
                     if (!pressingKeysToMove && !_jumped)
                     {
-                        _rigid.GravityScale = 0;
-                        _rigid.Velocity = new GlmNet.vec2(0, 0);
+                        //_rigid.GravityScale = 0;
+                        _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
                     }
                 }
 

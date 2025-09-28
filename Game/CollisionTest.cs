@@ -20,6 +20,10 @@ namespace Game
             // Actor.Destroy(collision.OtherCollider.Actor);
         }
 
+        public override void OnCollisionStay2D(Collision2D collision)
+        {
+            // Debug.Log("Collision stay: " + collision.OtherCollider.Transform.WorldPosition);
+        }
         public override void OnCollisionExit2D(Collision2D collision)
         {
             Debug.Info($"{collision.Collider.Name}: Collision -exit: " + collision.OtherCollider.Name);

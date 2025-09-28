@@ -9,73 +9,47 @@ namespace Engine
 {
     internal struct CollisionKey : IEquatable<CollisionKey>
     {
-        public Collider2D colliderA;
-        public Collider2D colliderB;
+        public readonly Guid ColliderAId;
+        public readonly Guid ColliderBId;
+
+        public readonly Collider2D colliderA;
+        public readonly Collider2D colliderB;
 
         public bool WasEnterEventRaised;
+        public int CollisionsCount;
 
         public CollisionKey(Collider2D a, Collider2D b)
         {
             colliderA = a;
             colliderB = b;
-            WasEnterEventRaised = false;
-        }
 
-        private static bool EqualsShape(Collider2D a, Collider2D b)
-        {
-            return a.GetID() == b.GetID();
-        }
+            var idA = a.GetID();
+            var idB = b.GetID();
 
-        private static int CombineHash(int h1, int h2)
-        {
-            unchecked
+            // canonical order so (A,B) == (B,A)
+            if (idB.CompareTo(idA) < 0)
             {
-                return ((h1 << 5) + h1) ^ h2;
+                ColliderAId = idB;
+                ColliderBId = idA;
             }
-        }
-
-        private static int GetShapesHash(B2ShapeId[] shapes)
-        {
-            int hash = 17; // seed
-            unchecked
+            else
             {
-                foreach (var s in shapes)
-                {
-                    int sh = HashCode.Combine(s.index1, s.world0, s.generation);
-                    hash = CombineHash(hash, sh);
-                }
+                ColliderAId = idA;
+                ColliderBId = idB;
             }
-            return hash;
+
+            CollisionsCount = 1;
         }
 
-        public bool Equals(CollisionKey other)
-        {
-            // Order-independent equality
-            return
-            (
-                EqualsShape(colliderA, other.colliderA) &&
-                EqualsShape(colliderB, other.colliderB)
-            )
-            ||
-            (
-                EqualsShape(colliderA, other.colliderB) &&
-                EqualsShape(colliderB, other.colliderA)
-            );
-        }
+        public bool Equals(CollisionKey other) =>
+            ColliderAId == other.ColliderAId &&
+            ColliderBId == other.ColliderBId;
 
         public override bool Equals(object obj) =>
             obj is CollisionKey other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            int h1 = GetShapesHash(colliderA.ShapesId);
-            int h2 = GetShapesHash(colliderB.ShapesId);
-
-            // Canonical order to make (A,B) == (B,A) produce same hash:
-            if (h2 < h1)
-                (h1, h2) = (h2, h1);
-
-            return HashCode.Combine(h1, h2);
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(ColliderAId, ColliderBId);
     }
+
 }

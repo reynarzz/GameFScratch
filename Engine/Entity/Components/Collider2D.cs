@@ -26,7 +26,6 @@ namespace Engine
         private B2ShapeId[] _shapesID;
         private B2ShapeDef _shapeDef;
         private vec2 _offset = new vec2(0, 0);
-        private B2Filter _filter;
         private bool _isTrigger = false;
 
         protected ref B2ShapeDef ShapeDef => ref _shapeDef;
@@ -80,6 +79,7 @@ namespace Engine
                 {
                     B2Shapes.b2Shape_EnableSensorEvents(shapeid, value);
                     B2Shapes.b2Shape_EnableContactEvents(shapeid, !value);
+                    _shapeDef.isSensor = value;
 
                     var shape = B2Shapes.b2GetShape(world, shapeid);
 

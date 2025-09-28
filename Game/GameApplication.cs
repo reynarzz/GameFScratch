@@ -64,6 +64,8 @@ namespace Game
         // Investigate why colliders are not freed from memory automatically.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
         // Fix: polygon collider onEnter event with it's own shapes.
+
+        // Stretch:
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
 
@@ -95,7 +97,7 @@ namespace Game
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
 
-            var actor = new Actor<SpriteRenderer, RotateTest, RigidBody2D, BoxCollider2D, CollisionTest>("CenterRotParent");
+            var actor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, CollisionTest>("CenterRotParent");
             actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
@@ -162,6 +164,8 @@ namespace Game
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
             var polygon = actor4.AddComponent<PolygonCollider2D>();
+            // polygon.IsTrigger = true;
+
             polygon.Points =
             [
                 new vec2(0, 0),  new vec2(4, 1),
@@ -179,7 +183,7 @@ namespace Game
             polygon.Generate();
             polygon.Offset = new vec2(-2, 0);
             polygon.RotationOffset = 0;
-            polygon.IsEnabled = false;
+            // polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
             var respawner = new Actor<Respawner>("Respawner");

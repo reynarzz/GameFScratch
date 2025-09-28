@@ -21,7 +21,7 @@ namespace Engine.Layers
         internal B2ShapeId CurrentShapeId; // Remove
         internal B2ShapeId OtherShapeId; // Remove
 
-        
+
         public void GetContacts(ref List<ContactPoint2D> contacts)
         {
             if (contacts == null)
@@ -72,6 +72,7 @@ namespace Engine.Layers
         }
     }
 
+    // TODO: this class need cleanup asap
     internal class ContactsDispatcher
     {
         private readonly Action<ScriptBehavior, Collision2D> _onCollisionEnter = (x, y) => x.OnCollisionEnter2D(y);
@@ -90,6 +91,12 @@ namespace Engine.Layers
         private HashSet<CollisionKey> _triggerExit;
 
         private Collision2D _collisionData;
+        private readonly Dictionary<CollisionKey, CollisionValue> _contactCounts = new();
+        private struct CollisionValue
+        {
+            public int CollisionCount { get; set; }
+            public bool WasEnterCalled { get; set; }
+        }
 
         public ContactsDispatcher()
         {
@@ -103,6 +110,39 @@ namespace Engine.Layers
             _contactExit.EnsureCapacity(200);
             _triggerEnter.EnsureCapacity(100);
             _triggerExit.EnsureCapacity(100);
+        }
+
+        public void IncrementCollision(Collider2D a, Collider2D b)
+        {
+            var key = new CollisionKey(a, b);
+
+            if (_contactCounts.TryGetValue(key, out var count))
+            {
+                var contact = _contactCounts[key];
+                contact.CollisionCount = count.CollisionCount + 1;
+                _contactCounts[key] = contact;
+            }
+            else
+            {
+                var contact = _contactCounts[key];
+                contact.CollisionCount = 1;
+                _contactCounts[key] = contact;
+
+            }
+        }
+
+        public void DecrementCollision(Collider2D a, Collider2D b)
+        {
+            var key = new CollisionKey(a, b);
+
+            if (_contactCounts.TryGetValue(key, out var count))
+            {
+                count.CollisionCount--;
+                if (count.CollisionCount <= 0)
+                    _contactCounts.Remove(key);
+                else
+                    _contactCounts[key] = count;
+            }
         }
 
         private bool GetCollisionKey(B2ShapeId shapeA, B2ShapeId shapeB, out CollisionKey key)
@@ -131,21 +171,24 @@ namespace Engine.Layers
             {
                 var evt = contactsEvent.beginEvents[i];
 
-                if (GetCollisionKey(evt.shapeIdA, evt.shapeIdB, out var currentKey))
+                if (GetCollisionKey(evt.shapeIdA, evt.shapeIdB, out var key))
                 {
-                    var added = _contactEnter.Add(currentKey);
-
-                    if (!added)
+                    if (_contactEnter.TryGetValue(key, out var current))
                     {
+                        _contactEnter.Remove(current);
+                        current.CollisionsCount++;
+                        //Debug.Log("Contact ++ collision count: " + current.CollisionsCount);
+                    }
+                    else
+                    {
+                        current = key;
+                    }
 
-                        Debug.Error($"Not added: '{currentKey.colliderA.Name}:{evt.shapeIdA}' and {currentKey.colliderB.Name}:{evt.shapeIdB}\n" +
-                            $"A:{evt.shapeIdA}, B:{evt.shapeIdB}");
+                    var added = _contactEnter.Add(current);
 
-                        for (int j = 0; j < _contactEnter.Count; j++)
-                        {
-                            var key = _contactEnter.ElementAt(j);
-                            Debug.Log($"Enter Key's({j}): A:{key.colliderA.Name}, B:{key.colliderB.Name}");
-                        }
+                    if (added)
+                    {
+                        // Debug.Error($"Added: '{current.colliderA.Name}' and {current.colliderB.Name}\n");
                     }
                 }
 
@@ -156,7 +199,20 @@ namespace Engine.Layers
                 var evt = contactsEvent.endEvents[i];
                 if (GetCollisionKey(evt.shapeIdA, evt.shapeIdB, out var key))
                 {
-                    _contactExit.Add(key);
+                    _contactEnter.TryGetValue(key, out var value);
+
+                    if (value.CollisionsCount - 1 <= 0)
+                    {
+                        _contactExit.Add(value);
+                    }
+                    else
+                    {
+                        _contactEnter.Remove(value);
+                        value.CollisionsCount--;
+                        //Debug.Log("Remove count trigger exit: " + value.CollisionsCount);
+
+                        _contactEnter.Add(value);
+                    }
                 }
             }
 
@@ -168,7 +224,17 @@ namespace Engine.Layers
 
                 if (GetCollisionKey(evt.sensorShapeId, evt.visitorShapeId, out var key))
                 {
-                    _triggerEnter.Add(key);
+                    if (_triggerEnter.TryGetValue(key, out var current))
+                    {
+                        _triggerEnter.Remove(current);
+                        current.CollisionsCount++;
+                        //Debug.Log("Trigger ++ collision count: " + current.CollisionsCount);
+                    }
+                    else
+                    {
+                        current = key;
+                    }
+                        _triggerEnter.Add(current);
                 }
             }
 
@@ -177,7 +243,21 @@ namespace Engine.Layers
                 var evt = sensorEvents.endEvents[i];
                 if (GetCollisionKey(evt.sensorShapeId, evt.visitorShapeId, out var key))
                 {
-                    _triggerExit.Add(key);
+                    _triggerEnter.TryGetValue(key, out var value);
+
+                    if (value.CollisionsCount - 1 <= 0)
+                    {
+                        _triggerExit.Add(value);
+                    }
+                    else
+                    {
+                        _triggerEnter.Remove(value);
+                        value.CollisionsCount--;
+                        //Debug.Log("Remove count trigger exit: "  + value.CollisionsCount);
+
+                        _triggerEnter.Add(value);
+                    }
+
                 }
             }
 
@@ -227,27 +307,24 @@ namespace Engine.Layers
 
                 if (!found)
                 {
-                    Debug.Error($"Can't exit: '{exitCollision.colliderA.Name}' and {exitCollision.colliderB.Name}\n" +
-                        $"A:{exitCollision.colliderA}, B:{exitCollision.colliderB}");
+                    Debug.Error($"Can't exit: '{exitCollision.colliderA.Name}' and {exitCollision.colliderB.Name}\n");
+                    int x = 0;
                 }
-
-                //var enterContact = _contactEnter.ElementAt(i);
 
                 if (enterCollision.WasEnterEventRaised)
                 {
                     enterCollisions.Remove(enterCollision);
 
-                    //Debug.Log($"Remove contact enter: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
-                    //    $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
-
-                    eventForwarder(exitEvent, enterCollision.colliderA, enterCollision.colliderB);
-                    eventForwarder(exitEvent, enterCollision.colliderB, enterCollision.colliderA);
-                }
-                else
-                {
-                    //Debug.Error($"Enter no raised: '{GetCollider(ref enterContact.shapeA).Name}' and {GetCollider(ref enterContact.shapeB).Name}\n" +
-                    //    $"A:{enterContact.shapeA}, B:{enterContact.shapeB}");
-
+                    if (enterCollision.CollisionsCount - 1 <= 0)
+                    {
+                        eventForwarder(exitEvent, enterCollision.colliderA, enterCollision.colliderB);
+                        eventForwarder(exitEvent, enterCollision.colliderB, enterCollision.colliderA);
+                    }
+                    else
+                    {
+                        enterCollision.CollisionsCount--;
+                        enterCollisions.Add(enterCollision);
+                    }
                 }
             }
 
