@@ -19,7 +19,7 @@ namespace Engine
             set
             {
                 _rotationOffset = value;
-                Create();
+                UpdateShape();
             }
         }
 
@@ -29,6 +29,7 @@ namespace Engine
         private B2Filter _filter;
         private bool _isTrigger = false;
 
+        protected ref B2ShapeDef ShapeDef => ref _shapeDef;
         internal B2ShapeId[] ShapesId => _shapesID;
 
         public override bool IsEnabled
@@ -59,7 +60,7 @@ namespace Engine
             set
             {
                 _offset = value;
-                Create();
+                UpdateShape();
             }
         }
 
@@ -148,12 +149,13 @@ namespace Engine
             if (IsEnabled && RigidBody)
             {
                 DestroyShape();
-                _shapesID = CreateShape(RigidBody.BodyId, _shapeDef);
+                _shapesID = CreateShape(RigidBody.BodyId);
                 RigidBody.UpdateBody();
             }
         }
 
-        protected abstract B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef);
+        protected abstract B2ShapeId[] CreateShape(B2BodyId bodyId);
+        protected abstract void UpdateShape();
 
         protected bool AreShapesValid()
         {

@@ -17,19 +17,29 @@ namespace Engine
             set
             {
                 _radius = value;
-                Create();
+                UpdateShape();
             }
         }
 
-        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId)
         {
-            var circle = new B2Circle()
+            var circle = GetCircle();
+            return [B2Shapes.b2CreateCircleShape(bodyId, ref ShapeDef, ref circle)];
+        }
+
+        private B2Circle GetCircle()
+        {
+            return new B2Circle()
             {
                 center = Offset.ToB2Vec2(),
                 radius = _radius
             };
+        }
 
-            return [B2Shapes.b2CreateCircleShape(bodyId, ref shapeDef, ref circle)];
+        protected override void UpdateShape()
+        {
+            var circle = GetCircle();
+            B2Shapes.b2Shape_SetCircle(ShapesId[0], ref circle);
         }
     }
 }

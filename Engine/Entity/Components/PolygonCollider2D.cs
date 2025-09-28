@@ -26,8 +26,9 @@ namespace Engine
                 Create();
             }
         }
+        private List<B2Hull> _hulls = new List<B2Hull>();
 
-        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId)
         {
             if (Points.Length == 0 || Points == null)
             {
@@ -35,8 +36,9 @@ namespace Engine
                 return null;
             }
 
-            var verts = new List<PVertex>(Points.Length); 
-         
+            var verts = new List<PVertex>(Points.Length);
+            _hulls.Clear();
+
             for (int i = 0; i < Points.Length; i++)
             {
                 var p = Points[i];
@@ -52,6 +54,8 @@ namespace Engine
             var shapes = new B2ShapeId[pieces.Count];
             var points = default(Vec2[]);
             var targetPoint = new B2Vec2[B2Constants.B2_MAX_POLYGON_VERTICES];
+
+
             for (int i = 0; i < pieces.Count; i++)
             {
                 int vertsCount = 0;
@@ -64,11 +68,28 @@ namespace Engine
                 }
 
                 var hull = B2Hulls.b2ComputeHull(targetPoint, vertsCount);
-                var polygon = B2Geometries.b2MakeOffsetPolygon(ref hull, Offset.ToB2Vec2(), B2MathFunction.b2MakeRot(RotationOffset));
-                shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon);
+
+                _hulls.Add(hull);
+                var polygon = GetPolygon(ref hull);
+                shapes[i] = B2Shapes.b2CreatePolygonShape(bodyId, ref ShapeDef, ref polygon);
             }
 
             return shapes;
+        }
+
+        private B2Polygon GetPolygon(ref B2Hull hull)
+        {
+           return B2Geometries.b2MakeOffsetPolygon(ref hull, Offset.ToB2Vec2(), B2MathFunction.b2MakeRot(RotationOffset));
+        }
+
+        protected override void UpdateShape()
+        {
+            for (int i = 0; i < _hulls.Count; i++)
+            {
+                var hull = _hulls[i];
+                var polygon = GetPolygon(ref hull);
+                B2Shapes.b2Shape_SetPolygon(ShapesId[i], ref polygon);
+            }
         }
     }
 }

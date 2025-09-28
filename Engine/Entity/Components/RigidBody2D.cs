@@ -37,11 +37,22 @@ namespace Engine
         private float _gravityScale = 1;
         private readonly static mat4 _identity = mat4.identity();
         internal B2BodyId BodyId => _bodyId;
+
+        private vec2 _velocity;
         public vec2 Velocity
         {
             get => B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
             set => B2Bodies.b2Body_SetLinearVelocity(_bodyId, value.ToB2Vec2());
         }
+        //public vec2 Velocity
+        //{
+        //    get => _velocity;
+        //    set
+        //    {
+        //        _velocity = value;
+        //        B2Bodies.b2Body_SetLinearVelocity(_bodyId, _velocity.ToB2Vec2());
+        //    }
+        //}
 
         public float AngularVelovity
         {
@@ -261,6 +272,7 @@ namespace Engine
             if(_bodyType == Body2DType.Dynamic)
             {
                 var position = B2Bodies.b2Body_GetPosition(_bodyId);
+                _velocity = B2Bodies.b2Body_GetLinearVelocity(_bodyId).ToVec2();
 
                 Transform.WorldPosition = new vec3(position.X, position.Y, Transform.WorldPosition.z);
                 Transform.WorldRotation = B2Bodies.b2Body_GetRotation(_bodyId).B2RotToQuat();

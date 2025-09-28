@@ -23,7 +23,7 @@ namespace Engine
             set
             {
                 _size = value;
-                Create();
+                UpdateShape();
             }
         }
 
@@ -33,11 +33,17 @@ namespace Engine
             set
             {
                 _direction = value;
-                Create();
+                UpdateShape();
             }
         }
 
-        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId)
+        {
+            var capsule = GetCapsule();
+            return [B2Shapes.b2CreateCapsuleShape(bodyId, ref ShapeDef, ref capsule)];
+        }
+
+        private B2Capsule GetCapsule()
         {
             var radius = _size.x / 2.0f;
             float rectHeight = MathF.Max(_size.y - 2 * radius, 0);
@@ -46,14 +52,18 @@ namespace Engine
                 ? new B2Vec2(0, rectHeight / 2.0f)
                 : new B2Vec2(rectHeight / 2.0f, 0);
 
-            var capsule = new B2Capsule()
+            return new B2Capsule()
             {
                 radius = radius,
                 center1 = centerOffset,
-                center2 = -centerOffset, 
+                center2 = -centerOffset,
             };
+        }
 
-            return [B2Shapes.b2CreateCapsuleShape(bodyId, ref shapeDef, ref capsule)];
+        protected override void UpdateShape()
+        {
+            var capsule = GetCapsule();
+            B2Shapes.b2Shape_SetCapsule(ShapesId[0], ref capsule);
         }
     }
 }

@@ -14,13 +14,13 @@ namespace Engine
         private vec2 _size = new vec2(1, 1);
         private float _cornerRadius = 0;
 
-        public vec2 Size 
+        public vec2 Size
         {
             get => _size;
             set
             {
                 _size = value;
-                Create();
+                UpdateShape();
             }
         }
 
@@ -30,7 +30,7 @@ namespace Engine
             set
             {
                 _cornerRadius = value;
-                Create();
+                UpdateShape();
             }
         }
 
@@ -43,20 +43,25 @@ namespace Engine
             base.OnInitialize();
         }
 
-        protected override B2ShapeId[] CreateShape(B2BodyId bodyId, B2ShapeDef shapeDef)
+        protected override B2ShapeId[] CreateShape(B2BodyId bodyId)
         {
-            B2Polygon polygon = default;
+            var polygon = GetPolygon();
+            return [B2Shapes.b2CreatePolygonShape(bodyId, ref ShapeDef, ref polygon)];
+        }
 
-            if(_cornerRadius > 0.001)
+        private B2Polygon GetPolygon()
+        {
+            if (_cornerRadius > 0.001)
             {
-                polygon = B2Geometries.b2MakeOffsetRoundedBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot(), _cornerRadius);
+                return B2Geometries.b2MakeOffsetRoundedBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot(), _cornerRadius);
             }
-            else
-            {
-                polygon = B2Geometries.b2MakeOffsetBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot());
-            }
-            
-            return [B2Shapes.b2CreatePolygonShape(bodyId, ref shapeDef, ref polygon)];
+            return B2Geometries.b2MakeOffsetBox(Size.x / 2.0f, Size.y / 2.0f, Offset.ToB2Vec2(), glm.radians(RotationOffset).ToB2Rot());
+        }
+
+        protected override void UpdateShape()
+        {
+            var polygon = GetPolygon();
+            B2Shapes.b2Shape_SetPolygon(ShapesId[0], ref polygon);
         }
     }
 }

@@ -54,7 +54,8 @@ namespace Game
                 _jumped = true;
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_rigid.Velocity.x, 0);
-                _rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
+                _rigid.Velocity = new vec2(_rigid.Velocity.x, _jumpForce);
+                //_rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
             }
 
             if (Input.GetKey(KeyCode.A))
@@ -124,7 +125,6 @@ namespace Game
                     //Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
                     if ( !pressingKeysToMove)
                     {
-                        Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitA.Point.y + 0.6f, 0);
                         _rigid.GravityScale = 0;
                         _rigid.Velocity = new GlmNet.vec2(0, 0);
                     }
@@ -138,7 +138,6 @@ namespace Game
 
                     if (!pressingKeysToMove && !_jumped)
                     {
-                        Transform.WorldPosition = new vec3(Transform.WorldPosition.x, hitB.Point.y + 0.6f, 0);
                         _rigid.GravityScale = 0;
                         _rigid.Velocity = new GlmNet.vec2(0, 0);
                     }
