@@ -162,7 +162,7 @@ namespace Engine.Layers
 
             for (int i = 0; i < colliders.Length; i++)
             {
-                if (colliders[i].ShapesId != null)
+                if (colliders[i] && colliders[i].IsEnabled && colliders[i].ShapesId != null)
                 {
                     for (int j = 0; j < colliders[i].ShapesId.Length; j++)
                     {

@@ -179,6 +179,7 @@ namespace Game
             polygon.Generate();
             polygon.Offset = new vec2(-2, 0);
             polygon.RotationOffset = 0;
+            polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
             var respawner = new Actor<Respawner>("Respawner");

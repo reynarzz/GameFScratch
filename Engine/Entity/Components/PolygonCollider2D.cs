@@ -54,7 +54,7 @@ namespace Engine
 
             var shapes = new B2ShapeId[pieces.Count];
             var points = default(Vec2[]);
-            var targetPoint = new B2Vec2[B2Constants.B2_MAX_POLYGON_VERTICES];
+            var piecePoints = new B2Vec2[B2Constants.B2_MAX_POLYGON_VERTICES];
 
 
             for (int i = 0; i < pieces.Count; i++)
@@ -62,13 +62,13 @@ namespace Engine
                 int vertsCount = 0;
                 pieces[i].GetPoints(ref points, ref vertsCount);
 
-                for (int j = 0; j < pieces[i].GetPointCount(); j++)
+                for (int j = 0; j < vertsCount; j++)
                 {
                     var p = points[j];
-                    targetPoint[j] = new B2Vec2(p.x, p.y);
+                    piecePoints[j] = new B2Vec2(p.x, p.y);
                 }
 
-                var hull = B2Hulls.b2ComputeHull(targetPoint, vertsCount);
+                var hull = B2Hulls.b2ComputeHull(piecePoints, vertsCount);
 
                 _hulls.Add(hull);
                 var polygon = GetPolygon(ref hull);

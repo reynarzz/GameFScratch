@@ -31,6 +31,8 @@ namespace Engine
 
         protected ref B2ShapeDef ShapeDef => ref _shapeDef;
         internal B2ShapeId[] ShapesId => _shapesID;
+        private B2Filter _defaultFilter = new B2Filter(B2Constants.B2_DEFAULT_CATEGORY_BITS,
+                                                       B2Constants.B2_DEFAULT_MASK_BITS, 0);
 
         public override bool IsEnabled
         {
@@ -42,14 +44,10 @@ namespace Engine
 
                 if (canChange && AreShapesValid())
                 {
-                    if (value)
+                    ApplyToShapesSafe(shape =>
                     {
-                        Create();
-                    }
-                    else
-                    {
-                        DestroyShape();
-                    }
+                        B2Shapes.b2Shape_SetFilter(shape, value ? _defaultFilter : default);
+                    });
                 }
             }
         }
@@ -76,21 +74,36 @@ namespace Engine
                 }
 
                 _isTrigger = value;
+                var world = B2Worlds.b2GetWorldFromId(PhysicWorld.WorldID);
+
                 var success = ApplyToShapesSafe(shapeid =>
                 {
                     B2Shapes.b2Shape_EnableSensorEvents(shapeid, value);
                     B2Shapes.b2Shape_EnableContactEvents(shapeid, !value);
-                });
 
-                if (success)
-                {
-                    _shapeDef.isSensor = value;
-                    Create();
-                }
-                else
-                {
-                    Debug.Error("Can't change trigger value to collider.");
-                }
+                    var shape = B2Shapes.b2GetShape(world, shapeid);
+
+                    if (value)
+                    {
+                        /* Note: Couldn't find a way to enable/disable sensors without destroying the shape
+                                 So i copied the internal logic of box2d to mark a shape as 'sensor', this works correctly here.
+                        */
+                        shape.sensorIndex = world.sensors.count;
+                        B2Sensor sensor = new B2Sensor
+                        {
+                            hits = B2Arrays.b2Array_Create<B2Visitor>(4),
+                            overlaps1 = B2Arrays.b2Array_Create<B2Visitor>(16),
+                            overlaps2 = B2Arrays.b2Array_Create<B2Visitor>(16),
+                            shapeId = shape.id
+                        };
+
+                        B2Arrays.b2Array_Push(ref world.sensors, sensor);
+                    }
+                    else
+                    {
+                        shape.sensorIndex = B2Constants.B2_NULL_INDEX;
+                    }
+                });
             }
         }
 
@@ -133,13 +146,11 @@ namespace Engine
                 density = 1,
                 updateBodyMass = true,
                 material = B2Types.b2DefaultSurfaceMaterial(),
-                filter = B2Types.b2DefaultFilter(),
+                filter = _defaultFilter,
                 internalValue = B2Constants.B2_SECRET_COOKIE,
                 userData = this,
                 enableCustomFiltering = true
             };
-
-
 
             Create();
         }
