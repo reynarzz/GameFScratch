@@ -5,5 +5,8 @@
     <Compile Update="BuildConfigurationWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="BuildWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -49,6 +52,7 @@ namespace GameAssetsEditor
 
             this.Activated += MainWindow_Activated;
             this.Deactivated += MainWindow_Deactivated;
+            FileListView.MouseDoubleClick += FileListView_MouseDoubleClick;
 
             RefreshFolderTree();
         }
@@ -87,6 +91,24 @@ namespace GameAssetsEditor
             {
                 SelectTreeViewItemByPath(FolderTreeView.Items, selectedPath);
             }
+        }
+        private void FileListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // Find the item under the mouse
+            var lvItem = FindAncestor<ListViewItem>((DependencyObject)e.OriginalSource);
+            if (lvItem == null) return;
+
+            if (lvItem.Content is not FileItem item) return;
+
+            // Only handle folders
+            if (!Directory.Exists(item.FullPath)) return;
+
+            // Select the folder in the TreeView
+            //if (SelectTreeViewItemByPath(FolderTreeView.Items, item.FullPath))
+            //{
+            //    // Refresh file list for the newly selected folder
+            //    RefreshFileList();
+            //}
         }
 
         private void GetExpandedFolders(ItemCollection items, HashSet<string> expandedPaths)
@@ -200,6 +222,7 @@ namespace GameAssetsEditor
             public string Type { get; set; }
             public string Size { get; set; }
             public string FullPath { get; set; }
+            public bool IsFolder { get; set; }
         }
 
         #endregion
@@ -331,7 +354,14 @@ namespace GameAssetsEditor
             MenuItem rename = new MenuItem { Header = "Rename" };
             rename.Click += (_, _) =>
             {
-                RenameFile(item);
+                if (item.IsFolder)
+                {
+                    RenameFolder(item.FullPath);
+                }
+                else
+                {
+                    RenameFile(item);
+                }
             };
 
             MenuItem delete = new MenuItem { Header = "Delete" };
@@ -339,7 +369,20 @@ namespace GameAssetsEditor
             {
                 try
                 {
-                    File.Delete(item.FullPath);
+                    if (item.IsFolder)
+                    {
+
+                        FileSystem.DeleteDirectory(item.FullPath,
+                                   UIOption.OnlyErrorDialogs,
+                                   RecycleOption.SendToRecycleBin);
+                    }
+                    else
+                    {
+                        FileSystem.DeleteFile(item.FullPath,
+                             UIOption.OnlyErrorDialogs,
+                             RecycleOption.SendToRecycleBin);
+                    }
+
                     RefreshFolderTree();
                     RefreshFileList();
                 }
@@ -364,7 +407,7 @@ namespace GameAssetsEditor
             MenuItem rename = new MenuItem { Header = "Rename Folder" };
             rename.Click += (_, _) =>
             {
-                RenameFolder(item);
+                RenameFolder(item.Tag as string);
             };
 
             MenuItem delete = new MenuItem { Header = "Delete Folder" };
@@ -451,9 +494,8 @@ namespace GameAssetsEditor
                 FileListView.SelectedItem = renamed;
         }
 
-        private void RenameFolder(TreeViewItem item)
+        private void RenameFolder(string oldPath)
         {
-            string oldPath = item.Tag as string;
             if (string.IsNullOrEmpty(oldPath))
             {
                 MessageBox.Show("Cannot determine folder path.");
@@ -575,29 +617,42 @@ namespace GameAssetsEditor
             }
 
             string path = selectedItem.Tag as string;
-            CurrentPathLabel.Text = path ?? string.Empty;
+            CurrentPathLabel.Text = path.Replace(RootAssetsFolderPath, AssetsFolderName) ?? string.Empty;
 
             if (string.IsNullOrEmpty(path)) return;
 
             try
             {
-                var files = Directory.GetFiles(path);
+                // Add folders first
+                foreach (var dir in Directory.GetDirectories(path))
+                {
+                    DirectoryInfo info = new DirectoryInfo(dir);
+                    FileItems.Add(new FileItem
+                    {
+                        Name = info.Name,
+                        Type = "Folder",
+                        Size = "",
+                        FullPath = info.FullName,
+                        IsFolder = true
+                    });
+                }
 
-                foreach (var file in files)
+                // Then add files
+                foreach (var file in Directory.GetFiles(path).Where(x => !x.EndsWith(".meta")))
                 {
                     FileInfo info = new FileInfo(file);
                     FileItems.Add(new FileItem
                     {
                         Name = info.Name,
-                        Type = info.Extension,
+                        Type = !string.IsNullOrEmpty(info.Extension)? info.Extension: "-",
                         Size = $"{info.Length / 1024} KB",
-                        FullPath = info.FullName
+                        FullPath = info.FullName,
+                        IsFolder = false
                     });
                 }
             }
             catch
             {
-                // ignore access exceptions
             }
         }
 
@@ -636,8 +691,54 @@ namespace GameAssetsEditor
 
         private void BuildButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show($"Build started with settings:\nCompress: {compressFiles}\nEncrypt Images: {encryptImages}\nEncrypt Audio: {encryptAudio}\nEncrypt Text: {encryptText}");
+            var buildWindow = new BuildWindow
+            {
+                Owner = this
+            };
+
+            // Start the build asynchronously BEFORE showing the window
+            _ = Task.Run(async () =>
+            {
+                string[] filesToBuild = new string[]
+                {
+            "file1.txt",
+            "file2.png",
+            "file3.obj",
+            "file4.shader"
+                };
+
+                for (int i = 0; i < filesToBuild.Length; i++)
+                {
+                    string file = filesToBuild[i];
+
+                    await Task.Delay(500); // Simulate work
+
+                    // Update UI safely
+                    buildWindow.Dispatcher.Invoke(() =>
+                    {
+                        double percent = (i + 1) * 100.0 / filesToBuild.Length;
+                        buildWindow.CurrentFileLabel.Text = $"Current File: {file}";
+                        buildWindow.CurrentWorkLabel.Text = "Processing...";
+                        buildWindow.BuildProgressBar.Value = percent;
+                        buildWindow.PercentageLabel.Text = $"{percent:0}%";
+                    });
+
+                    // Stop if cancel requested
+                    if (buildWindow.CancelRequested)
+                        break;
+                }
+
+                buildWindow.Dispatcher.Invoke(() =>
+                {
+                    buildWindow.CurrentWorkLabel.Text = buildWindow.CancelRequested ? "Build Canceled" : "Build Complete!";
+                    buildWindow.CurrentFileLabel.Text = "";
+                });
+            });
+
+            // Show the window modally
+            buildWindow.ShowDialog();
         }
+
 
         #endregion
     }

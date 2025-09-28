@@ -1,0 +1,69 @@
+﻿<Window x:Class="GameAssetsEditor.BuildWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Building Assets..."
+        Height="200" Width="450"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="White">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Title -->
+            <RowDefinition Height="Auto"/>
+            <!-- Subtitle -->
+            <RowDefinition Height="Auto"/>
+            <!-- Current file -->
+            <RowDefinition Height="*"/>
+            <!-- Progress -->
+            <RowDefinition Height="Auto"/>
+            <!-- Cancel button -->
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Text="Building Assets"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Grid.Row="0"
+                   Margin="0,0,0,5"/>
+
+        <!-- Subtitle -->
+        <TextBlock Name="CurrentWorkLabel"
+                   Text="Initializing..."
+                   FontSize="12"
+                   Grid.Row="1"
+                   Margin="0,0,0,5"/>
+
+        <!-- Current file being processed -->
+        <TextBlock Name="CurrentFileLabel"
+                   Text="Current File: None"
+                   FontSize="12"
+                   Grid.Row="2"
+                   Margin="0,0,0,10"/>
+
+        <!-- Progress bar with percentage -->
+        <Grid Grid.Row="3">
+            <ProgressBar Name="BuildProgressBar"
+                         Height="25"
+                         Minimum="0"
+                         Maximum="100"
+                         VerticalAlignment="Center"/>
+
+            <TextBlock Name="PercentageLabel"
+                       Text="0%"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"/>
+        </Grid>
+
+        <!-- Cancel button -->
+        <Button Content="Cancel"
+                Grid.Row="4"
+                Width="80"
+                Height="28"
+                HorizontalAlignment="center"
+                Margin="0,15,0,0"
+                Click="CancelButton_Click"/>
+    </Grid>
+</Window>

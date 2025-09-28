@@ -4,6 +4,9 @@
              xmlns:local="clr-namespace:GameAssetsEditor"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:FolderFontWeightConverter x:Key="FolderFontWeightConverter"/>
+
     </Application.Resources>
 </Application>

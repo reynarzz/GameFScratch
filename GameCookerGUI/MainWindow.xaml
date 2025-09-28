@@ -37,13 +37,34 @@
                     <!-- label row -->
                 </Grid.RowDefinitions>
 
-                <!-- File List -->
-                <ListView Name="FileListView" Grid.Row="0">
+                <ListView Name="FileListView" Grid.Row="0" MouseDoubleClick="FileListView_MouseDoubleClick">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200"/>
-                            <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="100"/>
-                            <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" Width="100"/>
+                            <GridViewColumn Header="Name" Width="200">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📁" Margin="0,0,2,0" Foreground="Orange" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            <TextBlock Text="{Binding Name}" Foreground="Black" FontWeight="{Binding IsFolder, Converter={StaticResource FolderFontWeightConverter}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Type" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Type}"  HorizontalAlignment="Center" Foreground="Black"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="Size" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Size}" HorizontalAlignment="Center" Foreground="Black"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
