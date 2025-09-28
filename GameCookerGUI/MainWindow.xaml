@@ -10,8 +10,8 @@
 
         <!-- Build Section -->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
-            <Button Name="BuildButton" Content="Build" Width="100" Margin="5" Click="BuildButton_Click"/>
-            <Button Name="BuildConfigButton" Content="Build Configuration" Width="150" Margin="5" Click="BuildConfigButton_Click"/>
+            <Button Name="BuildButton" Content="Build" Width="80" Margin="5" Click="BuildButton_Click"/>
+            <Button Name="BuildConfigButton" Content="Settings" Width="90" Margin="5" Click="BuildConfigButton_Click"/>
         </StackPanel>
 
         <Grid>

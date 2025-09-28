@@ -19,20 +19,26 @@ namespace GameAssetsEditor
         private readonly string[] imageExtensions = { ".png", ".jpg", ".jpeg" };
         private readonly string[] audioExtensions = { ".mp3", ".wav" };
         private readonly string[] textExtensions = { ".txt", ".json" };
+        public class BuildOption
+        {
+            public string FileType { get; set; }
+            public bool Compress { get; set; }
+            public bool Encrypt { get; set; }
+        }
 
         public BuildConfigurationWindow(string folderPath = null)
         {
             InitializeComponent();
 
             // Attach events AFTER controls are created
-            CompressCheckBox.Checked += CompressCheckBox_Checked;
-            CompressCheckBox.Unchecked += CompressCheckBox_Checked;
+            //CompressCheckBox.Checked += CompressCheckBox_Checked;
+            //CompressCheckBox.Unchecked += CompressCheckBox_Checked;
 
-            EnableEncryptionCheckBox.Checked += EnableEncryptionCheckBox_Checked;
-            EnableEncryptionCheckBox.Unchecked += EnableEncryptionCheckBox_Checked;
+            //EnableEncryptionCheckBox.Checked += EnableEncryptionCheckBox_Checked;
+            //EnableEncryptionCheckBox.Unchecked += EnableEncryptionCheckBox_Checked;
 
-            CompressCheckBox.IsChecked = true;
-            EnableEncryptionCheckBox.IsChecked = true;
+            //CompressCheckBox.IsChecked = true;
+            //EnableEncryptionCheckBox.IsChecked = true;
 
             // Initialize enabled/disabled states based on IsChecked
             CompressCheckBox_Checked(null, null);
@@ -42,7 +48,17 @@ namespace GameAssetsEditor
             {
                 PreCheckFileTypes(folderPath);
             }
+
+            // In the window constructor:
+            FileOptionsListView.ItemsSource = new List<BuildOption>
+            {
+                new BuildOption { FileType = "Textures (.png, .jpg)", Compress = true, Encrypt = true },
+                new BuildOption { FileType = "Audio (.mp3, .wav)", Compress = true, Encrypt = true },
+                new BuildOption { FileType = "Text (.txt, .json)", Compress = true, Encrypt = true },
+                new BuildOption { FileType = "Shaders (.vert, .frag)", Compress = true, Encrypt = true }
+            };
         }
+       
 
         private void PreCheckFileTypes(string folderPath)
         {
@@ -50,14 +66,14 @@ namespace GameAssetsEditor
             {
                 var files = Directory.GetFiles(folderPath);
 
-                if (files.Any(f => imageExtensions.Contains(Path.GetExtension(f).ToLower())))
-                    EncryptImagesCheckBox.IsChecked = true;
+                //if (files.Any(f => imageExtensions.Contains(Path.GetExtension(f).ToLower())))
+                //    EncryptImagesCheckBox.IsChecked = true;
 
-                if (files.Any(f => audioExtensions.Contains(Path.GetExtension(f).ToLower())))
-                    EncryptAudioCheckBox.IsChecked = true;
+                //if (files.Any(f => audioExtensions.Contains(Path.GetExtension(f).ToLower())))
+                //    EncryptAudioCheckBox.IsChecked = true;
 
-                if (files.Any(f => textExtensions.Contains(Path.GetExtension(f).ToLower())))
-                    EncryptTextCheckBox.IsChecked = true;
+                //if (files.Any(f => textExtensions.Contains(Path.GetExtension(f).ToLower())))
+                //    EncryptTextCheckBox.IsChecked = true;
             }
             catch
             {
@@ -65,17 +81,17 @@ namespace GameAssetsEditor
             }
         }
 
-        
+
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            Compress = CompressCheckBox.IsChecked == true;
-            CompressImages = CompressImagesCheckBox.IsChecked == true;
-            CompressAudio = CompressAudioCheckBox.IsChecked == true;
-            CompressText = CompressTextCheckBox.IsChecked == true;
+            //Compress = CompressCheckBox.IsChecked == true;
+            //CompressImages = CompressImagesCheckBox.IsChecked == true;
+            //CompressAudio = CompressAudioCheckBox.IsChecked == true;
+            //CompressText = CompressTextCheckBox.IsChecked == true;
 
-            EncryptImages = EncryptImagesCheckBox.IsChecked == true;
-            EncryptAudio = EncryptAudioCheckBox.IsChecked == true;
-            EncryptText = EncryptTextCheckBox.IsChecked == true;
+            //EncryptImages = EncryptImagesCheckBox.IsChecked == true;
+            //EncryptAudio = EncryptAudioCheckBox.IsChecked == true;
+            //EncryptText = EncryptTextCheckBox.IsChecked == true;
 
             DialogResult = true;
             Close();
@@ -88,18 +104,18 @@ namespace GameAssetsEditor
 
         private void EnableEncryptionCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            bool enabled = EnableEncryptionCheckBox.IsChecked == true;
-            EncryptImagesCheckBox.IsEnabled = enabled;
-            EncryptAudioCheckBox.IsEnabled = enabled;
-            EncryptTextCheckBox.IsEnabled = enabled;
+            //bool enabled = EnableEncryptionCheckBox.IsChecked == true;
+            //EncryptImagesCheckBox.IsEnabled = enabled;
+            //EncryptAudioCheckBox.IsEnabled = enabled;
+            //EncryptTextCheckBox.IsEnabled = enabled;
         }
 
         private void CompressCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            bool enabled = CompressCheckBox.IsChecked == true;
-            CompressImagesCheckBox.IsEnabled = enabled;
-            CompressAudioCheckBox.IsEnabled = enabled;
-            CompressTextCheckBox.IsEnabled = enabled;
+            //bool enabled = CompressCheckBox.IsChecked == true;
+            //CompressImagesCheckBox.IsEnabled = enabled;
+            //CompressAudioCheckBox.IsEnabled = enabled;
+            //CompressTextCheckBox.IsEnabled = enabled;
         }
     }
 }
