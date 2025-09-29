@@ -63,14 +63,14 @@ namespace Game
             {
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
-                Transform.LocalScale = new vec3(-1, 1, 1);
+                Transform.WorldScale = new vec3(-1, 1, 1);
                 // _renderer.FlipX = true;
             }
             else if (Input.GetKey(KeyCode.D))
             {
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_walkSpeed, _rigid.Velocity.y);
-                Transform.LocalScale = new vec3(1, 1, 1);
+                Transform.WorldScale = new vec3(1, 1, 1);
 
                 // _renderer.FlipX = false;
             }
