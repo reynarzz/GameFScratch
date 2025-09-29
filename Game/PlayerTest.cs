@@ -111,7 +111,7 @@ namespace Game
 
             var hitA = Physics2D.Raycast(origin1, Transform.Down * length, LayerMask.NameToBit("Floor") | LayerMask.NameToBit("Platform"));
             var hitB = Physics2D.Raycast(origin2, Transform.Down * length, LayerMask.NameToBit("Floor") | LayerMask.NameToBit("Platform"));
-            
+
             var color1 = Color.White;
             var color2 = Color.White;
             if (hitA.isHit || hitB.isHit)
@@ -123,7 +123,7 @@ namespace Game
                     // Debug.Log("RayHit: " + hitA.Collider.Name);
                     color1 = Color.Red;
                     //Debug.DrawRay(origin1 + Transform.Down * length, new vec3(hitA.Normal.x, hitA.Normal.y, 0), Color.Blue);
-                    if ( !pressingKeysToMove)
+                    if (!pressingKeysToMove)
                     {
                         //_rigid.GravityScale = 0;
                         _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
@@ -149,7 +149,7 @@ namespace Game
                 }
                 _isOnGround = true;
                 _extraJumpAvailable = true;
-                if(_rigid.Velocity.y <= 0)
+                if (_rigid.Velocity.y <= 0)
                 {
                     _jumped = false;
                 }
@@ -172,14 +172,14 @@ namespace Game
             //    Debug.Log(contacts[i].Position);
             //}
             Debug.Info($"{Actor.Name} Collision enter with: " + collision.OtherCollider.Name);
-            Transform.Parent = null;
-           // Actor.Destroy(collision.Actor);
+            // Transform.Parent = null;
+            // Actor.Destroy(collision.Actor);
 
-            
-                var platform = new Actor<Platform>("Platform");
-                platform.Layer = LayerMask.NameToLayer("Platform");
 
-                platform.Transform.WorldPosition = new vec3(-10,5, 0);
+            //var platform = new Actor<Platform>("Platform");
+            //platform.Layer = LayerMask.NameToLayer("Platform");
+
+            //platform.Transform.WorldPosition = new vec3(-10, 5, 0);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)

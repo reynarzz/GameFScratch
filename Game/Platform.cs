@@ -63,7 +63,11 @@ namespace Game
 
         public override void OnTriggerEnter2D(Collider2D collider)
         {
-            collider.Actor.Transform.Parent = Transform;
+            if(collider.Actor.Layer == LayerMask.NameToLayer("Player"))
+            {
+                collider.Actor.Transform.Parent = Transform;
+                Debug.Log("Enter player to platform");
+            }
         }
 
         public override void OnTriggerExit2D(Collider2D collider)

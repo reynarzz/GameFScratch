@@ -248,6 +248,7 @@ namespace Game
             // polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
+       
             platform.Layer = LayerMask.NameToLayer("Platform");
 
             var respawner = new Actor<Respawner>("Respawner");
