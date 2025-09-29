@@ -123,6 +123,14 @@ namespace Engine.Rendering
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
+                    if (!renderer.IsDirty)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        renderer.MarkNotDirty();
+                    }
 
                     if (renderer.Mesh == null)
                     {
@@ -136,29 +144,29 @@ namespace Engine.Rendering
                         QuadVertices quad = default;
                         GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.PacketColor, worldMatrix);
 
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(4, texture))
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(4, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(MaxBatchVertexSize);
+                            currentBatch = _batchesPool.Get(MaxBatchVertexSize, material);
                         }
-                        
+
                         _quadVertexArray[0] = quad.v0;
                         _quadVertexArray[1] = quad.v1;
                         _quadVertexArray[2] = quad.v2;
                         _quadVertexArray[3] = quad.v3;
 
-                        currentBatch.PushGeometry(material, texture, 6, _quadVertexArray);
+                        currentBatch.PushGeometry(renderer, material, texture, 6, _quadVertexArray);
                     }
                     else
                     {
                         // TODO: implement proper mesh drawing, for now, since it is used just for tilemap, this works
                         var vertexCount = Math.Max(MaxBatchVertexSize, renderer.Mesh.Vertices.Count);
 
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture))
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(vertexCount, CreateIndexBuffer(vertexCount / 4));
+                            currentBatch = _batchesPool.Get(vertexCount, material, CreateIndexBuffer(vertexCount / 4));
                         }
 
-                        currentBatch.PushGeometry(material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));
+                        currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));
                     }
                 }
             }

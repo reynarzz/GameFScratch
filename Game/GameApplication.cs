@@ -70,6 +70,7 @@ namespace Game
         // Stretch:
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
+        // Implement batch disable and cleanup when all renderers go
 
         private void LoadTilemap(Camera cam)
         {
@@ -92,8 +93,10 @@ namespace Game
             var filepath = rootPathTest + "\\CustomLevel.ldtk";
             string json = File.ReadAllText(filepath);
 
+
             // Parse it
             using JsonDocument doc = JsonDocument.Parse(json);
+
 
             // Get the root element (this is the valid JsonElement)
             JsonElement element = doc.RootElement;
@@ -113,67 +116,8 @@ namespace Game
             tilemap2.Material = mat1;
             tilemap2.Sprite = tilemapSprite2;
             tilemap2.SortOrder = 4;
-            foreach (var level in project.Levels)
-            {
-                cam.BackgroundColor = new Color32(level.BackgroundColor.R, level.BackgroundColor.G, level.BackgroundColor.B, level.BackgroundColor.A);
 
-                foreach (var layer in level.LayerInstances)
-                {
-                    int totalFlipped = 0;
-                    switch (layer.Type)
-                    {
-                        case LDtk.LayerType.IntGrid:
-                            var intGridLayer = layer as IntGridLayer; //It seems that the tiles are coming from here.
-
-                            foreach (var tile in intGridLayer.AutoLayerTiles)
-                            {
-                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
-                                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
-
-                                var position = new vec3(xPos / (float)tilemapSprite.Texture.PixelPerUnit, yPos / (float)tilemapSprite.Texture.PixelPerUnit, 0);
-                                tilemap.AddTile(new Engine.Tile(tile.TileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
-                                //Debug.Log(new vec2(position.x, position.y));
-                               // totalFlipped++;
-
-                                if (totalFlipped > 2)
-                                    break;
-                            }
-
-                            break;
-                        case LDtk.LayerType.Entities:
-                            var entitiesLayer = layer as EntitieLayer;
-
-                            break;
-                        case LDtk.LayerType.Tiles:
-                            var tilesLayer = layer as TileLayer;
-                            foreach (var tile in tilesLayer.GridTilesInstances)
-                            {
-                                var tileId = tile.TileId;
-                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
-                                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
-
-                                var position = new vec3(xPos / tilemapSprite.Texture.PixelPerUnit, yPos / tilemapSprite.Texture.PixelPerUnit, 0);
-                                tilemap2.AddTile(new Engine.Tile(tileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
-                                //Debug.Log(new vec2(position.x, position.y));
-                            }
-                            break;
-                        case LDtk.LayerType.AutoLayer:
-                            var autoLayer = layer as AutoLayer;
-                            foreach (var tile in autoLayer.AutoLayerTiles)
-                            {
-                                var tileId = tile.TileId;
-                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
-                                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
-
-                                var position = new vec3(xPos / tilemapSprite.Texture.PixelPerUnit, yPos / tilemapSprite.Texture.PixelPerUnit, 0);
-                                tilemap2.AddTile(new Engine.Tile(tileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
-                                //Debug.Log(new vec2(position.x, position.y));
-                            }
-                            break;
-                    }
-                }
-
-            }
+            tilemap2.ParseLDtk(project);
         }
 
         public override void Initialize()
@@ -203,8 +147,8 @@ namespace Game
             var mainShader = new Shader(SpriteVertexShader, SpriteFragmentShader);
 
             var mat1 = new Material(mainShader);
-            var mat2 = new Material(mainShader);
-            var mat3 = new Material(mainShader);
+            //var mat2 = new Material(mainShader);
+            //var mat3 = new Material(mainShader);
 
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);

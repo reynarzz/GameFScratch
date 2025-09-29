@@ -18,13 +18,12 @@ namespace Engine.Rendering
             _batches = new List<Batch2D>();
         }
 
-        internal Batch2D Get(int maxVertexSize, GfxResource indexBuffer = null)
+        internal Batch2D Get(int maxVertexSize, Material mat, GfxResource indexBuffer = null)
         {
             foreach (var batch in _batches)
             {
-                if (batch.IsFlushed && batch.MaxVertexSize >= maxVertexSize)
+                if (batch.IsActive && batch.MaxVertexSize >= maxVertexSize && batch.Material == mat)
                 {
-                    batch.Initialize();
                     return batch;
                 }
             }
@@ -49,7 +48,7 @@ namespace Engine.Rendering
 
         internal IEnumerable<Batch2D> GetActiveBatches()
         {
-            return _batches.Where(x => !x.IsFlushed);
+            return _batches.Where(x => x.IsActive);
         }
     }
 }

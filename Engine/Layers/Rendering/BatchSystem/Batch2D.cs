@@ -22,17 +22,19 @@ namespace Engine.Rendering
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
         internal bool IsFlushed { get; private set; } = false;
+        internal bool IsActive { get; set; }
         public mat4 WorldMatrix = mat4.identity();
 
         private GeometryDescriptor _geoDescriptor;
         private Vertex[] _verticesData;
-
+        public bool _isDirty;
+        private Dictionary<Renderer, int> _renderers;
         internal Batch2D(int maxVertexSize, GfxResource sharedIndexBuffer)
         {
             MaxVertexSize = maxVertexSize;
             _verticesData = new Vertex[MaxVertexSize];
             Textures = new Texture[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
-
+            _renderers = new Dictionary<Renderer, int>();
             if (TextureSlotArray == null)
             {
                 TextureSlotArray = new int[Textures.Length];
@@ -68,10 +70,15 @@ namespace Engine.Rendering
 
         internal void Initialize()
         {
+            if (IsActive)
+                return;
+
             IsFlushed = false;
             VertexCount = 0;
             IndexCount = 0;
             Material = null;
+            _isDirty = false;
+            _renderers.Clear();
 
             for (int i = 0; i < Textures.Length; i++)
             {
@@ -85,8 +92,10 @@ namespace Engine.Rendering
             }
         }
 
-        internal void PushGeometry(Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
+        internal void PushGeometry(Renderer rendererId, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
         {
+            _isDirty = true;
+            IsActive = true;
             if (!Material)
             {
                 Material = material;
@@ -109,15 +118,32 @@ namespace Engine.Rendering
                 }
             }
 
+            var startIndex = VertexCount;
+            var existId = _renderers.ContainsKey(rendererId);
+
+            if (existId)
+            {
+                startIndex = rendererId.RendererID;
+            }
+            else
+            {
+                _renderers.Add(rendererId, VertexCount);
+            }
+
             // Copies vertices data
             for (int i = 0; i < vertices.Length; i++)
             {
                 vertices[i].TextureIndex = textureIndex;
-                _verticesData[VertexCount + i] = vertices[i];
+                _verticesData[startIndex + i] = vertices[i];
             }
 
-            VertexCount += vertices.Length;
-            IndexCount += indicesCount;
+            if (!existId)
+            {
+                VertexCount += vertices.Length;
+                IndexCount += indicesCount;
+            }
+
+            rendererId.RendererID = startIndex;
         }
 
         /// <summary>
@@ -130,21 +156,28 @@ namespace Engine.Rendering
 
         internal void Flush()
         {
-            var vertDataDescriptor = _geoDescriptor.VertexDesc.BufferDesc;
-            vertDataDescriptor.Offset = 0;
-            vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
+            if (_isDirty)
+            {
+                var vertDataDescriptor = _geoDescriptor.VertexDesc.BufferDesc;
+                vertDataDescriptor.Offset = 0;
+                vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
 
-            GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);
+                GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);
+            }
 
+            _isDirty = false;
             IsFlushed = true;
         }
 
-        internal bool CanPushGeometry(int vertexCount, Texture texture)
+        internal bool CanPushGeometry(int vertexCount, Texture texture, Material mat)
         {
             if (vertexCount + VertexCount > MaxVertexSize)
             {
                 return false;
             }
+
+            if (mat != Material)
+                return false;
 
             for (int i = 0; i < Textures.Length; i++)
             {
