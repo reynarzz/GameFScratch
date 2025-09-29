@@ -144,9 +144,10 @@ namespace Engine.Rendering
                         QuadVertices quad = default;
                         GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.PacketColor, worldMatrix);
 
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(4, texture, material))
+                        var vertexToAdd = 4;
+                        if (currentBatch == null || !currentBatch.CanPushGeometry(vertexToAdd, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(MaxBatchVertexSize, material);
+                            currentBatch = _batchesPool.Get(renderer, vertexToAdd, MaxBatchVertexSize, material);
                         }
 
                         _quadVertexArray[0] = quad.v0;
@@ -163,7 +164,7 @@ namespace Engine.Rendering
 
                         if (currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(vertexCount, material, CreateIndexBuffer(vertexCount / 4));
+                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, CreateIndexBuffer(vertexCount / 4));
                         }
 
                         currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));

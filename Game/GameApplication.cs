@@ -90,7 +90,7 @@ namespace Game
             tilemapSprite2.Texture = tilemapTexture2;
             tilemapSprite2.Texture.PixelPerUnit = 8;
 
-            var filepath = rootPathTest + "\\CustomLevel.ldtk";
+            var filepath = rootPathTest + "\\LevelTestLTilemap1.ldtk";
             string json = File.ReadAllText(filepath);
 
 
@@ -101,23 +101,24 @@ namespace Game
             // Get the root element (this is the valid JsonElement)
             JsonElement element = doc.RootElement;
 
+            var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
+           
 
             var project = new LDtkProject(filepath);
+            cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
 
             var tilemapActor = new Actor<TilemapRenderer>();
-            var tilemapActor2 = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
-            var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
-
-            var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
+            tilemap.ParseLDtk(project);
 
-            tilemap2.Material = mat1;
-            tilemap2.Sprite = tilemapSprite2;
-            tilemap2.SortOrder = 4;
+            //var tilemapActor2 = new Actor<TilemapRenderer>();
+            //var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
+            //tilemap2.Material = mat1;
+            //tilemap2.Sprite = tilemapSprite2;
+            //tilemap2.SortOrder = 4;
 
-            tilemap2.ParseLDtk(project);
         }
 
         public override void Initialize()
@@ -248,7 +249,7 @@ namespace Game
             // polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
-            // var respawner = new Actor<Respawner>("Respawner");
+            var respawner = new Actor<Respawner>("Respawner");
 
             platform.Layer = LayerMask.NameToLayer("Platform");
             rigid4.BodyType = Body2DType.Kinematic;

@@ -194,5 +194,10 @@ namespace Engine.Rendering
         {
             Geometry.Dispose();
         }
+
+        internal bool Contains(Renderer renderer)
+        {
+            return _renderers.ContainsKey(renderer);
+        }
     }
 }

@@ -18,11 +18,15 @@ namespace Engine.Rendering
             _batches = new List<Batch2D>();
         }
 
-        internal Batch2D Get(int maxVertexSize, Material mat, GfxResource indexBuffer = null)
+        internal Batch2D Get(Renderer renderer, int vertexToAdd, int maxVertexSize, Material mat, GfxResource indexBuffer = null)
         {
             foreach (var batch in _batches)
             {
-                if (batch.IsActive && batch.MaxVertexSize >= maxVertexSize && batch.Material == mat)
+                var isTotalSizeEnough = batch.MaxVertexSize >= maxVertexSize;
+                var hasSpaceLeftForAnother = batch.VertexCount > vertexToAdd && !batch.Contains(renderer);
+                var alreadyHasRenderer = batch.Contains(renderer);
+
+                if (batch.IsActive && isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && batch.Material == mat)
                 {
                     return batch;
                 }
