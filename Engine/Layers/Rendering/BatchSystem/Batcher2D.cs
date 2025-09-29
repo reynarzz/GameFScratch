@@ -90,7 +90,7 @@ namespace Engine.Rendering
             return GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
-        internal IEnumerable<Batch2D> CreateBatches(List<Renderer2D> renderers)
+        internal IReadOnlyList<Batch2D> CreateBatches(List<Renderer2D> renderers)
         {
             // TODO: Do frustum culling
 
@@ -123,6 +123,7 @@ namespace Engine.Rendering
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
+                    // Note this prevent interpolation
                     if (!renderer.IsDirty)
                     {
                         continue;

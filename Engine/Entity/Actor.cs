@@ -373,8 +373,9 @@ namespace Engine
             {
                 void OnDestroyEventNotify(Actor actor)
                 {
-                    // Notify own components
-                    for (int i = 0; i < actor._components.Count; i++)
+                    /* Notify own components, inverse loop so client components can have the transform component available
+                       (also transform's onChange event will not be cleared)*/
+                    for (int i = actor._components.Count - 1; i >= 0; i--)
                     {
 #if DEBUG
                         try

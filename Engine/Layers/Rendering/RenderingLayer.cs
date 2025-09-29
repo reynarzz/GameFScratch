@@ -16,6 +16,7 @@ namespace Engine.Layers
     {
         private Batcher2D _batcher2d;
         private Camera _mainCamera = null;
+        private const int MAX_QUADS_PER_BATCH = 5000;
 
         public RenderingLayer()
         {
@@ -23,7 +24,7 @@ namespace Engine.Layers
 
         public override void Initialize()
         {
-            _batcher2d = new Batcher2D(1000);
+            _batcher2d = new Batcher2D(MAX_QUADS_PER_BATCH);
         }
 
         public override void Close()
@@ -54,6 +55,9 @@ namespace Engine.Layers
 
             foreach (var batch in batches)
             {
+                if (!batch.IsActive)
+                    break;
+
                 GfxDeviceManager.Current.SetPipelineFeatures(new PipelineFeatures() { Blending = new Blending() { Enabled = true } });
 
                 batch.Flush();

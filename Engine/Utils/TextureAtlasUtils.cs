@@ -21,8 +21,6 @@ namespace Engine.Utils
             float ptX = (1.0f / (float)(baseTextureWidth * width)) / 2.0f;
             float ptY = (1.0f / (float)(baseTextureHeight * width)) / 2.0f;
 
-            //float ptX = 0.5f / baseTextureWidth;
-            //float ptY = 0.5f / baseTextureHeight;
             var texCoords = new QuadUV()
             {
                 BottomLeftUV = new vec2(x + ptX, y + ptY),                    // Bottom left

@@ -57,7 +57,7 @@ namespace Game
             fragColor = texture(uTextures[fragTexIndex], fragUV) * vColor;
         }}";
 
-        // TODO:
+        // -TODO:
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
         // Implement a simple file system (compression+encryption) (texture, audio, text)
@@ -66,21 +66,22 @@ namespace Game
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Investigate why colliders are not freed from memory automatically.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
+        // Implement batch disable and cleanup when all renderers go
+        // Fix rendering: If the actor/parent/component is disabled, the renderer will still be rendered.
 
-        // Stretch:
+        // -Stretch:
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
-        // Implement batch disable and cleanup when all renderers go
 
         private void LoadTilemap(Camera cam)
         {
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\";
 
             var tilemapTexture = Assets.GetTexture(rootPathTest + "/Cavernas_by_Adam_Saltsman.png");
-            var tilemapTexture2 = Assets.GetTexture(rootPathTest + "/Cavernas_by_Adam_Saltsman.png");
+            var tilemapTexture2 = Assets.GetTexture(rootPathTest + "/Inca_front_by_Kronbits-extended.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 8, 8, tilemapTexture.Width, tilemapTexture.Height);
-            TextureAtlasUtils.SliceTiles(tilemapTexture2.Atlas, 8, 8, tilemapTexture2.Width, tilemapTexture2.Height);
+            TextureAtlasUtils.SliceTiles(tilemapTexture2.Atlas, 16, 16, tilemapTexture2.Width, tilemapTexture2.Height);
 
             var tilemapSprite = new Sprite();
             tilemapSprite.Texture = tilemapTexture;
@@ -88,17 +89,12 @@ namespace Game
 
             var tilemapSprite2 = new Sprite();
             tilemapSprite2.Texture = tilemapTexture2;
-            tilemapSprite2.Texture.PixelPerUnit = 8;
+            tilemapSprite2.Texture.PixelPerUnit = 16;
 
             var filepath = rootPathTest + "\\LevelTestLTilemap1.ldtk";
             string json = File.ReadAllText(filepath);
 
-
-            // Parse it
             using JsonDocument doc = JsonDocument.Parse(json);
-
-
-            // Get the root element (this is the valid JsonElement)
             JsonElement element = doc.RootElement;
 
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
@@ -111,14 +107,16 @@ namespace Game
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
-            tilemap.ParseLDtk(project);
+            tilemap.ParseLDtk(project, new LDtkParseOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
 
-            //var tilemapActor2 = new Actor<TilemapRenderer>();
-            //var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
-            //tilemap2.Material = mat1;
-            //tilemap2.Sprite = tilemapSprite2;
-            //tilemap2.SortOrder = 4;
-
+            var project2 = new LDtkProject(rootPathTest + "\\LevelTestLTilemap4.ldtk");
+            var tilemapActor2 = new Actor<TilemapRenderer>();
+            var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
+            tilemapActor2.Transform.WorldPosition = new vec3(-30, 0, 0);
+            tilemap2.Material = mat1;
+            tilemap2.Sprite = tilemapSprite2;
+            tilemap2.SortOrder = -1;
+            tilemap2.ParseLDtk(project2, new LDtkParseOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = false });
         }
 
         public override void Initialize()

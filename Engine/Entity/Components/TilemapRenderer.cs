@@ -69,25 +69,39 @@ namespace Engine
             //Mesh.Indices.Add(index + 0);
         }
 
-        public void ParseLDtk(LDtk.LDtkProject project)
+        public void ParseLDtk(LDtk.LDtkProject project, LDtkParseOptions options)
         {
             foreach (var level in project.Levels)
             {
-                foreach (var layer in level.LayerInstances)
+                // Layers should be painted back to front
+                for (int i = level.LayerInstances.Count - 1; i >= 0; --i) 
                 {
+                    var layer = level.LayerInstances[i];
+                    if (!layer.IsVisible)
+                        continue;
+
                     switch (layer.Type)
                     {
                         case LDtk.LayerType.IntGrid:
-                            var intGridLayer = layer as LDtk.IntGridLayer;
-                            PaintTiles(level, layer, intGridLayer.AutoLayerTiles);
+                            if (options.RenderIntGridLayer)
+                            {
+                                var intGridLayer = layer as LDtk.IntGridLayer;
+                                PaintTiles(level, layer, intGridLayer.AutoLayerTiles);
+                            }
                             break;
                         case LDtk.LayerType.Tiles:
-                            var tilesLayer = layer as LDtk.TileLayer;
-                            PaintTiles(level, layer, tilesLayer.GridTilesInstances);
+                            if (options.RenderTilesLayer)
+                            {
+                                var tilesLayer = layer as LDtk.TileLayer;
+                                PaintTiles(level, layer, tilesLayer.GridTilesInstances);
+                            }
                             break;
                         case LDtk.LayerType.AutoLayer:
-                            var autoLayer = layer as LDtk.AutoLayer;
-                            PaintTiles(level, layer, autoLayer.AutoLayerTiles);
+                            if (options.RenderAutoLayer)
+                            {
+                                var autoLayer = layer as LDtk.AutoLayer;
+                                PaintTiles(level, layer, autoLayer.AutoLayerTiles);
+                            }
                             break;
                     }
                 }
@@ -98,7 +112,7 @@ namespace Engine
         {
             try
             {
-                ParseLDtk(LDtk.LDtkProject.LoadProject(JsonSerializer.Deserialize<JsonElement>(json), string.Empty));
+                ParseLDtk(LDtk.LDtkProject.LoadProject(JsonSerializer.Deserialize<JsonElement>(json), string.Empty), options);
             }
             catch (Exception e)
             {
@@ -126,8 +140,8 @@ namespace Engine
 
     public struct LDtkParseOptions
     {
-        public bool RenderIntGrid { get; set; }
-        public bool RenderTiles { get; set; }
+        public bool RenderIntGridLayer { get; set; }
+        public bool RenderTilesLayer { get; set; }
         public bool RenderAutoLayer { get; set; }
     }
 }

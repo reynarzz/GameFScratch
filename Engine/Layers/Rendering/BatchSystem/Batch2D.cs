@@ -21,9 +21,11 @@ namespace Engine.Rendering
         internal static int[] TextureSlotArray { get; private set; }
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
-        internal bool IsFlushed { get; private set; } = false;
         internal bool IsActive { get; set; }
         public mat4 WorldMatrix = mat4.identity();
+
+        // TODO: On batch empty just
+        public event Action<Batch2D> OnBatchEmpty;
 
         private GeometryDescriptor _geoDescriptor;
         private Vertex[] _verticesData;
@@ -73,7 +75,6 @@ namespace Engine.Rendering
             if (IsActive)
                 return;
 
-            IsFlushed = false;
             VertexCount = 0;
             IndexCount = 0;
             Material = null;
@@ -92,7 +93,7 @@ namespace Engine.Rendering
             }
         }
 
-        internal void PushGeometry(Renderer rendererId, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
+        internal void PushGeometry(Renderer renderer, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
         {
             _isDirty = true;
             IsActive = true;
@@ -118,16 +119,21 @@ namespace Engine.Rendering
                 }
             }
 
-            var startIndex = VertexCount;
-            var existId = _renderers.ContainsKey(rendererId);
+            renderer.OnDestroyRenderer -= OnRendererDestroy;
+            renderer.OnDestroyRenderer += OnRendererDestroy;
+
+            var startIndex = 0;
+            var existId = _renderers.ContainsKey(renderer);
 
             if (existId)
             {
-                startIndex = rendererId.RendererID;
+                startIndex = renderer.RendererID;
             }
             else
             {
-                _renderers.Add(rendererId, VertexCount);
+                startIndex = VertexCount;
+                renderer.RendererID = startIndex;
+                _renderers.Add(renderer, startIndex);
             }
 
             // Copies vertices data
@@ -142,8 +148,6 @@ namespace Engine.Rendering
                 VertexCount += vertices.Length;
                 IndexCount += indicesCount;
             }
-
-            rendererId.RendererID = startIndex;
         }
 
         /// <summary>
@@ -152,6 +156,40 @@ namespace Engine.Rendering
         internal void PushGeometryImmediate(Material material, Texture texture, int indicesCount, params Vertex[] vertices)
         {
             // TODO: 
+        }
+
+        private void OnRendererDestroy(Renderer renderer)
+        {
+            renderer.OnDestroyRenderer -= OnRendererDestroy;
+
+            var rendererVerticesCount = 0;
+            if (renderer.Mesh == null)
+            {
+                // This is rendering quads, and no a custom mesh
+                rendererVerticesCount = 4;
+            }
+            else
+            {
+                rendererVerticesCount = renderer.Mesh.Vertices.Count;
+            }
+             
+            _renderers.Remove(renderer);
+
+            for (int i = 0; i < rendererVerticesCount; i++)
+            {
+                _verticesData[renderer.RendererID + i] = default;
+            }
+
+            // TODO: fix segmentation issue in _verticesData. When removing a renderer, all the other vertices should move to the left?,
+            // _verticesData
+            //-------
+
+            // VertexCount -= rendererVerticesCount; // NOTE: Once segmentation issue is fixed, please uncomment this,
+
+            if (_renderers.Count == 0)
+            {
+                OnBatchEmpty?.Invoke(this);
+            }
         }
 
         internal void Flush()
@@ -172,7 +210,6 @@ namespace Engine.Rendering
             }
 
             _isDirty = false;
-            IsFlushed = true;
         }
 
         internal bool CanPushGeometry(int vertexCount, Texture texture, Material mat)

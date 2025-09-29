@@ -16,7 +16,7 @@ namespace Engine
         public Mesh Mesh { get; set; }
         protected internal bool IsDirty { get; protected set; } = true;
         internal int RendererID = 0;
-
+        internal event Action<Renderer> OnDestroyRenderer;
         internal override void OnInitialize()
         {
             Transform.OnChanged += Transform_OnChanged;
@@ -38,6 +38,8 @@ namespace Engine
             base.OnDestroy();
 
             Transform.OnChanged -= Transform_OnChanged;
+
+            OnDestroyRenderer?.Invoke(this);
         }
     }
 }

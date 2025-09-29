@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,8 +27,9 @@ namespace Engine.Rendering
                 var hasSpaceLeftForAnother = batch.VertexCount > vertexToAdd && !batch.Contains(renderer);
                 var alreadyHasRenderer = batch.Contains(renderer);
 
-                if (batch.IsActive && isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && batch.Material == mat)
+                if (isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && batch.Material == mat)
                 {
+                    batch.Initialize();
                     return batch;
                 }
             }
@@ -35,24 +37,55 @@ namespace Engine.Rendering
             // TODO: find min that can fit this maxVertexSize, and has this indexBuffer, if no available, create one.
             //GfxDeviceManager.Current.CreateIndexBuffer();
 
+            
             Batch2D newBatch = new Batch2D(maxVertexSize, indexBuffer == null ? _sharedIndexBuffer : indexBuffer);
-
+            newBatch.OnBatchEmpty += OnBatchEmpty;
             // Initialize to clear any old states.
             newBatch.Initialize();
             Debug.Info("Create new batch");
+
             _batches.Add(newBatch);
 
             return newBatch;
         }
 
-        internal void ClearPool()
+        private void OnBatchEmpty(Batch2D batch)
         {
-            // Delete all elements
+            batch.IsActive = false;
+
+            var index = _batches.IndexOf(batch);
+            _batches.RemoveAt(index);
+            bool inserted = false;
+            for (int i = 0; i < _batches.Count; i++)
+            {
+                if (!_batches[i].IsActive)
+                {
+                    // Put this to the end of the the active batches
+                    _batches.Insert(i, batch);
+                    inserted = true;
+                    break;
+                }
+            }
+
+            if (!inserted)
+            {
+                _batches.Add(batch);
+            }
+
+            Debug.Log("pooled batch");
         }
 
-        internal IEnumerable<Batch2D> GetActiveBatches()
+        internal void ClearPool()
         {
-            return _batches.Where(x => x.IsActive);
+            // Delete all batches that are not being used for too long, and are also big.
+        }
+
+
+
+        internal IReadOnlyList<Batch2D> GetActiveBatches()
+        {
+            // TODO: Make sure that all alive batches are consecutive
+            return _batches;//.Where(x => x.IsActive);
         }
     }
 }

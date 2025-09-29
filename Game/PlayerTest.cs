@@ -171,8 +171,8 @@ namespace Game
             //{
             //    Debug.Log(contacts[i].Position);
             //}
-            //Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
-            // Actor.Destroy(collision.Actor);
+            Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
+            Actor.Destroy(collision.Actor);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)
@@ -187,6 +187,7 @@ namespace Game
         public override void OnTriggerEnter2D(Collider2D collider)
         {
             Debug.Log("On trigger enter: " + collider.Name);
+            //Debug.Log("Destroy");
             //Actor.Destroy(collider.Actor);
         }
     }
