@@ -209,7 +209,7 @@ namespace Engine
                 }
 
                 _linesGeoDescriptor.VertexDesc.BufferDesc.Offset = 0;
-                _linesGeoDescriptor.VertexDesc.BufferDesc.Count = _totalLinesVerticesToDraw;
+                _linesGeoDescriptor.VertexDesc.BufferDesc.Count = sizeof(DebugVertex) * _totalLinesVerticesToDraw;
             }
 
             GfxDeviceManager.Current.UpdateGeometry(_linesGeometry, _linesGeoDescriptor);

@@ -160,6 +160,12 @@ namespace Engine.Rendering
             {
                 var vertDataDescriptor = _geoDescriptor.VertexDesc.BufferDesc;
                 vertDataDescriptor.Offset = 0;
+
+                unsafe
+                {
+                    vertDataDescriptor.Count = sizeof(Vertex) * VertexCount;
+                }
+
                 vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
 
                 GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);

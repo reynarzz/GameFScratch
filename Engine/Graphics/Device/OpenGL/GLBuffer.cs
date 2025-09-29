@@ -63,7 +63,7 @@ namespace Engine.Graphics.OpenGL
             {
                 fixed (byte* data = desc.Buffer)
                 {
-                    glBufferSubData(Target, desc.Offset, desc.Buffer.Length, data);
+                    glBufferSubData(Target, desc.Offset, desc.Count, data);
                 }
             }
             Unbind();
