@@ -95,8 +95,8 @@ namespace Engine
             if (_isDirty)
                 return;
 
-            OnChanged?.Invoke(this);
             _isDirty = true;
+            OnChanged?.Invoke(this);
             foreach (var child in _children)
             {
                 child.MarkDirty();

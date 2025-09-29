@@ -171,8 +171,15 @@ namespace Game
             //{
             //    Debug.Log(contacts[i].Position);
             //}
-            Debug.Info("Player Collision enter: " + collision.OtherCollider.Name);
-            Actor.Destroy(collision.Actor);
+            Debug.Info($"{Actor.Name} Collision enter with: " + collision.OtherCollider.Name);
+            Transform.Parent = null;
+           // Actor.Destroy(collision.Actor);
+
+            
+                var platform = new Actor<Platform>("Platform");
+                platform.Layer = LayerMask.NameToLayer("Platform");
+
+                platform.Transform.WorldPosition = new vec3(-10,5, 0);
         }
 
         public override void OnCollisionExit2D(Collision2D collision)

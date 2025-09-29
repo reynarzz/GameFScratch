@@ -130,7 +130,7 @@ namespace Engine.Rendering
                     }
                     else
                     {
-                        renderer.MarkNotDirty();
+                        renderer.MarkNotDirty(); // Example: Remove this to fix interpolation
                     }
 
                     if (renderer.Mesh == null)
@@ -146,7 +146,7 @@ namespace Engine.Rendering
                         GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.PacketColor, worldMatrix);
 
                         var vertexToAdd = 4;
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(vertexToAdd, texture, material))
+                        if (CanPushGeometry(currentBatch, vertexToAdd, texture, material))
                         {
                             currentBatch = _batchesPool.Get(renderer, vertexToAdd, MaxBatchVertexSize, material);
                         }
@@ -163,7 +163,7 @@ namespace Engine.Rendering
                         // TODO: implement proper mesh drawing, for now, since it is used just for tilemap, this works
                         var vertexCount = Math.Max(MaxBatchVertexSize, renderer.Mesh.Vertices.Count);
 
-                        if (currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture, material))
+                        if (CanPushGeometry(currentBatch, vertexCount, texture, material))
                         {
                             currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, CreateIndexBuffer(vertexCount / 4));
                         }
@@ -174,6 +174,11 @@ namespace Engine.Rendering
             }
 
             return _batchesPool.GetActiveBatches();
+        }
+
+        private bool CanPushGeometry(Batch2D currentBatch, int vertexCount, Texture texture, Material material)
+        {
+            return currentBatch == null || !currentBatch.CanPushGeometry(vertexCount, texture, material);
         }
     }
 }

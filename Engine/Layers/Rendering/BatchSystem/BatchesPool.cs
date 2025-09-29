@@ -37,7 +37,7 @@ namespace Engine.Rendering
             // TODO: find min that can fit this maxVertexSize, and has this indexBuffer, if no available, create one.
             //GfxDeviceManager.Current.CreateIndexBuffer();
 
-            
+
             Batch2D newBatch = new Batch2D(maxVertexSize, indexBuffer == null ? _sharedIndexBuffer : indexBuffer);
             newBatch.OnBatchEmpty += OnBatchEmpty;
             // Initialize to clear any old states.
@@ -51,24 +51,9 @@ namespace Engine.Rendering
 
         private void OnBatchEmpty(Batch2D batch)
         {
-            var index = _batches.IndexOf(batch);
-            _batches.RemoveAt(index);
-            bool inserted = false;
-            for (int i = 0; i < _batches.Count; i++)
-            {
-                if (!_batches[i].IsActive)
-                {
-                    // Put this to the end of the the active batches
-                    _batches.Insert(i, batch);
-                    inserted = true;
-                    break;
-                }
-            }
-
-            if (!inserted)
-            {
-                _batches.Add(batch);
-            }
+            // Moves empty batch to the end.
+            _batches.Remove(batch);
+            _batches.Add(batch);
 
             Debug.Log("pooled batch");
         }
@@ -77,8 +62,6 @@ namespace Engine.Rendering
         {
             // Delete all batches that are not being used for too long, and are also big.
         }
-
-
 
         internal IReadOnlyList<Batch2D> GetActiveBatches()
         {

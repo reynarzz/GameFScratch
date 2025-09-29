@@ -66,7 +66,6 @@ namespace Game
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Investigate why colliders are not freed from memory automatically.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
-        // Implement batch disable and cleanup when all renderers go
         // Fix rendering: If the actor/parent/component is disabled, the renderer will still be rendered.
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
 
@@ -103,6 +102,7 @@ namespace Game
 
             var project = new LDtkProject(filepath);
             cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
+            cam.BackgroundColor = new Color32(23, 28, 57, project.BackgroundColor.A);
 
             var tilemapActor = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
@@ -248,9 +248,10 @@ namespace Game
             // polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
+            platform.Layer = LayerMask.NameToLayer("Platform");
+
             var respawner = new Actor<Respawner>("Respawner");
 
-            platform.Layer = LayerMask.NameToLayer("Platform");
             rigid4.BodyType = Body2DType.Kinematic;
 
             boxCollider.Size = new GlmNet.vec2(15, 1);
