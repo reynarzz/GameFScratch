@@ -124,13 +124,13 @@ namespace Engine.Rendering
                     var material = renderer.Material ?? _pinkMaterial;
 
                     // Note: this prevent interpolation
-                    if (!renderer.IsDirty)
+                    if (!renderer.IsDirty && !renderer.Transform.NeedsInterpolation)
                     {
                         continue;
                     }
                     else
                     {
-                        renderer.MarkNotDirty(); // Example: Remove this to fix interpolation
+                        renderer.MarkNotDirty(); 
                     }
 
                     if (renderer.Mesh == null)

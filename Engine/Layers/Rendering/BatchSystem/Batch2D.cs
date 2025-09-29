@@ -162,12 +162,13 @@ namespace Engine.Rendering
         {
             renderer.OnDestroyRenderer -= OnRendererDestroy;
 
+            _isDirty = true;
             _renderers.Remove(renderer);
-            
+
             if (_renderers.Count == 0)
             {
-                OnBatchEmpty?.Invoke(this);
                 IsActive = false;
+                OnBatchEmpty?.Invoke(this);
                 return;
             }
 
@@ -188,9 +189,24 @@ namespace Engine.Rendering
 
             if (renderer.RendererID + rendererVerticesCount < _verticesData.Length)
             {
+                int removedStart = renderer.RendererID;
+                int removedCount = rendererVerticesCount;
+
+                foreach (var kv in _renderers.ToList())
+                {
+                    var otherRenderer = kv.Key;
+                    int otherStart = kv.Value;
+
+                    if (otherStart > removedStart)
+                    {
+                        // Shift renderer ID down by the number of removed vertices
+                        _renderers[otherRenderer] = otherStart - removedCount;
+                        otherRenderer.RendererID -= removedCount;
+                    }
+                }
+
                 int startIndex = renderer.RendererID;
                 int countToRemove = rendererVerticesCount;
-
                 int remaining = VertexCount - (startIndex + countToRemove);
 
                 // Shift the trailing vertices down

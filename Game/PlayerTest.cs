@@ -173,7 +173,7 @@ namespace Game
             //}
             Debug.Info($"{Actor.Name} Collision enter with: " + collision.OtherCollider.Name);
             // Transform.Parent = null;
-            // Actor.Destroy(collision.Actor);
+             Actor.Destroy(collision.Actor);
 
 
             //var platform = new Actor<Platform>("Platform");
