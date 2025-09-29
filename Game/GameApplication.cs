@@ -76,14 +76,21 @@ namespace Game
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\";
 
             var tilemapTexture = Assets.GetTexture(rootPathTest + "/Cavernas_by_Adam_Saltsman.png");
+            var tilemapTexture2 = Assets.GetTexture(rootPathTest + "/Cavernas_by_Adam_Saltsman.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 8, 8, tilemapTexture.Width, tilemapTexture.Height);
+            TextureAtlasUtils.SliceTiles(tilemapTexture2.Atlas, 8, 8, tilemapTexture2.Width, tilemapTexture2.Height);
 
             var tilemapSprite = new Sprite();
             tilemapSprite.Texture = tilemapTexture;
             tilemapSprite.Texture.PixelPerUnit = 8;
 
-            string json = File.ReadAllText(rootPathTest + "\\LevelTestLTilemap.ldtk");
+            var tilemapSprite2 = new Sprite();
+            tilemapSprite2.Texture = tilemapTexture2;
+            tilemapSprite2.Texture.PixelPerUnit = 8;
+
+            var filepath = rootPathTest + "\\CustomLevel.ldtk";
+            string json = File.ReadAllText(filepath);
 
             // Parse it
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -92,15 +99,20 @@ namespace Game
             JsonElement element = doc.RootElement;
 
 
-            var project = LDtk.LDtkProject.LoadProject(element, rootPathTest + "\\LevelTestLTilemap.ldtk");
+            var project = new LDtkProject(filepath);
 
             var tilemapActor = new Actor<TilemapRenderer>();
+            var tilemapActor2 = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
+            var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
 
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
 
+            tilemap2.Material = mat1;
+            tilemap2.Sprite = tilemapSprite2;
+            tilemap2.SortOrder = 4;
             foreach (var level in project.Levels)
             {
                 cam.BackgroundColor = new Color32(level.BackgroundColor.R, level.BackgroundColor.G, level.BackgroundColor.B, level.BackgroundColor.A);
@@ -115,24 +127,16 @@ namespace Game
 
                             foreach (var tile in intGridLayer.AutoLayerTiles)
                             {
-                                var tileId = tile.TileId;
-                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x) - 140;
-                                var yPos = (level.WorldCoordinates.y + -tile.Coordinates.Y + layer.Offset.y);
-                                
-                                var position = new vec3(xPos / tilemapSprite.Texture.PixelPerUnit, yPos / tilemapSprite.Texture.PixelPerUnit, 0);
-                                if (tile.IsFlippedOnX)
-                                {
-                                    Debug.Log("flipped on X");
-                                    totalFlipped++;
-                                }
-                                else if (tile.IsFlippedOnY)
-                                {
-                                    Debug.Log("flipped on Y");
-                                    totalFlipped++;
+                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
+                                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
 
-                                }
-                                tilemap.AddTile(new Engine.Tile(tileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
+                                var position = new vec3(xPos / (float)tilemapSprite.Texture.PixelPerUnit, yPos / (float)tilemapSprite.Texture.PixelPerUnit, 0);
+                                tilemap.AddTile(new Engine.Tile(tile.TileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
                                 //Debug.Log(new vec2(position.x, position.y));
+                               // totalFlipped++;
+
+                                if (totalFlipped > 2)
+                                    break;
                             }
 
                             break;
@@ -142,18 +146,33 @@ namespace Game
                             break;
                         case LDtk.LayerType.Tiles:
                             var tilesLayer = layer as TileLayer;
+                            foreach (var tile in tilesLayer.GridTilesInstances)
+                            {
+                                var tileId = tile.TileId;
+                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
+                                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
 
+                                var position = new vec3(xPos / tilemapSprite.Texture.PixelPerUnit, yPos / tilemapSprite.Texture.PixelPerUnit, 0);
+                                tilemap2.AddTile(new Engine.Tile(tileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
+                                //Debug.Log(new vec2(position.x, position.y));
+                            }
                             break;
                         case LDtk.LayerType.AutoLayer:
                             var autoLayer = layer as AutoLayer;
+                            foreach (var tile in autoLayer.AutoLayerTiles)
+                            {
+                                var tileId = tile.TileId;
+                                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
+                                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
 
+                                var position = new vec3(xPos / tilemapSprite.Texture.PixelPerUnit, yPos / tilemapSprite.Texture.PixelPerUnit, 0);
+                                tilemap2.AddTile(new Engine.Tile(tileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
+                                //Debug.Log(new vec2(position.x, position.y));
+                            }
                             break;
                     }
-                    Debug.Warn("Total flipped: " + totalFlipped);
-
                 }
 
-                break;
             }
         }
 
@@ -203,7 +222,7 @@ namespace Game
             actor.GetComponent<SpriteRenderer>().SortOrder = 2;
 
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
-            actor.Transform.WorldPosition = new GlmNet.vec3(2, 0, 0);
+            actor.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
 
             actor.GetComponent<Collider2D>().IsTrigger = true;
 
@@ -216,7 +235,7 @@ namespace Game
 
                 //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
                 actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
-                actor2.Transform.WorldPosition = new GlmNet.vec3(-2, 0, 0);
+                actor2.Transform.WorldPosition = new GlmNet.vec3(-3, 0, 0);
                 actor2.Transform.Parent = actor.Transform;
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
