@@ -8,6 +8,18 @@ using GlmNet;
 
 namespace Engine
 {
+    public enum CameraProjectionMode
+    {
+        Orthographic,
+        Perspective
+    }
+
+    public enum CameraOrthoMatch
+    {
+        Height,
+        Width
+    }
+
     public class Camera : Component
     {
         public mat4 Projection { get; private set; }
@@ -16,14 +28,44 @@ namespace Engine
         public float NearPlane { get; set; } = 0.1f;
         public float FarPlane { get; set; } = 100;
         public Color BackgroundColor { get; set; } = new(1, 1, 1, 1);
+        private CameraOrthoMatch _orthoMatch = CameraOrthoMatch.Width;
 
+        public CameraOrthoMatch OrthoMatch
+        {
+            get => _orthoMatch;
+            set
+            {
+                if (_orthoMatch == value)
+                    return;
+
+                _orthoMatch = value;
+                UpdateCurrent();
+            }
+        }
+
+        private CameraProjectionMode _projectionMode;
+        public CameraProjectionMode ProjectionMode 
+        {
+            get => _projectionMode; 
+            set
+            {
+                if (_projectionMode == value)
+                    return;
+
+                _projectionMode = value;
+                UpdateCurrent();
+            }
+        }
+        
         private float _orthoSize;
-        public float OrthographicSize { get => _orthoSize; 
-            set 
+        public float OrthographicSize
+        {
+            get => _orthoSize;
+            set
             {
                 _orthoSize = value;
-                UpdateOrthographic();
-            } 
+                UpdateCurrent();
+            }
         }
 
         public float Fov { get; set; }
@@ -50,28 +92,57 @@ namespace Engine
             OrthographicSize = 32;
             Fov = 60.0f;
             Window.OnWindowChanged += OnWindowChanged;
-            UpdateOrthographic();
+            UpdateCurrent();
             //UpdatePerspective();
         }
 
         private void OnWindowChanged(int width, int height)
         {
-            UpdateOrthographic();
+             UpdateCurrent();
         }
 
-        private void UpdateOrthographic()
+        private void UpdateCurrent()
         {
-            float aspectRatio = Viewport.z / Viewport.w;
+            if (_projectionMode == CameraProjectionMode.Orthographic)
+            {
+                var matchWidth = _orthoMatch == CameraOrthoMatch.Width;
+                var orthoSize = OrthographicSize;
 
-            var size = OrthographicSize;
-            Projection = MathUtils.Ortho(-size * aspectRatio, size * aspectRatio, -size, size,
-                                                 NearPlane, FarPlane);
+                if (matchWidth)
+                {
+                    //orthoSize = OrthographicSize / (Viewport.w / Viewport.z);
+                }
+                Projection = CreateOrtho(orthoSize, matchWidth, NearPlane, FarPlane, Viewport);
+            }
+            else
+            {
+                float aspectRatio = Viewport.z / Viewport.w;
+                Projection = MathUtils.Perspective(Fov, aspectRatio, NearPlane, FarPlane);
+            }
         }
 
-        private void UpdatePerspective()
+        public static mat4 CreateOrtho(float size, bool matchWidth, float near, float far, vec4 viewport)
         {
-            float aspectRatio = Viewport.z / Viewport.w;
-            Projection = MathUtils.Perspective(Fov, aspectRatio, NearPlane, FarPlane);
+            float left, right, bottom, top, aspect;
+
+            if (matchWidth)
+            {
+                aspect = viewport.w / viewport.z;
+                bottom = -size * aspect;
+                top =     size * aspect;
+                left =   -size;
+                right =   size;
+            }
+            else
+            {
+                aspect = viewport.z / viewport.w;
+                bottom = -size;
+                top = size;
+                left = -size * aspect;
+                right = size * aspect;
+            }
+
+            return MathUtils.Ortho(left, right, bottom, top, near, far);
         }
 
         public override void OnDestroy()

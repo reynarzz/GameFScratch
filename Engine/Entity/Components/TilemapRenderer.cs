@@ -69,7 +69,7 @@ namespace Engine
             //Mesh.Indices.Add(index + 0);
         }
 
-        public void ParseLDtk(LDtk.LDtkProject project, LDtkParseOptions options)
+        public void SetTilemapLDtk(LDtk.LDtkProject project, LDtkOptions options)
         {
             foreach (var level in project.Levels)
             {
@@ -108,11 +108,11 @@ namespace Engine
             }
         }
 
-        public void ParseLDtk(string json, LDtkParseOptions options)
+        public void SetTilemapLDtk(string json, LDtkOptions options)
         {
             try
             {
-                ParseLDtk(LDtk.LDtkProject.LoadProject(JsonSerializer.Deserialize<JsonElement>(json), string.Empty), options);
+                SetTilemapLDtk(LDtk.LDtkProject.LoadProject(JsonSerializer.Deserialize<JsonElement>(json), string.Empty), options);
             }
             catch (Exception e)
             {
@@ -138,10 +138,11 @@ namespace Engine
         }
     }
 
-    public struct LDtkParseOptions
+    public struct LDtkOptions
     {
         public bool RenderIntGridLayer { get; set; }
         public bool RenderTilesLayer { get; set; }
         public bool RenderAutoLayer { get; set; }
+        public int[] LevelsToLoad { get; set; }
     }
 }

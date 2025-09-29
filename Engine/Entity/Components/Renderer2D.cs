@@ -12,7 +12,10 @@ namespace Engine
         public Color Color { get => PacketColor; set => PacketColor = value; }
         public ColorPacketRGBA PacketColor { get; set; } = Color.White;
         public Sprite Sprite { get; set; }
-        public bool FlipX { get; set; }
-        public bool FlipY { get; set; }
+
+
+
+        public virtual bool FlipX { get; set; }
+        public virtual bool FlipY { get; set; }
     }
 }

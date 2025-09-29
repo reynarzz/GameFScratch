@@ -19,12 +19,13 @@ namespace Game
         private float _gravityScale = 3;
 
         private bool _jumped = false;
-
+        private SpriteRenderer _renderer;
         public override void OnAwake()
         {
             Debug.Info("Awake");
             //new Actor<RotateTest>();
             _rigid = GetComponent<RigidBody2D>();
+            _renderer = GetComponent<SpriteRenderer>();
 
             _rigid.IsContinuos = true;
             _rigid.GravityScale = _gravityScale;
@@ -62,11 +63,16 @@ namespace Game
             {
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
+                Transform.LocalScale = new vec3(-1, 1, 1);
+                // _renderer.FlipX = true;
             }
             else if (Input.GetKey(KeyCode.D))
             {
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_walkSpeed, _rigid.Velocity.y);
+                Transform.LocalScale = new vec3(1, 1, 1);
+
+                // _renderer.FlipX = false;
             }
             else
             {
@@ -173,7 +179,7 @@ namespace Game
             //}
             Debug.Info($"{Actor.Name} Collision enter with: " + collision.OtherCollider.Name);
             // Transform.Parent = null;
-             Actor.Destroy(collision.Actor);
+            // Actor.Destroy(collision.Actor);
 
 
             //var platform = new Actor<Platform>("Platform");

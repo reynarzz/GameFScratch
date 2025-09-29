@@ -13,7 +13,7 @@ namespace LDtk
 
         public Vector2(float x, float y)
         {
-            this.x = x; 
+            this.x = x;
             this.y = y;
         }
     }
@@ -23,9 +23,9 @@ namespace LDtk
         public float x, y, z, w;
         public Rectangle(float x, float y, float z, float w)
         {
-            this.x = x; 
-            this.y = y; 
-            this.z = z; 
+            this.x = x;
+            this.y = y;
+            this.z = z;
             this.w = w;
         }
     }
@@ -1184,11 +1184,11 @@ namespace LDtk
                         {
                             EntityTile entityTile = new EntityTile();
                             entityTile.SourceRectangle = new Rectangle(
-                                property.Value.GetProperty("srcRect").EnumerateArray().ToArray()[0].GetInt32(),
-                                property.Value.GetProperty("srcRect").EnumerateArray().ToArray()[1].GetInt32(),
-                                property.Value.GetProperty("srcRect").EnumerateArray().ToArray()[2].GetInt32(),
-                                property.Value.GetProperty("srcRect").EnumerateArray().ToArray()[3].GetInt32());
-                            entityTile.TilesetUid = property.Value.GetProperty("tilesetUid").GetInt32();
+                                GetInt32(property, "srcRect", 0),
+                                GetInt32(property, "srcRect", 1),
+                                GetInt32(property, "srcRect", 2),
+                                GetInt32(property, "srcRect", 3));
+                            entityTile.TilesetUid = GetInt32(property, "tilesetUid");
                             entity.Tile = entityTile;
                         }
                         else if (property.Name == "defUid")
@@ -1216,6 +1216,60 @@ namespace LDtk
                 output.Add(entity);
             }
             return output;
+        }
+
+        private static bool GetProperty(JsonProperty property, string name, out JsonElement element)
+        {
+            element = default;
+            if (property.Value.TryGetProperty(name, out var value))
+            {
+                element = value;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static JsonElement[] GetPropertyArray(JsonProperty property, string name)
+        {
+            if (property.Value.TryGetProperty(name, out var value))
+            {
+                return value.EnumerateArray().ToArray();
+            }
+
+
+            return null;
+        }
+
+        private static T GetValueFromArray<T>(JsonProperty property, string name, int arrIndex, Func<JsonElement, T> convert)
+        {
+            var prop = GetPropertyArray(property, name);
+
+            if (prop != null && prop.Length > arrIndex)
+            {
+                return convert(prop[arrIndex]);
+            }
+
+            return default;
+        }
+        private static T GetValue<T>(JsonProperty property, string name, Func<JsonElement, T> convert)
+        {
+            if(GetProperty(property, name, out var value))
+            {
+                return convert(value);
+            }
+
+            return default;
+        }
+
+        private static int GetInt32(JsonProperty property, string name, int arrIndex)
+        {
+            return GetValueFromArray(property, name, arrIndex, x => x.GetInt32());
+        }
+
+        private static int GetInt32(JsonProperty property, string name)
+        {
+            return GetValue(property, name, x => x.GetInt32());
         }
 
         /// <summary>
@@ -1355,6 +1409,9 @@ namespace LDtk
                 }
                 else
                 {
+                    //Enum.TryParse(typeof(FieldType), typeString, true, out var result);
+                    //Engine.Debug.Error(typeString);
+
                     FieldType type = (FieldType)Enum.Parse(typeof(FieldType), typeString);
                     if (type == FieldType.Int)
                     {
@@ -1381,6 +1438,11 @@ namespace LDtk
                         field = new PointField();
                         field.IsArray = false;
                     }
+                    //else if(type == FieldType.EntityRef)
+                    //{
+                    //    field = new EntityDefField();
+                    //    field.IsArray = false;
+                    //}
                     else
                     {
                         field = new StringField();
@@ -1433,6 +1495,14 @@ namespace LDtk
                             f.Value.Add(new Point(el.GetProperty("cx").GetInt32(), el.GetProperty("cy").GetInt32()));
                             field = f;
                         }
+                        //else if (field.Type == FieldType.EntityRef)
+                        //{
+                        //    //EntityDefField f = field as EntityDefField;
+                        //    //f.Value = new List<string>();
+                        //    //f.Value.Add(el.EnumerateObject());
+                        //    //field = f;
+                        //    throw new Exception("Implement");
+                        //}
                         else
                         {
                             StringField f = field as StringField;
@@ -1501,6 +1571,17 @@ namespace LDtk
                             }
                             field = f;
                         }
+                        //else if (field.Type == FieldType.EntityRef)
+                        //{
+                        //    //PointField f = field as PointField;
+                        //    //f.Value = new List<Point>();
+                        //    //foreach (JsonElement el in e.EnumerateArray().ToArray())
+                        //    //{
+                        //    //    f.Value.Add(new Point(el.GetProperty("cx").GetInt32(), el.GetProperty("cy").GetInt32()));
+                        //    //}
+                        //    //field = f;
+                        //    throw new Exception("Implement");
+                        //}
                         else
                         {
                             StringField f = field as StringField;
@@ -1602,6 +1683,18 @@ namespace LDtk
         public List<Point> Value { get; set; }
     }
 
+
+    /// <summary>
+    /// Point field instance
+    /// </summary>
+    public class EntityDefField : Field
+    {
+        /// <summary>
+        /// Value of the field instance.
+        /// </summary>
+        public List<string> Value { get; set; }
+    }
+
     /// <summary>
     /// A entity field type
     /// </summary>
@@ -1614,7 +1707,8 @@ namespace LDtk
         Enum,
         Color,
         Point,
-        FilePath
+        FilePath,
+       // EntityRef
     }
     #endregion
 
@@ -1626,7 +1720,7 @@ namespace LDtk
         /// <summary>
         /// All the entities definitions
         /// </summary>
-        public List<EntitieDef> Entities { get; set; }
+        public List<EntityDef> Entities { get; set; }
         /// <summary>
         /// All the enums defintions
         /// </summary>
@@ -1659,7 +1753,7 @@ namespace LDtk
                     //do somethin
                     if (property.Name == "entities")
                     {
-                        output.Entities = EntitieDef.LoadEntitiesDef(property);
+                        output.Entities = EntityDef.LoadEntitiesDef(property);
                     }
                     else if (property.Name == "enums")
                     {
@@ -1687,10 +1781,10 @@ namespace LDtk
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public EntitieDef GetEntitieDefById(string id)
+        public EntityDef GetEntitieDefById(string id)
         {
-            EntitieDef def = null;
-            foreach (EntitieDef entitie in Entities)
+            EntityDef def = null;
+            foreach (EntityDef entitie in Entities)
             {
                 if (entitie.Identifier == id)
                 {
@@ -2145,7 +2239,7 @@ namespace LDtk
     /// <summary>
     ///  An entity definition
     /// </summary>
-    public class EntitieDef
+    public class EntityDef
     {
         /// <summary>
         /// Base entity color
@@ -2185,12 +2279,12 @@ namespace LDtk
         /// </summary>
         /// <param name="jsonProperty">A json property containing the entities defintions</param>
         /// <returns></returns>
-        public static List<EntitieDef> LoadEntitiesDef(JsonProperty jsonProperty)
+        public static List<EntityDef> LoadEntitiesDef(JsonProperty jsonProperty)
         {
-            List<EntitieDef> output = new List<EntitieDef>();
+            List<EntityDef> output = new List<EntityDef>();
             foreach (JsonElement jsonElement in jsonProperty.Value.EnumerateArray().ToArray())
             {
-                EntitieDef entitieDef = new EntitieDef();
+                EntityDef entitieDef = new EntityDef();
                 foreach (JsonProperty property in jsonElement.EnumerateObject().ToArray())
                 {
                     if (property.Value.ValueKind != JsonValueKind.Null)

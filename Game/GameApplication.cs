@@ -75,30 +75,25 @@ namespace Game
 
         private void LoadTilemap(Camera cam)
         {
-            var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\";
+            var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets";
 
-            var tilemapTexture = Assets.GetTexture(rootPathTest + "/Cavernas_by_Adam_Saltsman.png");
-            var tilemapTexture2 = Assets.GetTexture(rootPathTest + "/Inca_front_by_Kronbits-extended.png");
+            var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
 
-            TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 8, 8, tilemapTexture.Width, tilemapTexture.Height);
-            TextureAtlasUtils.SliceTiles(tilemapTexture2.Atlas, 16, 16, tilemapTexture2.Width, tilemapTexture2.Height);
+            TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
             var tilemapSprite = new Sprite();
+
             tilemapSprite.Texture = tilemapTexture;
-            tilemapSprite.Texture.PixelPerUnit = 8;
+            tilemapSprite.Texture.PixelPerUnit = 16;
 
-            var tilemapSprite2 = new Sprite();
-            tilemapSprite2.Texture = tilemapTexture2;
-            tilemapSprite2.Texture.PixelPerUnit = 16;
-
-            var filepath = rootPathTest + "\\LevelTestLTilemap1.ldtk";
+            var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
             string json = File.ReadAllText(filepath);
 
             using JsonDocument doc = JsonDocument.Parse(json);
             JsonElement element = doc.RootElement;
 
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
-           
+
 
             var project = new LDtkProject(filepath);
             cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
@@ -108,21 +103,13 @@ namespace Game
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
-            tilemap.ParseLDtk(project, new LDtkParseOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
+            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
 
-            var project2 = new LDtkProject(rootPathTest + "\\LevelTestLTilemap4.ldtk");
-            var tilemapActor2 = new Actor<TilemapRenderer>();
-            var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
-            tilemapActor2.Transform.WorldPosition = new vec3(-30, 0, 0);
-            tilemap2.Material = mat1;
-            tilemap2.Sprite = tilemapSprite2;
-            tilemap2.SortOrder = -1;
-            tilemap2.ParseLDtk(project2, new LDtkParseOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = false });
         }
 
         public override void Initialize()
         {
-            var pTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\___AssetTest\\Idle.png");
+            var pTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\KingsAndPigsSprites\\01-King Human\\Ground (78x58).png");
 
 
             var sprite4 = new Sprite();
@@ -150,9 +137,29 @@ namespace Game
             //var mat2 = new Material(mainShader);
             //var mat3 = new Material(mainShader);
 
+            float CalculateOrthoSize(float desiredSizeInPixels, CameraOrthoMatch match, float pixelsPerUnit, int windowWidth, int windowHeight)
+            {
+                float halfSizeWorld = desiredSizeInPixels / 2.0f / pixelsPerUnit; // convert pixels to world units
+
+                if (match == CameraOrthoMatch.Width)
+                {
+                    // width fixed → vertical half-height scales according to aspect ratio
+                    float aspect = (float)windowWidth / (float)windowHeight;
+                    return halfSizeWorld * aspect;
+                }
+                else
+                {
+                    // height fixed → vertical half-height is just halfSizeWorld
+                    return halfSizeWorld;
+                }
+            }
+
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 256.0f / 2.0f / 16.0f;
+            camera.OrthoMatch = CameraOrthoMatch.Width;
+            camera.OrthographicSize = CalculateOrthoSize(256, camera.OrthoMatch, 16, 1920, 1080);
+
             LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
@@ -200,6 +207,8 @@ namespace Game
             actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
             actor3.GetComponent<SpriteRenderer>().Sprite = sprite4;
+            sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
+
             var collider3 = actor3.GetComponent<Collider2D>();
             var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
@@ -248,7 +257,7 @@ namespace Game
             // polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
-       
+
             platform.Layer = LayerMask.NameToLayer("Platform");
 
             var respawner = new Actor<Respawner>("Respawner");

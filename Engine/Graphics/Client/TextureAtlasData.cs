@@ -115,9 +115,20 @@ namespace Engine
             _chunks[index] = chunk;
         }
 
+        public void UpdatePivot(int index, vec2 pivot)
+        {
+            _chunks[index].Pivot = pivot;
+        }
+
         public void SetChunks(AtlasChunk[] chunks)
         {
             _chunks = chunks.ToArray();
+        }
+
+
+        public void UpdateUvs(int index, QuadUV uvs)
+        {
+            _chunks[index].Uvs = uvs;
         }
     }
 }
