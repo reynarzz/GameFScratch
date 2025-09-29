@@ -21,7 +21,7 @@ namespace Engine.Rendering
         internal static int[] TextureSlotArray { get; private set; }
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
-        internal bool IsActive { get; set; }
+        internal bool IsActive { get; private set; }
         public mat4 WorldMatrix = mat4.identity();
 
         // TODO: On batch empty just
@@ -162,33 +162,55 @@ namespace Engine.Rendering
         {
             renderer.OnDestroyRenderer -= OnRendererDestroy;
 
+            _renderers.Remove(renderer);
+            
+            if (_renderers.Count == 0)
+            {
+                OnBatchEmpty?.Invoke(this);
+                IsActive = false;
+                return;
+            }
+
             var rendererVerticesCount = 0;
+            var rendererIndicesCount = 0;
+
             if (renderer.Mesh == null)
             {
                 // This is rendering quads, and no a custom mesh
                 rendererVerticesCount = 4;
+                rendererIndicesCount = 6;
             }
             else
             {
                 rendererVerticesCount = renderer.Mesh.Vertices.Count;
-            }
-             
-            _renderers.Remove(renderer);
-
-            for (int i = 0; i < rendererVerticesCount; i++)
-            {
-                _verticesData[renderer.RendererID + i] = default;
+                rendererIndicesCount = renderer.Mesh.IndicesToDrawCount;
             }
 
-            // TODO: fix segmentation issue in _verticesData. When removing a renderer, all the other vertices should move to the left?,
-            // _verticesData
-            //-------
-
-            // VertexCount -= rendererVerticesCount; // NOTE: Once segmentation issue is fixed, please uncomment this,
-
-            if (_renderers.Count == 0)
+            if (renderer.RendererID + rendererVerticesCount < _verticesData.Length)
             {
-                OnBatchEmpty?.Invoke(this);
+                int startIndex = renderer.RendererID;
+                int countToRemove = rendererVerticesCount;
+
+                int remaining = VertexCount - (startIndex + countToRemove);
+
+                // Shift the trailing vertices down
+                Array.Copy(_verticesData,
+                           startIndex + countToRemove,
+                           _verticesData,
+                           startIndex,
+                           remaining);
+            }
+
+            // Decrease the amount of vertices and indices to draw
+            VertexCount -= rendererVerticesCount;
+            IndexCount -= rendererIndicesCount;
+
+            bool canRemoveTexture = !_renderers.Keys.Any(r => r.TextureRendererID == renderer.TextureRendererID);
+
+            // Remove the texture if is no longer used. To save a slot.
+            if (canRemoveTexture)
+            {
+                Textures[renderer.TextureRendererID] = null;
             }
         }
 

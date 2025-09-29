@@ -123,7 +123,7 @@ namespace Engine.Rendering
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
-                    // Note this prevent interpolation
+                    // Note: this prevent interpolation
                     if (!renderer.IsDirty)
                     {
                         continue;

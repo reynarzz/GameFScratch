@@ -68,6 +68,7 @@ namespace Game
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
         // Implement batch disable and cleanup when all renderers go
         // Fix rendering: If the actor/parent/component is disabled, the renderer will still be rendered.
+        // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
 
         // -Stretch:
         // Implement bounds in sprites/renderers.

@@ -51,8 +51,6 @@ namespace Engine.Rendering
 
         private void OnBatchEmpty(Batch2D batch)
         {
-            batch.IsActive = false;
-
             var index = _batches.IndexOf(batch);
             _batches.RemoveAt(index);
             bool inserted = false;
