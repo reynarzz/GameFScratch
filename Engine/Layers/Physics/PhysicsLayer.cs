@@ -61,22 +61,6 @@ namespace Engine.Layers
                 drawFrictionImpulses = false,
                 drawIslands = false,
             };
-
-            //ulong player = 0x00001, enemy1 = 0x00002, enemy2 = 0x00004, floor = 0x00008;
-
-            //B2Filter playerFilter = default;
-            //playerFilter.categoryBits = player;
-            //playerFilter.maskBits = enemy1 | enemy2 | floor; // which category can collide with
-
-            //B2Filter floorFilter = default;
-            //floorFilter.categoryBits = floor;
-            //floorFilter.maskBits = enemy1 | enemy2 | player; // which category can collide with
-            //floorFilter.maskBits &= ~player; // remove bit
-            //floorFilter.maskBits |= player; // add bit
-
-            //B2Shapes.b2Shape_SetFilter(shapeId, playerFilter);
-            //B2Shapes.b2Shape_SetFilter(floorShapeId, floorFilter);
-
             
             Debug.Log("World is valid: " + B2Worlds.b2World_IsValid(PhysicWorld.WorldID));
             B2Worlds.b2World_SetCustomFilterCallback(PhysicWorld.WorldID, CustomFilter, this);
@@ -99,7 +83,6 @@ namespace Engine.Layers
             
             return LayerMask.AreEnabled(colA.Actor.Layer, colB.Actor.Layer);
         }
-
 
         internal override void UpdateLayer()
         {

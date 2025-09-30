@@ -124,7 +124,7 @@ namespace Engine.Rendering
                     var material = renderer.Material ?? _pinkMaterial;
 
                     // Note: this prevent interpolation
-                    if (!renderer.IsDirty && !renderer.Transform.NeedsInterpolation)
+                    if (!renderer.IsDirty)
                     {
                         continue;
                     }

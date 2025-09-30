@@ -67,6 +67,7 @@ namespace Game
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
         // Fix rendering: If the actor/parent/component is disabled, the renderer will still be rendered.
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
+        // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
 
         // -Stretch:
         // Implement bounds in sprites/renderers.
@@ -77,7 +78,8 @@ namespace Game
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets";
             var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Test";
             //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
-            var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
+            //var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
+            var tilemapTexture = Assets.GetTexture(testPathNow + "\\TopDown_by_deepnight.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
@@ -87,7 +89,7 @@ namespace Game
             tilemapSprite.Texture.PixelPerUnit = 16;
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
-            var filepath = testPathNow + "\\Tilemap2.ldtk";
+            var filepath = testPathNow + "\\Tilemap4.ldtk";
             string json = File.ReadAllText(filepath);
 
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -170,7 +172,7 @@ namespace Game
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
 
-            var actor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, CollisionTest>("CenterRotParent");
+            var actor = new Actor<SpriteRenderer, RigidBody2D, RotateTest, BoxCollider2D, CollisionTest>("CenterRotParent");
             actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
@@ -179,7 +181,7 @@ namespace Game
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
 
-            actor.GetComponent<Collider2D>().IsTrigger = true;
+            //actor.GetComponent<Collider2D>().IsTrigger = true;
 
 
             // (int i = 0; i < 33; i++)
@@ -264,14 +266,14 @@ namespace Game
 
             platform.Layer = LayerMask.NameToLayer("Platform");
 
-            var respawner = new Actor<Respawner>("Respawner");
+          //  var respawner = new Actor<Respawner>("Respawner");
 
             rigid4.BodyType = Body2DType.Kinematic;
 
             boxCollider.Size = new GlmNet.vec2(15, 1);
 
             rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -4, 0);
-            rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 20);
+            //rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 20);
             actor4.Transform.LocalScale = new GlmNet.vec3(15, 1, 1);
 
             actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>()?.Material;
