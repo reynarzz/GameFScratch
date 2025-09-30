@@ -79,7 +79,7 @@ namespace Game
             var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Test";
             //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
             //var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
-            var tilemapTexture = Assets.GetTexture(testPathNow + "\\TopDown_by_deepnight.png");
+            var tilemapTexture = Assets.GetTexture(testPathNow + "\\Inca_front_by_Kronbits-extended.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
@@ -90,7 +90,7 @@ namespace Game
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
             //var filepath = testPathNow + "\\Tilemap4.ldtk";
-            var filepath = testPathNow + "\\Tilemap4.ldtk";
+            var filepath = testPathNow + "\\Tilemap3.ldtk";
             string json = File.ReadAllText(filepath);
 
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -110,7 +110,7 @@ namespace Game
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
             // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
-            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
+            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true, LayersToLoad = 1ul << 1 });
 
         }
 

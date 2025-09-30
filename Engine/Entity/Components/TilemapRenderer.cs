@@ -76,15 +76,12 @@ namespace Engine
                 bool isFlippedX = (tile.F & 1) != 0 || tile.F == 3;
                 bool isFlippedY = (tile.F & 2) != 0 || tile.F == 3;
 
-                // Tile position in pixels relative to level top-left
                 float tilePxX = tile.Px[0];
                 float tilePxY = tile.Px[1];
 
-                // Final world position in pixels
                 float worldX = level.WorldX + tilePxX + layer.PxTotalOffsetX;
                 float worldY = -level.WorldY + -tilePxY + -layer.PxTotalOffsetY;
 
-                // Convert to engine units if needed
                 var position = new vec3(
                     MathF.Ceiling(worldX / Sprite.Texture.PixelPerUnit),
                     MathF.Ceiling(worldY / Sprite.Texture.PixelPerUnit),
@@ -101,20 +98,34 @@ namespace Engine
             {
                 var level = project.Levels[i];
 
-                if (level.WorldDepth != 0) // TODO: remove this, I need to check and ask the user which level depth wants to draw.
+                if (level.WorldDepth != options.WorldDepth)
                     continue;
 
                 for (int j = level.LayerInstances.Length - 1; j >= 0; j--)
                 {
-                    var layer = project.Levels[i].LayerInstances[j];
+                    //if ((options.LayersToLoad & (ulong)layerIndex) == 0)
+                    //    continue;
+
+                    var layer = level.LayerInstances[j];
+
                     if (!layer.Visible)
                         continue;
-               
-                    var type = layer.Type;
-                    var grid = layer.IntGridCsv;
 
-                    PaintTiles(level, layer, layer.AutoLayerTiles);
-                    // PaintTiles(level, layer, layer.GridTiles);
+                    var type = layer.Type;
+
+                    switch (type)
+                    {
+                        case "AutoLayer":
+                            PaintTiles(level, layer, layer.AutoLayerTiles);
+                            break;
+                        case "IntGrid":
+                            PaintTiles(level, layer, layer.GridTiles);
+                            break;
+                        case "Entities":
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -139,5 +150,8 @@ namespace Engine
         public bool RenderTilesLayer { get; set; }
         public bool RenderAutoLayer { get; set; }
         public int[] LevelsToLoad { get; set; }
+        public ulong LayersToLoad { get; set; }
+
+        public int WorldDepth { get; set; }
     }
 }
