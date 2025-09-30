@@ -89,6 +89,7 @@ namespace Game
             tilemapSprite.Texture.PixelPerUnit = 16;
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
+            //var filepath = testPathNow + "\\Tilemap4.ldtk";
             var filepath = testPathNow + "\\Tilemap4.ldtk";
             string json = File.ReadAllText(filepath);
 

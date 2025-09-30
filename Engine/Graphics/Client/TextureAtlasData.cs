@@ -27,19 +27,9 @@ namespace Engine
 
             if (flipY)
             {
-                (result.BottomLeftUV, result.TopLeftUV) = (result.TopLeftUV, result.BottomLeftUV);
-                (result.BottomRightUV, result.TopRightUV) = (result.TopRightUV, result.BottomRightUV);
+                (result.TopLeftUV, result.BottomLeftUV) = (result.BottomLeftUV, result.TopLeftUV);
+                (result.TopRightUV, result.BottomRightUV) = (result.BottomRightUV, result.TopRightUV);
             }
-
-            /* if (flipX)
-            {
-                (result.BottomLeftUV, result.TopLeftUV) = (result.BottomRightUV, result.TopRightUV);
-            }
-
-            if (flipY)
-            {
-                (result.BottomLeftUV, result.BottomRightUV) = (result.TopLeftUV, result.TopRightUV);
-            }*/
 
             return result;
         }

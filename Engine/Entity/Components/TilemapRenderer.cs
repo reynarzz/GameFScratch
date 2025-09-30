@@ -69,64 +69,28 @@ namespace Engine
             //Mesh.Indices.Add(index + 0);
         }
 
-        //public void SetTilemapLDtk(LDtk.LDtkProject project, LDtkOptions options)
-        //{
-        //    foreach (var level in project.Levels)
-        //    {
-        //        // Layers should be painted back to front
-        //        for (int i = level.LayerInstances.Count - 1; i >= 0; --i)
-        //        {
-        //            var layer = level.LayerInstances[i];
-        //            if (!layer.IsVisible)
-        //                continue;
-
-        //            switch (layer.Type)
-        //            {
-        //                case LDtk.LayerType.IntGrid:
-        //                    if (options.RenderIntGridLayer)
-        //                    {
-        //                        var intGridLayer = layer as LDtk.IntGridLayer;
-        //                        PaintTiles(level, layer, intGridLayer.AutoLayerTiles);
-        //                    }
-        //                    break;
-        //                case LDtk.LayerType.Tiles:
-        //                    if (options.RenderTilesLayer)
-        //                    {
-        //                        var tilesLayer = layer as LDtk.TileLayer;
-        //                        PaintTiles(level, layer, tilesLayer.GridTilesInstances);
-        //                    }
-        //                    break;
-        //                case LDtk.LayerType.AutoLayer:
-        //                    if (options.RenderAutoLayer)
-        //                    {
-        //                        var autoLayer = layer as LDtk.AutoLayer;
-        //                        PaintTiles(level, layer, autoLayer.AutoLayerTiles);
-        //                    }
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //}
-
         private void PaintTiles(ldtk.Level level, ldtk.LayerInstance layer, ldtk.TileInstance[] tiles)
         {
             foreach (var tile in tiles)
             {
-                var xTilePix = tile.Px[0];
-                var yTilePix = tile.Px[1];
-                var isFlippedX = tile.F == 1;
-                var isFlippedY = tile.F == 2;
+                bool isFlippedX = (tile.F & 1) != 0 || tile.F == 3;
+                bool isFlippedY = (tile.F & 2) != 0 || tile.F == 3;
 
-                if (tile.F == 3)
-                {
-                    isFlippedX = true;
-                    isFlippedY = true;
-                }
+                // Tile position in pixels relative to level top-left
+                float tilePxX = tile.Px[0];
+                float tilePxY = tile.Px[1];
 
-                var xPos = (level.WorldX + xTilePix + layer.PxTotalOffsetX);
-                var yPos = (level.WorldY + level.PxHei - yTilePix + layer.PxTotalOffsetY);
+                // Final world position in pixels
+                float worldX = level.WorldX + tilePxX + layer.PxTotalOffsetX;
+                float worldY = -level.WorldY + -tilePxY + -layer.PxTotalOffsetY;
 
-                var position = new vec3(xPos / (float)Sprite.Texture.PixelPerUnit, yPos / (float)Sprite.Texture.PixelPerUnit, 0);
+                // Convert to engine units if needed
+                var position = new vec3(
+                    MathF.Ceiling(worldX / Sprite.Texture.PixelPerUnit),
+                    MathF.Ceiling(worldY / Sprite.Texture.PixelPerUnit),
+                    0
+                );
+
                 AddTile(new Tile((int)tile.T, isFlippedX, isFlippedY), position);
             }
         }
@@ -136,17 +100,21 @@ namespace Engine
             for (int i = 0; i < project.Levels.Length; i++)
             {
                 var level = project.Levels[i];
+
+                if (level.WorldDepth != 0) // TODO: remove this, I need to check and ask the user which level depth wants to draw.
+                    continue;
+
                 for (int j = level.LayerInstances.Length - 1; j >= 0; j--)
                 {
                     var layer = project.Levels[i].LayerInstances[j];
                     if (!layer.Visible)
                         continue;
-
+               
                     var type = layer.Type;
                     var grid = layer.IntGridCsv;
 
                     PaintTiles(level, layer, layer.AutoLayerTiles);
-                    PaintTiles(level, layer, layer.GridTiles);
+                    // PaintTiles(level, layer, layer.GridTiles);
                 }
             }
         }
