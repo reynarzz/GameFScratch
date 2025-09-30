@@ -69,66 +69,93 @@ namespace Engine
             //Mesh.Indices.Add(index + 0);
         }
 
-        public void SetTilemapLDtk(LDtk.LDtkProject project, LDtkOptions options)
+        //public void SetTilemapLDtk(LDtk.LDtkProject project, LDtkOptions options)
+        //{
+        //    foreach (var level in project.Levels)
+        //    {
+        //        // Layers should be painted back to front
+        //        for (int i = level.LayerInstances.Count - 1; i >= 0; --i)
+        //        {
+        //            var layer = level.LayerInstances[i];
+        //            if (!layer.IsVisible)
+        //                continue;
+
+        //            switch (layer.Type)
+        //            {
+        //                case LDtk.LayerType.IntGrid:
+        //                    if (options.RenderIntGridLayer)
+        //                    {
+        //                        var intGridLayer = layer as LDtk.IntGridLayer;
+        //                        PaintTiles(level, layer, intGridLayer.AutoLayerTiles);
+        //                    }
+        //                    break;
+        //                case LDtk.LayerType.Tiles:
+        //                    if (options.RenderTilesLayer)
+        //                    {
+        //                        var tilesLayer = layer as LDtk.TileLayer;
+        //                        PaintTiles(level, layer, tilesLayer.GridTilesInstances);
+        //                    }
+        //                    break;
+        //                case LDtk.LayerType.AutoLayer:
+        //                    if (options.RenderAutoLayer)
+        //                    {
+        //                        var autoLayer = layer as LDtk.AutoLayer;
+        //                        PaintTiles(level, layer, autoLayer.AutoLayerTiles);
+        //                    }
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //}
+
+        private void PaintTiles(ldtk.Level level, ldtk.LayerInstance layer, ldtk.TileInstance[] tiles)
         {
-            foreach (var level in project.Levels)
+            foreach (var tile in tiles)
             {
-                // Layers should be painted back to front
-                for (int i = level.LayerInstances.Count - 1; i >= 0; --i) 
+                var xTilePix = tile.Px[0];
+                var yTilePix = tile.Px[1];
+                var isFlippedX = tile.F == 1;
+                var isFlippedY = tile.F == 2;
+
+                if (tile.F == 3)
                 {
-                    var layer = level.LayerInstances[i];
-                    if (!layer.IsVisible)
+                    isFlippedX = true;
+                    isFlippedY = true;
+                }
+
+                var xPos = (level.WorldX + xTilePix + layer.PxTotalOffsetX);
+                var yPos = (level.WorldY + level.PxHei - yTilePix + layer.PxTotalOffsetY);
+
+                var position = new vec3(xPos / (float)Sprite.Texture.PixelPerUnit, yPos / (float)Sprite.Texture.PixelPerUnit, 0);
+                AddTile(new Tile((int)tile.T, isFlippedX, isFlippedY), position);
+            }
+        }
+
+        public void SetTilemapLDtk(ldtk.LdtkJson project, LDtkOptions options)
+        {
+            for (int i = 0; i < project.Levels.Length; i++)
+            {
+                var level = project.Levels[i];
+                for (int j = level.LayerInstances.Length - 1; j >= 0; j--)
+                {
+                    var layer = project.Levels[i].LayerInstances[j];
+                    if (!layer.Visible)
                         continue;
 
-                    switch (layer.Type)
-                    {
-                        case LDtk.LayerType.IntGrid:
-                            if (options.RenderIntGridLayer)
-                            {
-                                var intGridLayer = layer as LDtk.IntGridLayer;
-                                PaintTiles(level, layer, intGridLayer.AutoLayerTiles);
-                            }
-                            break;
-                        case LDtk.LayerType.Tiles:
-                            if (options.RenderTilesLayer)
-                            {
-                                var tilesLayer = layer as LDtk.TileLayer;
-                                PaintTiles(level, layer, tilesLayer.GridTilesInstances);
-                            }
-                            break;
-                        case LDtk.LayerType.AutoLayer:
-                            if (options.RenderAutoLayer)
-                            {
-                                var autoLayer = layer as LDtk.AutoLayer;
-                                PaintTiles(level, layer, autoLayer.AutoLayerTiles);
-                            }
-                            break;
-                    }
+                    var type = layer.Type;
+                    var grid = layer.IntGridCsv;
+
+                    PaintTiles(level, layer, layer.AutoLayerTiles);
+                    PaintTiles(level, layer, layer.GridTiles);
                 }
             }
         }
 
         public void SetTilemapLDtk(string json, LDtkOptions options)
         {
-            try
+            if (!string.IsNullOrEmpty(json))
             {
-                SetTilemapLDtk(LDtk.LDtkProject.LoadProject(JsonSerializer.Deserialize<JsonElement>(json), string.Empty), options);
-            }
-            catch (Exception e)
-            {
-                Debug.Error(e);
-            }
-        }
-
-        private void PaintTiles(LDtk.Level level, LDtk.Layer layer, List<LDtk.Tile> tiles)
-        {
-            foreach (var tile in tiles)
-            {
-                var xPos = (level.WorldCoordinates.x + tile.Coordinates.X + layer.Offset.x);
-                var yPos = (level.WorldCoordinates.y + level.Height - tile.Coordinates.Y + layer.Offset.y);
-
-                var position = new vec3(xPos / (float)Sprite.Texture.PixelPerUnit, yPos / (float)Sprite.Texture.PixelPerUnit, 0);
-                AddTile(new Tile(tile.TileId, tile.IsFlippedOnX, tile.IsFlippedOnY), position);
+                SetTilemapLDtk(ldtk.LdtkJson.FromJson(json), options);
             }
         }
 

@@ -3,7 +3,6 @@ using Engine;
 using Engine.Layers;
 using Engine.Utils;
 using GlmNet;
-using LDtk;
 using System.Text.Json;
 
 namespace Game
@@ -76,8 +75,9 @@ namespace Game
         private void LoadTilemap(Camera cam)
         {
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets";
-
-            var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
+            var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Test";
+            //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
+            var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
@@ -86,7 +86,8 @@ namespace Game
             tilemapSprite.Texture = tilemapTexture;
             tilemapSprite.Texture.PixelPerUnit = 16;
 
-            var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
+            //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
+            var filepath = testPathNow + "\\Tilemap2.ldtk";
             string json = File.ReadAllText(filepath);
 
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -95,14 +96,17 @@ namespace Game
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
 
 
-            var project = new LDtkProject(filepath);
-            cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
-            cam.BackgroundColor = new Color32(23, 28, 57, project.BackgroundColor.A);
+            var project = ldtk.LdtkJson.FromJson(json);
+            var color = project.BgColor;
+
+            //cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
+            //cam.BackgroundColor = new Color32(23, 28, 57, project.BackgroundColor.A);
 
             var tilemapActor = new Actor<TilemapRenderer>();
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
+            // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
             tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
 
         }
