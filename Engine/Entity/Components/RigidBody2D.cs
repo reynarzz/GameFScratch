@@ -29,7 +29,7 @@ namespace Engine
         private B2BodyId _bodyId;
         private Body2DType _bodyType = Body2DType.Dynamic;
         private bool _isContinuos = false;
-        private bool _canSleep = true;
+        private bool _canSleep = false;
         private bool _isAutoMass = false;
         private float _userMassValue = 1.0f;
         private bool _isZRotationLocked = false;
