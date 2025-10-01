@@ -25,7 +25,12 @@ namespace Game
         private Sprite[] _runSprites;
         private Sprite[] _jumpSprites;
         private Sprite[] _fallSprites;
+        private Sprite[] _attackSprites;
         private SpriteAnimation2D _animation;
+        private bool _attacking = false;
+        private float _attackTime = 0.15f;
+
+        private float _currentAttackTime;
 
         public override void OnAwake()
         {
@@ -52,15 +57,19 @@ namespace Game
             var pTexture2 = Assets.GetTexture(basePath + "Idle (78x58).png");
             var jumpTex = Assets.GetTexture(basePath + "Jump (78x58).png");
             var FallTex = Assets.GetTexture(basePath + "Fall (78x58).png");
-
+            var attackTex = Assets.GetTexture(basePath + "Attack (78x58).png");
+           
             pTexture.PixelPerUnit = 16;
             pTexture2.PixelPerUnit = 16;
             jumpTex.PixelPerUnit = 16;
             FallTex.PixelPerUnit = 16;
+            attackTex.PixelPerUnit = 16;
+
             _runSprites = TextureAtlasUtils.SliceSprites(pTexture, 78, 58, new vec2(0.4f, 0.4f));
             _idleSprites = TextureAtlasUtils.SliceSprites(pTexture2, 78, 58, new vec2(0.4f, 0.4f));
             _jumpSprites = TextureAtlasUtils.SliceSprites(jumpTex, 78, 58, new vec2(0.4f, 0.4f));
             _fallSprites = TextureAtlasUtils.SliceSprites(FallTex, 78, 58, new vec2(0.4f, 0.4f));
+            _attackSprites = TextureAtlasUtils.SliceSprites(attackTex, 78, 58, new vec2(0.4f, 0.4f));
 
             _animation = GetComponent<SpriteAnimation2D>();
             _animation.Renderer = _renderer;
@@ -76,6 +85,26 @@ namespace Game
 
         public override void OnUpdate()
         {
+            if (!_attacking && Input.GetKeyDown(KeyCode.F))
+            {
+                _attacking = true;
+                _currentAttackTime = _attackTime;
+                _animation.Loop = false;
+                _animation.PushFrames(_attackSprites);
+            }
+
+            if(_currentAttackTime > 0)
+            {
+                _currentAttackTime -= Time.DeltaTime;
+
+                if(_currentAttackTime <= 0)
+                {
+                    _animation.Loop = true;
+                    _animation.PushFrames(_idleSprites);
+                    _attacking = false;
+                }
+            }
+
             if ((_isOnGround || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
             {
                 _extraJumpAvailable = false;
@@ -85,10 +114,11 @@ namespace Game
                 _rigid.Velocity = new vec2(_rigid.Velocity.x, _jumpForce);
                 //_rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
                 _animation.Play();
+                _animation.Loop = true;
                 _animation.PushFrames(_jumpSprites);
             }
 
-            if (Input.GetKey(KeyCode.A))
+            if (!_attacking && Input.GetKey(KeyCode.A))
             {
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
@@ -96,9 +126,12 @@ namespace Game
                 // _renderer.FlipX = true;
 
                 if (_isOnGround && !_jumped)
+                {
+                    _animation.Loop = true;
                     _animation.PushFrames(_runSprites);
+                }
             }
-            else if (Input.GetKey(KeyCode.D))
+            else if (!_attacking && Input.GetKey(KeyCode.D))
             {
                 _rigid.GravityScale = _gravityScale;
                 _rigid.Velocity = new GlmNet.vec2(_walkSpeed, _rigid.Velocity.y);
@@ -106,26 +139,37 @@ namespace Game
 
                 // _renderer.FlipX = false;
                 if (_isOnGround && !_jumped)
+                {
+                    _animation.Loop = true;
                     _animation.PushFrames(_runSprites);
+                }
 
             }
-            else
+            else 
             {
-                if (_isOnGround && !_jumped)
+                if (!_attacking && _isOnGround && !_jumped)
+                {
+                    _animation.Loop = true;
                     _animation.PushFrames(_idleSprites);
+                }
 
+                if(!_attacking)
                 _rigid.Velocity = new vec2(0, _rigid.Velocity.y);
 
             }
 
-            if (!_isOnGround)
+            if (!_attacking && !_isOnGround )
             {
                 if (_rigid.Velocity.y > 0)
                 {
+                    _animation.Loop = true;
+
                     _animation.PushFrames(_jumpSprites);
                 }
                 else if (_rigid.Velocity.y < 0)
                 {
+                    _animation.Loop = true;
+
                     _animation.PushFrames(_fallSprites);
                 }
 

@@ -39,7 +39,7 @@ namespace Engine
             {
                 _accumulator -= frameDuration;
 
-                _currentFrame = (_currentFrame + 1) % _frames.Length;
+                _currentFrame++;
                 if (Loop && _currentFrame >= _frames.Length)
                 {
                     _currentFrame = 0;
