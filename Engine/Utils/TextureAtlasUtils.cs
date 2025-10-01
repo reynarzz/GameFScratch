@@ -58,6 +58,43 @@ namespace Engine.Utils
             data.SetChunks(atlasChunks);
         }
 
+        public static Sprite[] SliceSprites(Texture2D texture, int width, int height)
+        {
+            return SliceSprites(texture, width, height, new vec2(0.5f, 0.5f));
+        }
+
+        public static Sprite[] SliceSprites(Texture2D texture, int width, int height, vec2 pivot)
+        {
+            int tilesX = texture.Width / width;
+            int tilesY = texture.Height / height;
+            var length = tilesX * tilesY;
+            var atlasChunks = new AtlasChunk[length];
+            var sprites = new Sprite[length];
+
+            int index = 0;
+            for (int y = tilesY - 1; y >= 0; --y)
+            {
+                for (int x = 0; x < tilesX; ++x)
+                {
+                    var chunk = CreateTileBounds(x * width, (y) * height, width, height, 0.5f, 0.5f, texture.Width, texture.Height);
+
+                    var sprite = new Sprite();
+                    sprite.Texture = texture;
+                    sprite.AtlasIndex = index;
+                    chunk.Pivot = pivot;
+
+                    sprites[index] = sprite;
+                    atlasChunks[index] = chunk;
+
+                    index++;
+                }
+            }
+
+            texture.Atlas.SetChunks(atlasChunks);
+
+            return sprites;
+        }
+
         public QuadUV ConvertTexCoordToGraphicsApiCompatible(QuadUV coord)
         {
             // TODO: Since the engine is rendering in OpengL, the uv is always reversed,

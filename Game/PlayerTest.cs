@@ -1,5 +1,6 @@
 ﻿using Engine;
 using Engine.Layers;
+using Engine.Utils;
 using GlmNet;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,10 @@ namespace Game
 
         private bool _jumped = false;
         private SpriteRenderer _renderer;
+        private Sprite[] _idleSprites;
+        private Sprite[] _runSprites;
+        private SpriteAnimation2D _animation;
+
         public override void OnAwake()
         {
             Debug.Info("Awake");
@@ -39,6 +44,19 @@ namespace Game
             //var act2 = new Actor<SpriteRenderer>();
             //act2.Transform.Parent = act.Transform;
             //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
+
+            var basePath = "D:\\Projects\\GameScratch\\Game\\Assets\\KingsAndPigsSprites\\01-King Human\\";
+            var pTexture = Assets.GetTexture(basePath + "Run (78x58).png");
+            var pTexture2 = Assets.GetTexture(basePath + "Idle (78x58).png");
+
+            pTexture.PixelPerUnit = 16;
+            pTexture2.PixelPerUnit = 16;
+            _runSprites = TextureAtlasUtils.SliceSprites(pTexture, 78, 58, new vec2(0.4f, 0.4f));
+            _idleSprites = TextureAtlasUtils.SliceSprites(pTexture2, 78, 58, new vec2(0.4f, 0.4f));
+
+            _animation = GetComponent<SpriteAnimation2D>();
+            _animation.Renderer = _renderer;
+            _animation.PushFrames(_idleSprites);
         }
 
         public override void OnStart()
@@ -65,6 +83,7 @@ namespace Game
                 _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
                 Transform.WorldScale = new vec3(-1, 1, 1);
                 // _renderer.FlipX = true;
+                _animation.PushFrames(_runSprites);
             }
             else if (Input.GetKey(KeyCode.D))
             {
@@ -73,10 +92,12 @@ namespace Game
                 Transform.WorldScale = new vec3(1, 1, 1);
 
                 // _renderer.FlipX = false;
+                _animation.PushFrames(_runSprites);
+
             }
             else
             {
-
+                _animation.PushFrames(_idleSprites);
 
             }
 

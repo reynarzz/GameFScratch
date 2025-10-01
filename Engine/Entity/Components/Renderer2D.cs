@@ -11,7 +11,17 @@ namespace Engine
         public int SortOrder { get; set; } = 0;
         public Color Color { get => PacketColor; set => PacketColor = value; }
         public ColorPacketRGBA PacketColor { get; set; } = Color.White;
-        public Sprite Sprite { get; set; }
+
+        private Sprite _sprite;
+        public Sprite Sprite 
+        {
+            get => _sprite;
+            set
+            {
+                IsDirty = true;
+                _sprite = value;
+            }
+        }
 
 
 

@@ -123,12 +123,7 @@ namespace Game
 
         public override void Initialize()
         {
-            var pTexture = Assets.GetTexture("D:\\Projects\\GameScratch\\Game\\Assets\\KingsAndPigsSprites\\01-King Human\\Ground (78x58).png");
 
-
-            var sprite4 = new Sprite();
-            sprite4.Texture = pTexture;
-            sprite4.Texture.PixelPerUnit = 14;
 
             var sprite1 = new Sprite();
             sprite1.Texture = new Texture2D(1, 1, 4, [0xFF, 0, 0, 0xFF]);
@@ -216,19 +211,22 @@ namespace Game
             Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
 
-            var actor3 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest>("Player");
-            actor3.Layer = LayerMask.NameToLayer("Player");
-            actor3.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+            var playerActor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest, SpriteAnimation2D>("Player");
+            playerActor.Layer = LayerMask.NameToLayer("Player");
+            playerActor.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
-            actor3.GetComponent<SpriteRenderer>().Sprite = sprite4;
-            sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
 
-            var collider3 = actor3.GetComponent<Collider2D>();
-            var rigid3 = actor3.Transform.GetComponent<RigidBody2D>();
+       
+            // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
+            //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
+            
+
+            var collider3 = playerActor.GetComponent<Collider2D>();
+            var rigid3 = playerActor.Transform.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = new GlmNet.vec3(-6.5f, 0, 0);
-            camera.Transform.WorldPosition = new GlmNet.vec3(actor3.Transform.WorldPosition.x,
-                                                             actor3.Transform.WorldPosition.y, -12);
+            camera.Transform.WorldPosition = new GlmNet.vec3(playerActor.Transform.WorldPosition.x,
+                                                             playerActor.Transform.WorldPosition.y, -12);
             rigid3.LockZRotation = true;
 
             // rigid3.Actor.IsEnabled = false;
@@ -240,7 +238,7 @@ namespace Game
 
             if (camera)
             {
-                camera.GetComponent<CameraFollow>().Target = actor3.Transform;
+                camera.GetComponent<CameraFollow>().Target = playerActor.Transform;
             }
 
             var actor4 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, CollisionTest>("Floor");
