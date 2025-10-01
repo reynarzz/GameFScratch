@@ -24,20 +24,9 @@ namespace Engine
 
         public void Run()
         {
-            //var geometry = GfxDeviceManager.Current.CreateGeometry(Tests.GetTestGeometryDescriptor());
-            //var shader = GfxDeviceManager.Current.CreateShader(Tests.GetTestShaderDescriptor());
-            //var texture = GfxDeviceManager.Current.CreateTexture(Tests.TestTextureCreation());
-
             while (!Window.ShouldClose)
             {
                 _layersManager.Update();
-
-                //(shader as GLShader).Bind();
-                //(geometry as GLGeometry).Bind();
-                //(texture as GLTexture).Bind();
-                //GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, 6);
-
-                Window.SwapBuffers();
             }
         }
     }

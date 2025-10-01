@@ -10,6 +10,8 @@ namespace Engine
     {
         public Shader Shader { get; }
         private List<Texture> _tex;
+        public Graphics.Blending Blending { get; set; } = new Graphics.Blending() {  Enabled = true };
+        public Graphics.Stencil Stencil { get; set; }
 
         public Material(Shader shader)
         {
@@ -17,7 +19,7 @@ namespace Engine
             _tex = new List<Texture>();
         }
 
-        public Texture GetTexture(int index) 
+        public Texture GetTexture(int index)
         {
             return _tex[index];
         }

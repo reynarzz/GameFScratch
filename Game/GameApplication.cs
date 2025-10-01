@@ -68,6 +68,11 @@ namespace Game
         // Fix rendering: If the actor/parent/component is disabled, the renderer will still be rendered.
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
+        // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
+
+        // For game:
+        // Implement auto colliders for levels.
+        // 
 
         // -Stretch:
         // Implement bounds in sprites/renderers.
@@ -78,8 +83,8 @@ namespace Game
             var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets";
             var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Test";
             //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
-            //var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
-            var tilemapTexture = Assets.GetTexture(testPathNow + "\\Inca_front_by_Kronbits-extended.png");
+            var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
+            //var tilemapTexture = Assets.GetTexture(testPathNow + "\\Inca_front_by_Kronbits-extended.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
@@ -89,8 +94,8 @@ namespace Game
             tilemapSprite.Texture.PixelPerUnit = 16;
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
-            //var filepath = testPathNow + "\\Tilemap4.ldtk";
-            var filepath = testPathNow + "\\Tilemap3.ldtk";
+            var filepath = testPathNow + "\\Tilemap2.ldtk";
+            //var filepath = testPathNow + "\\Tilemap3.ldtk";
             string json = File.ReadAllText(filepath);
 
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -110,7 +115,9 @@ namespace Game
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
             // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
-            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true, LayersToLoad = 1ul << 1 });
+            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, 
+                                                RenderTilesLayer = true, RenderAutoLayer = true,
+                                                LayersToLoad = 1ul << 1, WorldDepth = 0 });
 
         }
 

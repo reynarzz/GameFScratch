@@ -15,7 +15,7 @@ namespace Engine.Graphics
 
         static GfxDeviceManager()
         {
-            _device = new GLGfxDevice();
+            _device = new GLDevice();
             _device.Initialize();
         }
 

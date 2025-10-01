@@ -8,10 +8,10 @@ using static OpenGL.GL;
 
 namespace Engine.Graphics.OpenGL
 {
-    internal class GLGfxDevice : GfxDevice
+    internal class GLDevice : GfxDevice
     {
         private readonly GfxDeviceInfo _gfxDeviceInfo;
-        public GLGfxDevice()
+        public GLDevice()
         {
             int maxTextureUnits;
             int maxTextureUnitsAccessInVertexShader;
@@ -85,20 +85,17 @@ namespace Engine.Graphics.OpenGL
         }
 
 
-        internal override void DrawIndexed(DrawMode mode, int indicesLength)
+        private void DrawIndexed(DrawMode mode, int indicesLength)
         {
             unsafe
             {
                 glDrawElements(GetGLDrawMode(mode), indicesLength, GL_UNSIGNED_INT, null);
             }
         }
-
+        
         internal override void DrawArrays(DrawMode mode, int startIndex, int vertexCount)
         {
-            unsafe
-            {
-                glDrawArrays(GetGLDrawMode(mode), startIndex, vertexCount);
-            }
+            glDrawArrays(GetGLDrawMode(mode), startIndex, vertexCount);
         }
 
         private int GetGLDrawMode(DrawMode mode)
@@ -118,18 +115,6 @@ namespace Engine.Graphics.OpenGL
             }
 
             return internalMode;
-        }
-        internal override void SetPipelineFeatures(PipelineFeatures features)
-        {
-            if (features.Blending.Enabled)
-            {
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            }
-            else
-            {
-                glDisable(GL_BLEND);
-            }
         }
 
         internal override void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc)
@@ -153,6 +138,93 @@ namespace Engine.Graphics.OpenGL
         internal override void SetViewport(vec4 viewport)
         {
             glViewport((int)viewport.x, (int)viewport.y, (int)viewport.z, (int)viewport.w);
+        }
+
+        internal override void Present()
+        {
+            Window.SwapBuffers();
+        }
+        private void SetUniforms(GfxResource shaderRes, UniformValue[] uniforms)
+        {
+            var shader = shaderRes as GLShader;
+            foreach (var uniform in uniforms)
+            {
+                if (string.IsNullOrEmpty(uniform.Name))
+                    break;
+
+                switch (uniform.Type)
+                {
+                    case UniformType.Int:
+                        shader.SetUniform(uniform.Name, uniform.IntValue);
+                        break;
+                    case UniformType.Float:
+                        shader.SetUniformF(uniform.Name, uniform.FloatValue);
+                        break;
+                    case UniformType.Uint:
+                        shader.SetUniform(uniform.Name, uniform.UIntValue);
+                        break;
+                    case UniformType.Mat4:
+                        shader.SetUniform(uniform.Name, uniform.Mat4Value);
+                        break;
+                    case UniformType.Vec2:
+                        shader.SetUniform(uniform.Name, uniform.Vec2Value);
+                        break;
+                    case UniformType.Vec3:
+                        shader.SetUniform(uniform.Name, uniform.Vec3Value);
+                        break;
+                    case UniformType.IntArr:
+                        shader.SetUniform(uniform.Name, uniform.IntArrValue);
+                        break;
+                    default:
+                        Debug.Error($"uniform type: '{uniform.Type}' is not implemented.");
+                        break;
+                }
+            }
+        }
+
+        private void SetPipelineFeatures(PipelineFeatures features)
+        {
+            if (features.Blending.Enabled)
+            {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }
+            else
+            {
+                glDisable(GL_BLEND);
+            }
+        }
+
+        internal override void Draw(DrawCallData drawCallData)
+        {
+            (drawCallData.Geometry as GLGeometry).Bind();
+            var shader = drawCallData.Shader as GLShader;
+            shader.Bind();
+
+            for (int i = 0; i < drawCallData.Textures.Length; i++)
+            {
+                var tex = drawCallData.Textures[i];
+                if (tex == null)
+                    break;
+                (tex as GLTexture).Bind(i);
+            }
+
+            SetUniforms(shader, drawCallData.Uniforms);
+            SetPipelineFeatures(drawCallData.Features);
+
+            switch (drawCallData.DrawType)
+            {
+                case DrawType.Indexed:
+                    DrawIndexed(drawCallData.DrawMode, drawCallData.IndexedDrawType.IndexDrawCount);
+                    break;
+                case DrawType.Arrays:
+                    DrawArrays(drawCallData.DrawMode, drawCallData.ArraysDrawType.StartIndex, drawCallData.ArraysDrawType.VertexCount);
+                    break;
+                default:
+                    Debug.Error($"Draw type: '{drawCallData.DrawType}' is not implemented.");
+                    break;
+            }
+
         }
     }
 }

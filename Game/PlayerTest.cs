@@ -13,7 +13,7 @@ namespace Game
     {
         private bool _extraJumpAvailable = false;
         private float _jumpForce = 11;
-        private float _walkSpeed = 2.4f;
+        private float _walkSpeed = 4.4f;
         private RigidBody2D _rigid;
         private bool _isOnGround = false;
         private float _gravityScale = 3;

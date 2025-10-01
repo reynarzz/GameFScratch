@@ -16,15 +16,24 @@ namespace Engine.Layers
     {
         private Batcher2D _batcher2d;
         private Camera _mainCamera = null;
-        private const int MAX_QUADS_PER_BATCH = 5000;
+        private DrawCallData _drawCallData;
+        private PipelineFeatures _pipelineFeatures;
 
         public RenderingLayer()
         {
+
         }
 
         public override void Initialize()
         {
-            _batcher2d = new Batcher2D(MAX_QUADS_PER_BATCH);
+            _batcher2d = new Batcher2D(Consts.Graphics.MAX_QUADS_PER_BATCH);
+            _pipelineFeatures = new PipelineFeatures();
+
+            _drawCallData = new DrawCallData()
+            {
+                Textures = new GfxResource[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits],
+                Uniforms = new UniformValue[Consts.Graphics.MAX_UNIFORMS_PER_DRAWCALL]
+            };
         }
 
         public override void Close()
@@ -49,6 +58,7 @@ namespace Engine.Layers
             // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
 
+            // TODO: improve this
             var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>(findDisabled: false));
 
             var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
@@ -58,29 +68,39 @@ namespace Engine.Layers
                 if (!batch.IsActive)
                     break;
 
-                GfxDeviceManager.Current.SetPipelineFeatures(new PipelineFeatures() { Blending = new Blending() { Enabled = true } });
-
                 batch.Flush();
-                (batch.Geometry as GLGeometry).Bind();
-                var shader = batch.Material.Shader.NativeShader as GLShader;
-                shader.Bind();
-                shader.SetUniform(Consts.VIEW_PROJECTION_UNIFORM_NAME, VP);
-
+              
                 for (int i = 0; i < batch.Textures.Length; i++)
                 {
                     var tex = batch.Textures[i];
                     if (tex == null)
                         break;
-                    (tex.NativeTexture as GLTexture).Bind(i);
+                    _drawCallData.Textures[i] = tex.NativeTexture;
                 }
 
-                shader.SetUniform(Consts.TEXTURES_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+                // Pipeline
+                _pipelineFeatures.Blending = batch.Material.Blending;
+                _pipelineFeatures.Stencil = batch.Material.Stencil;
+
+                _drawCallData.DrawType = batch.DrawType;
+                _drawCallData.DrawMode = batch.DrawMode;
+                _drawCallData.IndexedDrawType.IndexDrawCount = batch.IndexCount;
+                _drawCallData.Shader = batch.Material.Shader.NativeShader;
+                _drawCallData.Geometry = batch.Geometry;
+                _drawCallData.Features = _pipelineFeatures;
+
+                // Iniforms
+                _drawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX] = UniformValue.AsMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
+                _drawCallData.Uniforms[Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX] = UniformValue.AsIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+                _drawCallData.Uniforms[Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX] = UniformValue.AsMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
 
                 // Draw
-                GfxDeviceManager.Current.DrawIndexed(DrawMode.Triangles, batch.IndexCount);
+                GfxDeviceManager.Current.Draw(_drawCallData);
             }
-            
+
             Debug.DrawGeometries(VP);
+
+            GfxDeviceManager.Current.Present();
         }
     }
 }

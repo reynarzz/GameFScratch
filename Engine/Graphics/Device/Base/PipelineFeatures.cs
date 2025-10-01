@@ -10,11 +10,16 @@ namespace Engine.Graphics
     {
         internal bool DepthBuffer { get; set; } = false;
         internal Blending Blending { get; set; }
-        internal bool StencilBuffer { get; set; } = false;
+        internal Stencil Stencil { get; set; }
     }
 
-    internal struct Blending 
+    public struct Blending 
     {
-        internal bool Enabled { get; set; }
+        public bool Enabled { get; set; }
+    }
+
+    public struct Stencil
+    {
+        public bool Enabled { get; set; }
     }
 }

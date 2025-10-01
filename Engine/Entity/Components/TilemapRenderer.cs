@@ -119,7 +119,7 @@ namespace Engine
                             PaintTiles(level, layer, layer.AutoLayerTiles);
                             break;
                         case "IntGrid":
-                            PaintTiles(level, layer, layer.GridTiles);
+                            PaintTiles(level, layer, layer.AutoLayerTiles);
                             break;
                         case "Entities":
                             break;
@@ -151,7 +151,6 @@ namespace Engine
         public bool RenderAutoLayer { get; set; }
         public int[] LevelsToLoad { get; set; }
         public ulong LayersToLoad { get; set; }
-
         public int WorldDepth { get; set; }
     }
 }

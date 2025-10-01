@@ -22,9 +22,10 @@ namespace Engine.Rendering
         internal int VertexCount { get; private set; }
         internal int IndexCount { get; private set; }
         internal bool IsActive { get; private set; }
-        public mat4 WorldMatrix = mat4.identity();
+        internal DrawMode DrawMode { get; set; } = DrawMode.Triangles;
+        internal DrawType DrawType { get; set; } = DrawType.Indexed;
+        internal mat4 WorldMatrix { get; set; } = mat4.identity();
 
-        // TODO: On batch empty just
         public event Action<Batch2D> OnBatchEmpty;
 
         private GeometryDescriptor _geoDescriptor;
@@ -243,7 +244,7 @@ namespace Engine.Rendering
                 }
 
                 vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
-
+                
                 GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);
             }
 

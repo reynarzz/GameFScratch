@@ -178,7 +178,7 @@ namespace Engine
                 // Bind shader
                 var shader = (_shader.NativeShader as GLShader);
                 shader.Bind();
-                shader.SetUniform(Consts.VIEW_PROJECTION_UNIFORM_NAME, ViewProj);
+                shader.SetUniform(Consts.VIEW_PROJ_UNIFORM_NAME, ViewProj);
 
                 // Push geometries updates
                 PushLineGeometries();

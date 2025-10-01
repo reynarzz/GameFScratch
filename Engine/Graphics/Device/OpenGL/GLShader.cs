@@ -123,6 +123,18 @@ namespace Engine.Graphics.OpenGL
             glUniform1i(location, value);
         }
 
+        internal void SetUniform(string name, uint value)
+        {
+            var location = GetLocation(name);
+            glUniform1ui(location, value);
+        }
+
+        internal void SetUniformF(string name, float value)
+        {
+            var location = GetLocation(name);
+            glUniform1f(location, value);
+        }
+
         internal void SetUniform(string name, int[] value)
         {
             var location = GetLocation(name);
