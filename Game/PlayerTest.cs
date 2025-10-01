@@ -23,6 +23,8 @@ namespace Game
         private SpriteRenderer _renderer;
         private Sprite[] _idleSprites;
         private Sprite[] _runSprites;
+        private Sprite[] _jumpSprites;
+        private Sprite[] _fallSprites;
         private SpriteAnimation2D _animation;
 
         public override void OnAwake()
@@ -48,15 +50,22 @@ namespace Game
             var basePath = "D:\\Projects\\GameScratch\\Game\\Assets\\KingsAndPigsSprites\\01-King Human\\";
             var pTexture = Assets.GetTexture(basePath + "Run (78x58).png");
             var pTexture2 = Assets.GetTexture(basePath + "Idle (78x58).png");
+            var jumpTex = Assets.GetTexture(basePath + "Jump (78x58).png");
+            var FallTex = Assets.GetTexture(basePath + "Fall (78x58).png");
 
             pTexture.PixelPerUnit = 16;
             pTexture2.PixelPerUnit = 16;
+            jumpTex.PixelPerUnit = 16;
+            FallTex.PixelPerUnit = 16;
             _runSprites = TextureAtlasUtils.SliceSprites(pTexture, 78, 58, new vec2(0.4f, 0.4f));
             _idleSprites = TextureAtlasUtils.SliceSprites(pTexture2, 78, 58, new vec2(0.4f, 0.4f));
+            _jumpSprites = TextureAtlasUtils.SliceSprites(jumpTex, 78, 58, new vec2(0.4f, 0.4f));
+            _fallSprites = TextureAtlasUtils.SliceSprites(FallTex, 78, 58, new vec2(0.4f, 0.4f));
 
             _animation = GetComponent<SpriteAnimation2D>();
             _animation.Renderer = _renderer;
             _animation.PushFrames(_idleSprites);
+            _animation.FPS = 14;
         }
 
         public override void OnStart()
@@ -67,7 +76,7 @@ namespace Game
 
         public override void OnUpdate()
         {
-            if (/*(_isOnGround || _extraJumpAvailable) && */Input.GetKeyDown(KeyCode.Space))
+            if ((_isOnGround || _extraJumpAvailable) && Input.GetKeyDown(KeyCode.Space))
             {
                 _extraJumpAvailable = false;
                 _jumped = true;
@@ -75,6 +84,8 @@ namespace Game
                 _rigid.Velocity = new GlmNet.vec2(_rigid.Velocity.x, 0);
                 _rigid.Velocity = new vec2(_rigid.Velocity.x, _jumpForce);
                 //_rigid?.AddForce(new GlmNet.vec2(0, _jumpForce), ForceMode2D.Impulse);
+                _animation.Play();
+                _animation.PushFrames(_jumpSprites);
             }
 
             if (Input.GetKey(KeyCode.A))
@@ -83,7 +94,9 @@ namespace Game
                 _rigid.Velocity = new GlmNet.vec2(-_walkSpeed, _rigid.Velocity.y);
                 Transform.WorldScale = new vec3(-1, 1, 1);
                 // _renderer.FlipX = true;
-                _animation.PushFrames(_runSprites);
+
+                if (_isOnGround && !_jumped)
+                    _animation.PushFrames(_runSprites);
             }
             else if (Input.GetKey(KeyCode.D))
             {
@@ -92,13 +105,31 @@ namespace Game
                 Transform.WorldScale = new vec3(1, 1, 1);
 
                 // _renderer.FlipX = false;
-                _animation.PushFrames(_runSprites);
+                if (_isOnGround && !_jumped)
+                    _animation.PushFrames(_runSprites);
 
             }
             else
             {
-                _animation.PushFrames(_idleSprites);
+                if (_isOnGround && !_jumped)
+                    _animation.PushFrames(_idleSprites);
 
+                _rigid.Velocity = new vec2(0, _rigid.Velocity.y);
+
+            }
+
+            if (!_isOnGround)
+            {
+                if (_rigid.Velocity.y > 0)
+                {
+                    _animation.PushFrames(_jumpSprites);
+                }
+                else if (_rigid.Velocity.y < 0)
+                {
+                    _animation.PushFrames(_fallSprites);
+                }
+
+                _animation.Play();
             }
 
             if (Input.GetKeyDown(KeyCode.Q))
@@ -176,6 +207,7 @@ namespace Game
                 }
                 _isOnGround = true;
                 _extraJumpAvailable = true;
+
                 if (_rigid.Velocity.y <= 0)
                 {
                     _jumped = false;

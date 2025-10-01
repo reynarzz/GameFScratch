@@ -114,11 +114,27 @@ namespace Game
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
+
+            var tilemapActor2 = new Actor<TilemapRenderer>();
+            var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
+            tilemap2.Material = mat1;
+            tilemap2.Sprite = tilemapSprite;
+
             // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
             tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, 
                                                 RenderTilesLayer = true, RenderAutoLayer = true,
-                                                LayersToLoad = 1ul << 1, WorldDepth = 0 });
+                                                LayerToLoad = 2, WorldDepth = 0 });
 
+            tilemap2.SetTilemapLDtk(project, new LDtkOptions()
+            {
+                RenderIntGridLayer = true,
+                RenderTilesLayer = true,
+                RenderAutoLayer = true,
+                LayerToLoad = 3,
+                WorldDepth = 0
+            });
+            tilemap2.SortOrder = 0;
+            tilemap.SortOrder = 3;
         }
 
         public override void Initialize()
@@ -175,12 +191,23 @@ namespace Game
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
 
+            LayerMask.AssignName(3, "Player");
+            LayerMask.AssignName(1, "Floor");
+            LayerMask.AssignName(5, "Platform");
+            LayerMask.AssignName(4, "Enemy");
+            LayerMask.TurnOff("Player", "Player");
+
+            // LayerMask.TurnOn("Player", "Player");
+
+            Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
+
+
             var actor = new Actor<SpriteRenderer, RigidBody2D, RotateTest, BoxCollider2D, CollisionTest>("CenterRotParent");
             actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
             actor.GetComponent<SpriteRenderer>().SortOrder = 2;
-
+            actor.Layer = LayerMask.NameToLayer("Floor");
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
 
@@ -200,16 +227,7 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-            LayerMask.AssignName(3, "Player");
-            LayerMask.AssignName(1, "Floor");
-            LayerMask.AssignName(5, "Platform");
-            LayerMask.AssignName(4, "Enemy");
-            LayerMask.TurnOff("Player", "Player");
-
-            // LayerMask.TurnOn("Player", "Player");
-
-            Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
-
+          
 
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
@@ -247,7 +265,7 @@ namespace Game
             var rigid4 = actor4.GetComponent<RigidBody2D>();
             var boxCollider = actor4.GetComponent<BoxCollider2D>();
             var polygon = actor4.AddComponent<PolygonCollider2D>();
-            polygon.IsTrigger = true;
+            polygon.IsTrigger = false;
 
             polygon.Points =
             [
@@ -264,9 +282,9 @@ namespace Game
             ];
 
             polygon.Generate();
-            polygon.Offset = new vec2(-2, 0);
+            polygon.Offset = new vec2(8, 0);
             polygon.RotationOffset = 0;
-            // polygon.IsEnabled = false;
+             polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
 
@@ -278,12 +296,12 @@ namespace Game
 
             boxCollider.Size = new GlmNet.vec2(15, 1);
 
-            rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -4, 0);
+            rigid4.Transform.WorldPosition = new GlmNet.vec3(0, -11, 0);
             //rigid4.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 20);
             actor4.Transform.LocalScale = new GlmNet.vec3(15, 1, 1);
 
             actor4.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>()?.Material;
-            //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
+            actor4.GetComponent<SpriteRenderer>().SortOrder = -1;
             actor4.GetComponent<SpriteRenderer>().Sprite = sprite2;
 
             Debug.Success("Game Layer");

@@ -103,8 +103,8 @@ namespace Engine
 
                 for (int j = level.LayerInstances.Length - 1; j >= 0; j--)
                 {
-                    //if ((options.LayersToLoad & (ulong)layerIndex) == 0)
-                    //    continue;
+                    if ((options.LayerToLoad != j)) // As temp, refactor incoming
+                        continue;
 
                     var layer = level.LayerInstances[j];
 
@@ -150,7 +150,7 @@ namespace Engine
         public bool RenderTilesLayer { get; set; }
         public bool RenderAutoLayer { get; set; }
         public int[] LevelsToLoad { get; set; }
-        public ulong LayersToLoad { get; set; }
+        public int LayerToLoad { get; set; }
         public int WorldDepth { get; set; }
     }
 }
