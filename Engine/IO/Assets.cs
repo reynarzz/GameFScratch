@@ -18,7 +18,9 @@ namespace Engine
 
             var result = ImageResult.FromMemory(File.ReadAllBytes(path));
 
-            return new Texture2D(result.Width, result.Height, (int)result.Comp, result.Data);
+            var texture = new Texture2D(result.Width, result.Height, (int)result.Comp, result.Data);
+            texture.Name = Path.GetFileName(path);
+            return texture;
         }
     }
 }
