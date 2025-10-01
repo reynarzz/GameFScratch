@@ -215,10 +215,10 @@ namespace Engine.Graphics.OpenGL
             switch (drawCallData.DrawType)
             {
                 case DrawType.Indexed:
-                    DrawIndexed(drawCallData.DrawMode, drawCallData.IndexedDrawType.IndexDrawCount);
+                    DrawIndexed(drawCallData.DrawMode, drawCallData.IndexedDraw.IndexCount);
                     break;
                 case DrawType.Arrays:
-                    DrawArrays(drawCallData.DrawMode, drawCallData.ArraysDrawType.StartIndex, drawCallData.ArraysDrawType.VertexCount);
+                    DrawArrays(drawCallData.DrawMode, drawCallData.ArraysDraw.StartIndex, drawCallData.ArraysDraw.VertexCount);
                     break;
                 default:
                     Debug.Error($"Draw type: '{drawCallData.DrawType}' is not implemented.");

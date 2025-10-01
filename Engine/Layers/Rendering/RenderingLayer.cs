@@ -58,7 +58,7 @@ namespace Engine.Layers
             // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
 
-            // TODO: improve this
+            // TODO: improve this, don't ask for renderers but add/remove with events.
             var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>(findDisabled: false));
 
             var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
@@ -84,15 +84,15 @@ namespace Engine.Layers
 
                 _drawCallData.DrawType = batch.DrawType;
                 _drawCallData.DrawMode = batch.DrawMode;
-                _drawCallData.IndexedDrawType.IndexDrawCount = batch.IndexCount;
+                _drawCallData.IndexedDraw.IndexCount = batch.IndexCount;
                 _drawCallData.Shader = batch.Material.Shader.NativeShader;
                 _drawCallData.Geometry = batch.Geometry;
                 _drawCallData.Features = _pipelineFeatures;
 
                 // Iniforms
-                _drawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX] = UniformValue.AsMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
-                _drawCallData.Uniforms[Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX] = UniformValue.AsIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
-                _drawCallData.Uniforms[Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX] = UniformValue.AsMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
+                _drawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
+                _drawCallData.Uniforms[Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+                _drawCallData.Uniforms[Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
 
                 // Draw
                 GfxDeviceManager.Current.Draw(_drawCallData);

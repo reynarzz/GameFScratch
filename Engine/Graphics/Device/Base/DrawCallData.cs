@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlmNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Engine.Graphics
 {
     internal struct IndexedDrawType
     {
-        public int IndexDrawCount { get; set; }
+        public int IndexCount { get; set; }
     }
 
     internal struct ArraysDrawType
@@ -19,15 +20,16 @@ namespace Engine.Graphics
 
     internal class DrawCallData
     {
-        public DrawType DrawType { get; set; }
-        public IndexedDrawType IndexedDrawType;
-        public ArraysDrawType ArraysDrawType;
-        public DrawMode DrawMode { get; set; }
-        public PipelineFeatures Features { get; set; }
-        public GfxResource Shader { get; set; }
-        public GfxResource Geometry { get; set; }
-        public GfxResource[] Textures { get; set; }
-        public UniformValue[] Uniforms { get; set; }
+        internal DrawType DrawType { get; set; }
+        internal DrawMode DrawMode { get; set; }
+        internal PipelineFeatures Features { get; set; }
+        internal GfxResource Shader { get; set; }
+        internal GfxResource Geometry { get; set; }
+        internal GfxResource[] Textures { get; set; }
+        internal UniformValue[] Uniforms { get; set; }
+
+        internal IndexedDrawType IndexedDraw;
+        internal ArraysDrawType ArraysDraw;
     }
 
 }

@@ -2,11 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Engine.Graphics.OpenGL;
 using GlmNet;
 
 namespace Engine.Rendering
@@ -51,7 +49,7 @@ namespace Engine.Rendering
             _geoDescriptor = new GeometryDescriptor();
             var vertexDesc = new VertexDataDescriptor();
             vertexDesc.BufferDesc = new BufferDataDescriptor();
-            vertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<Vertex>(new Vertex[maxVertexSize]).ToArray();
+            vertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
             vertexDesc.BufferDesc.Usage = BufferUsage.Dynamic;
             _geoDescriptor.SharedIndexBuffer = sharedIndexBuffer;
 
@@ -84,12 +82,6 @@ namespace Engine.Rendering
 
             for (int i = 0; i < Textures.Length; i++)
             {
-                if (Textures[i] != null)
-                {
-                    // TODO: refactor here, dirty workaround for faster prototyping.
-                    (Textures[i].NativeTexture as GLTexture).Unbind();
-                }
-
                 Textures[i] = null;
             }
         }

@@ -19,7 +19,7 @@ namespace Engine.Graphics
         internal int Count { get; set; }
         internal int Offset { get; set; }
 
-        internal byte[] Buffer;
+        internal byte[] Buffer { get; set; }
 
         internal BufferUsage Usage { get; set; }
     }

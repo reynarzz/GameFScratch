@@ -23,6 +23,7 @@ namespace Engine.Rendering
         private GfxResource _sharedIndexBuffer;
 
         private const int IndicesPerQuad = 6;
+        private const int VerticesPerQuad = 4;
         private Dictionary<BucketKey, List<Renderer2D>> _renderBuckets;
         private BatchesPool _batchesPool;
         private Material _pinkMaterial;
@@ -123,8 +124,7 @@ namespace Engine.Rendering
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
-                    // Note: this prevent interpolation
-                    if (!renderer.IsDirty)
+                    if (!renderer.IsDirty && !renderer.Transform.NeedsInterpolation)
                     {
                         continue;
                     }
@@ -142,21 +142,20 @@ namespace Engine.Rendering
                         var width = (float)chunk.Width / ppu;
                         var height = (float)chunk.Height / ppu;
 
+                        if (CanPushGeometry(currentBatch, VerticesPerQuad, texture, material))
+                        {
+                            currentBatch = _batchesPool.Get(renderer, VerticesPerQuad, MaxBatchVertexSize, material);
+                        }
+
                         QuadVertices quad = default;
                         GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.PacketColor, worldMatrix);
-
-                        var vertexToAdd = 4;
-                        if (CanPushGeometry(currentBatch, vertexToAdd, texture, material))
-                        {
-                            currentBatch = _batchesPool.Get(renderer, vertexToAdd, MaxBatchVertexSize, material);
-                        }
 
                         _quadVertexArray[0] = quad.v0;
                         _quadVertexArray[1] = quad.v1;
                         _quadVertexArray[2] = quad.v2;
                         _quadVertexArray[3] = quad.v3;
 
-                        currentBatch.PushGeometry(renderer, material, texture, 6, _quadVertexArray);
+                        currentBatch.PushGeometry(renderer, material, texture, IndicesPerQuad, _quadVertexArray);
                     }
                     else
                     {
@@ -165,7 +164,7 @@ namespace Engine.Rendering
 
                         if (CanPushGeometry(currentBatch, vertexCount, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, CreateIndexBuffer(vertexCount / 4));
+                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, CreateIndexBuffer(vertexCount / VerticesPerQuad));
                         }
 
                         currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));
