@@ -121,14 +121,9 @@ namespace Game
             tilemap2.Sprite = tilemapSprite;
 
             // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
-            tilemap.SetTilemapLDtk(project, new LDtkOptions()
-            {
-                RenderIntGridLayer = true,
-                RenderTilesLayer = true,
-                RenderAutoLayer = true,
-                LayerToLoad = 2,
-                WorldDepth = 0
-            });
+            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, 
+                                                RenderTilesLayer = true, RenderAutoLayer = true,
+                                                LayerToLoad = 2, WorldDepth = 0 });
 
             tilemap2.SetTilemapLDtk(project, new LDtkOptions()
             {
@@ -190,7 +185,7 @@ namespace Game
             camera.OrthoMatch = CameraOrthoMatch.Width;
             camera.OrthographicSize = CalculateOrthoSize(256, camera.OrthoMatch, 16, 1920, 1080);
 
-            LoadTilemap(camera);
+           // LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -233,17 +228,17 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-
+          
 
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
             playerActor.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
 
-
+       
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
-
+            
 
             var collider3 = playerActor.GetComponent<Collider2D>();
             var rigid3 = playerActor.Transform.GetComponent<RigidBody2D>();
@@ -290,13 +285,13 @@ namespace Game
             polygon.Generate();
             polygon.Offset = new vec2(8, 0);
             polygon.RotationOffset = 0;
-            polygon.IsEnabled = false;
+             polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
 
             platform.Layer = LayerMask.NameToLayer("Platform");
 
-            //  var respawner = new Actor<Respawner>("Respawner");
+          //  var respawner = new Actor<Respawner>("Respawner");
 
             rigid4.BodyType = Body2DType.Kinematic;
 

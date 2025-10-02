@@ -236,12 +236,6 @@ namespace Engine.Rendering
                 if (canRemoveTexture)
                 {
                     Array.Copy(Textures, rendererIds.TextureId + 1, Textures, rendererIds.TextureId, Textures.Length - (rendererIds.TextureId + 1));
-
-                    foreach (var tex in Textures)
-                    {
-                        if(tex != null)
-                        (tex.NativeTexture as GLTexture)?.Unbind();
-                    }
                 }
 
                 // Shift the trailing vertices down

@@ -24,7 +24,7 @@ namespace Engine.Rendering
             foreach (var batch in _batches)
             {
                 var isTotalSizeEnough = batch.MaxVertexSize >= maxVertexSize;
-                var hasSpaceLeftForAnother = batch.VertexCount > vertexToAdd && !batch.Contains(renderer);
+                var hasSpaceLeftForAnother = (batch.MaxVertexSize - batch.VertexCount) > vertexToAdd && !batch.Contains(renderer);
                 var alreadyHasRenderer = batch.Contains(renderer);
 
                 if (isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && batch.Material == mat)

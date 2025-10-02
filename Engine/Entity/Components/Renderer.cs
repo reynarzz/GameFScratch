@@ -35,13 +35,17 @@ namespace Engine
         public override void OnEnabled()
         {
             base.OnEnabled();
-            IsDirty = true;
+            Debug.Log("Enabled");
+
+          IsDirty = true;
         }
 
         public override void OnDisabled()
         {
             base.OnDisabled();
             IsDirty = true;
+            Debug.Log("Disabled");
+            OnDestroyRenderer?.Invoke(this);
         }
 
         public override void OnDestroy()

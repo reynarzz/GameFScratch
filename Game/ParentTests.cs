@@ -13,7 +13,8 @@ namespace Game
         {
             if (Input.GetKeyDown(KeyCode.F))
             {
-                // Actor.IsActiveSelf = false;
+                Actor.IsActiveSelf = false;
+                //Actor.IsActiveSelf = true;
 
                 //for (int i = 0; i < Transform.Children.Count; i++)
                 //{
