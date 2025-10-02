@@ -24,7 +24,7 @@ namespace Engine.Rendering
         internal DrawMode DrawMode { get; set; } = DrawMode.Triangles;
         internal DrawType DrawType { get; set; } = DrawType.Indexed;
         internal mat4 WorldMatrix { get; set; } = mat4.identity();
-
+        public int SortOrder { get; set; }
         public event Action<Batch2D> OnBatchEmpty;
 
         private GeometryDescriptor _geoDescriptor;
@@ -77,11 +77,19 @@ namespace Engine.Rendering
             Geometry = GfxDeviceManager.Current.CreateGeometry(_geoDescriptor);
         }
 
-        internal void Initialize()
+        internal void Initialize(Renderer2D renderer)
         {
             if (IsActive)
                 return;
 
+            Clear();
+
+            SortOrder = renderer.SortOrder;
+        }
+
+        internal void Clear()
+        {
+            SortOrder = 0;
             VertexCount = 0;
             IndexCount = 0;
             Material = null;
@@ -94,7 +102,7 @@ namespace Engine.Rendering
             }
         }
 
-        internal void PushGeometry(Renderer renderer, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
+        internal void PushGeometry(Renderer2D renderer, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
         {
             _isDirty = true;
             IsActive = true;

@@ -356,6 +356,21 @@ namespace Engine
             }
         }
 
+        public override void OnEnabled()
+        {
+            base.OnEnabled();
+            if (IsEnabled)
+            {
+                B2Bodies.b2Body_Enable(_bodyId);
+            }
+        }
+
+        public override void OnDisabled()
+        {
+            base.OnDisabled();
+            B2Bodies.b2Body_Disable(_bodyId);
+        }
+
         ~RigidBody2D()
         {
             B2Bodies.b2DestroyBody(_bodyId);

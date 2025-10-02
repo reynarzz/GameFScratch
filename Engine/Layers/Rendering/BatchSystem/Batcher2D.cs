@@ -91,7 +91,7 @@ namespace Engine.Rendering
             return GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
-        internal IReadOnlyList<Batch2D> CreateBatches(List<Renderer2D> renderers)
+        internal IReadOnlyList<Batch2D> GetBatches(List<Renderer2D> renderers)
         {
             // TODO: Do frustum culling
 

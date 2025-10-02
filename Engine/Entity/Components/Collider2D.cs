@@ -222,5 +222,31 @@ namespace Engine
 
             _shapesID = null;
         }
+
+        public override void OnEnabled()
+        {
+            base.OnEnabled();
+            if (IsEnabled && AreShapesValid())
+            {
+                ApplyToShapesSafe(shape =>
+                {
+                    B2Shapes.b2Shape_SetFilter(shape, _defaultFilter);
+                });
+            }
+        }
+
+        public override void OnDisabled()
+        {
+            base.OnDisabled();
+
+
+            if (IsEnabled && AreShapesValid())
+            {
+                ApplyToShapesSafe(shape =>
+                {
+                    B2Shapes.b2Shape_SetFilter(shape, default);
+                });
+            }
+        }
     }
 }

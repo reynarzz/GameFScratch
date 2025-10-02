@@ -110,12 +110,12 @@ namespace Game
             //cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
             //cam.BackgroundColor = new Color32(23, 28, 57, project.BackgroundColor.A);
 
-            var tilemapActor = new Actor<TilemapRenderer>();
+            var tilemapActor = new Actor<TilemapRenderer>("Foreground tilemap");
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
             tilemap.Material = mat1;
             tilemap.Sprite = tilemapSprite;
 
-            var tilemapActor2 = new Actor<TilemapRenderer>();
+            var tilemapActor2 = new Actor<TilemapRenderer>("Background tilemap");
             var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
             tilemap2.Material = mat1;
             tilemap2.Sprite = tilemapSprite;
@@ -133,7 +133,7 @@ namespace Game
                 LayerToLoad = 3,
                 WorldDepth = 0
             });
-            tilemap2.SortOrder = 0;
+            tilemap2.SortOrder = -1;
             tilemap.SortOrder = 3;
         }
 
@@ -159,8 +159,6 @@ namespace Game
             var mainShader = new Shader(SpriteVertexShader, SpriteFragmentShader);
 
             var mat1 = new Material(mainShader);
-            //var mat2 = new Material(mainShader);
-            //var mat3 = new Material(mainShader);
 
             float CalculateOrthoSize(float desiredSizeInPixels, CameraOrthoMatch match, float pixelsPerUnit, int windowWidth, int windowHeight)
             {
@@ -185,7 +183,7 @@ namespace Game
             camera.OrthoMatch = CameraOrthoMatch.Width;
             camera.OrthographicSize = CalculateOrthoSize(256, camera.OrthoMatch, 16, 1920, 1080);
 
-           // LoadTilemap(camera);
+           LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -207,7 +205,7 @@ namespace Game
             actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
             actor.GetComponent<SpriteRenderer>().Material = mat1;
             actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
-            actor.GetComponent<SpriteRenderer>().SortOrder = 2;
+            actor.GetComponent<SpriteRenderer>().SortOrder = 0;
             actor.Layer = LayerMask.NameToLayer("Floor");
             // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
             actor.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
@@ -221,7 +219,7 @@ namespace Game
                 actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
                 actor2.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
 
-                //actor2.GetComponent<SpriteRenderer>().SortOrder = 3;
+                actor2.GetComponent<SpriteRenderer>().SortOrder = 0;
                 actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
                 actor2.Transform.WorldPosition = new GlmNet.vec3(-3, 0, 0);
                 actor2.Transform.Parent = actor.Transform;
@@ -233,7 +231,7 @@ namespace Game
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
             playerActor.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
-            //actor3.GetComponent<SpriteRenderer>().SortOrder = 1;
+            playerActor.GetComponent<SpriteRenderer>().SortOrder = 1;
 
        
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];

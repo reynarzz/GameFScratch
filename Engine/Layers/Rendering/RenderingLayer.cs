@@ -59,7 +59,7 @@ namespace Engine.Layers
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
 
             // TODO: improve this, don't ask for renderers but add/remove with events.
-            var batches = _batcher2d.CreateBatches(SceneManager.ActiveScene.FindAll<Renderer2D>(findDisabled: false));
+            var batches = _batcher2d.GetBatches(SceneManager.ActiveScene.FindAll<Renderer2D>(findDisabled: false));
 
             var VP = _mainCamera.Projection * _mainCamera.ViewMatrix;
 

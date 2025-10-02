@@ -19,32 +19,33 @@ namespace Engine.Rendering
             _batches = new List<Batch2D>();
         }
 
-        internal Batch2D Get(Renderer renderer, int vertexToAdd, int maxVertexSize, Material mat, GfxResource indexBuffer = null)
+        internal Batch2D Get(Renderer2D renderer, int vertexToAdd, int maxVertexSize, Material mat, GfxResource indexBuffer = null)
         {
             foreach (var batch in _batches)
             {
                 var isTotalSizeEnough = batch.MaxVertexSize >= maxVertexSize;
-                var hasSpaceLeftForAnother = (batch.MaxVertexSize - batch.VertexCount) > vertexToAdd && !batch.Contains(renderer);
+                var hasSpaceLeftForAnother = (batch.MaxVertexSize - batch.VertexCount) > vertexToAdd;
+                //var hasSpaceLeftForAnother = batch.VertexCount > vertexToAdd && !batch.Contains(renderer);
+
                 var alreadyHasRenderer = batch.Contains(renderer);
 
-                if (isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && batch.Material == mat)
+                if (isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && (batch.Material == mat || batch.Material == null) && (renderer.SortOrder == batch.SortOrder || !batch.IsActive))
                 {
-                    batch.Initialize();
+                    batch.Initialize(renderer);
+                    _batches.Sort((x, y) => x.SortOrder.CompareTo(y.SortOrder));
+
                     return batch;
                 }
             }
 
-            // TODO: find min that can fit this maxVertexSize, and has this indexBuffer, if no available, create one.
-            //GfxDeviceManager.Current.CreateIndexBuffer();
-
-
             Batch2D newBatch = new Batch2D(maxVertexSize, indexBuffer == null ? _sharedIndexBuffer : indexBuffer);
             newBatch.OnBatchEmpty += OnBatchEmpty;
             // Initialize to clear any old states.
-            newBatch.Initialize();
+            newBatch.Initialize(renderer);
             Debug.Info("Create new batch");
 
             _batches.Add(newBatch);
+            _batches.Sort((x, y) => x.SortOrder.CompareTo(y.SortOrder));
 
             return newBatch;
         }
@@ -54,6 +55,7 @@ namespace Engine.Rendering
             // Moves empty batch to the end.
             _batches.Remove(batch);
             _batches.Add(batch);
+            batch.Clear();
 
             Debug.Log("pooled batch");
         }
@@ -65,8 +67,7 @@ namespace Engine.Rendering
 
         internal IReadOnlyList<Batch2D> GetActiveBatches()
         {
-            // TODO: Make sure that all alive batches are consecutive
-            return _batches;//.Where(x => x.IsActive);
+            return _batches;
         }
     }
 }
