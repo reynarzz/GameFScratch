@@ -1,8 +1,11 @@
-﻿using Engine.Utils;
+﻿using Box2D.NET;
+using Engine.Types;
+using Engine.Utils;
 using GlmNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -24,8 +27,11 @@ namespace Engine
         }
     }
 
+    [UniqueComponent]
     public class TilemapRenderer : Renderer2D
     {
+        public List<vec2> TilesPositions { get; private set; } = new List<vec2>();
+
         internal override void OnInitialize()
         {
             base.OnInitialize();
@@ -83,10 +89,12 @@ namespace Engine
                 float worldY = -level.WorldY + -tilePxY + -layer.PxTotalOffsetY;
 
                 var position = new vec3(
-                    MathF.Ceiling(worldX / Sprite.Texture.PixelPerUnit),
-                    MathF.Ceiling(worldY / Sprite.Texture.PixelPerUnit),
+                    MathF.Floor(worldX / Sprite.Texture.PixelPerUnit),
+                    MathF.Floor(worldY / Sprite.Texture.PixelPerUnit),
                     0
                 );
+
+                TilesPositions.Add(new vec2(position.x, position.y));
 
                 AddTile(new Tile((int)tile.T, isFlippedX, isFlippedY), position);
             }
@@ -103,7 +111,7 @@ namespace Engine
 
                 for (int j = level.LayerInstances.Length - 1; j >= 0; j--)
                 {
-                    if ((options.LayerToLoad != j)) // As temp, refactor incoming
+                    if ((options.LayersToLoadMask & (1UL << j)) == 0)
                         continue;
 
                     var layer = level.LayerInstances[j];
@@ -126,8 +134,13 @@ namespace Engine
                         default:
                             break;
                     }
+
+                    break; // remove
                 }
+
+                break; // remove
             }
+
         }
 
         public void SetTilemapLDtk(string json, LDtkOptions options)
@@ -150,7 +163,7 @@ namespace Engine
         public bool RenderTilesLayer { get; set; }
         public bool RenderAutoLayer { get; set; }
         public int[] LevelsToLoad { get; set; }
-        public int LayerToLoad { get; set; }
+        public ulong LayersToLoadMask { get; set; }
         public int WorldDepth { get; set; }
     }
 }

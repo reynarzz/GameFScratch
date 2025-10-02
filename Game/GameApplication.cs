@@ -62,7 +62,6 @@ namespace Game
         // Implement a simple file system (compression+encryption) (texture, audio, text)
         /* Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
-        // Investigate why colliders are not freed from memory automatically.
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
@@ -75,6 +74,7 @@ namespace Game
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
+        // Investigate why colliders are not freed from memory automatically.
 
         private void LoadTilemap(Camera cam)
         {
@@ -119,20 +119,27 @@ namespace Game
             tilemap2.Sprite = tilemapSprite;
 
             // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
-            tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, 
-                                                RenderTilesLayer = true, RenderAutoLayer = true,
-                                                LayerToLoad = 2, WorldDepth = 0 });
-
-            tilemap2.SetTilemapLDtk(project, new LDtkOptions()
+            tilemap.SetTilemapLDtk(project, new LDtkOptions()
             {
                 RenderIntGridLayer = true,
                 RenderTilesLayer = true,
                 RenderAutoLayer = true,
-                LayerToLoad = 3,
+                LayersToLoadMask = 1 << 2,
                 WorldDepth = 0
             });
+
+            //tilemap2.SetTilemapLDtk(project, new LDtkOptions()
+            //{
+            //    RenderIntGridLayer = true,
+            //    RenderTilesLayer = true,
+            //    RenderAutoLayer = true,
+            //    LayersToLoadMask = 1 << 3,
+            //    WorldDepth = 0
+            //});
+
             tilemap2.SortOrder = 0;
             tilemap.SortOrder = 3;
+            tilemap.AddComponent<TilemapCollider2D>();
         }
 
         public override void Initialize()
@@ -181,7 +188,7 @@ namespace Game
             camera.OrthoMatch = CameraOrthoMatch.Width;
             camera.OrthographicSize = CalculateOrthoSize(256, camera.OrthoMatch, 16, 1920, 1080);
 
-           LoadTilemap(camera);
+            LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -224,14 +231,14 @@ namespace Game
                 actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
             }
 
-          
+
 
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
             playerActor.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             playerActor.GetComponent<SpriteRenderer>().SortOrder = 1;
 
-           
+
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
 
@@ -281,13 +288,13 @@ namespace Game
             polygon.Generate();
             polygon.Offset = new vec2(8, 0);
             polygon.RotationOffset = 0;
-             polygon.IsEnabled = false;
+            polygon.IsEnabled = false;
 
             var platform = new Actor<Platform>("Platform");
 
             platform.Layer = LayerMask.NameToLayer("Platform");
 
-          //  var respawner = new Actor<Respawner>("Respawner");
+            //  var respawner = new Actor<Respawner>("Respawner");
 
             rigid4.BodyType = Body2DType.Kinematic;
 

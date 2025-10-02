@@ -28,7 +28,7 @@ namespace Engine
 
         private bool _isEnabled = true;
         private bool _isActiveInHierarchy = true;
-        public bool IsActiveInHierarchy 
+        public bool IsActiveInHierarchy
         {
             get => _isActiveInHierarchy;
             private set
@@ -49,7 +49,7 @@ namespace Engine
                         component.OnDisabled();
                     }
                 }
-            } 
+            }
         }
 
         public bool IsActiveSelf
@@ -67,7 +67,7 @@ namespace Engine
             void UpdateActiveInHierarchy(Actor actor)
             {
                 var parent = actor.Transform.Parent;
-                actor.IsActiveInHierarchy = (parent != null? parent.Actor.IsActiveInHierarchy && actor.IsActiveSelf: actor.IsActiveSelf);
+                actor.IsActiveInHierarchy = (parent != null ? parent.Actor.IsActiveInHierarchy && actor.IsActiveSelf : actor.IsActiveSelf);
 
                 for (int i = 0; i < actor.Transform.Children.Count; i++)
                 {
@@ -86,7 +86,7 @@ namespace Engine
 
         private List<Component> _onAwakeComponents;
         private List<Component> _onStartComponents;
-        private static readonly Action<ScriptBehavior> _awakeAction = x => { x.OnEnabled(); if(x.Actor.IsActiveInHierarchy) x.OnAwake(); };
+        private static readonly Action<ScriptBehavior> _awakeAction = x => { x.OnEnabled(); if (x.Actor.IsActiveInHierarchy) x.OnAwake(); };
         private static readonly Action<ScriptBehavior> _startAction = x => x.OnStart();
         private static readonly Action<ScriptBehavior> _updateAction = x => x.OnUpdate();
         private static readonly Action<ScriptBehavior> _lateUpdateAction = x => x.OnLateUpdate();
@@ -136,7 +136,8 @@ namespace Engine
                 return Transform;
             }
 
-            var isUnique = type.GetCustomAttribute(typeof(UniqueComponentAttribute)) != null;
+            var isUnique = type.GetCustomAttribute<UniqueComponentAttribute>() != null;
+            var requiredAttrib = type.GetCustomAttribute<RequiredComponentAttribute>();
 
             if (isUnique)
             {
@@ -151,6 +152,14 @@ namespace Engine
                 }
             }
 
+            if (requiredAttrib != null)
+            {
+                foreach (var componentsTypes in requiredAttrib.RequiredComponents)
+                {
+                    AddComponent(componentsTypes);
+                }
+            }
+
             var component = Activator.CreateInstance(type) as Component;
             component.Actor = this;
             _components.Add(component);
@@ -158,6 +167,7 @@ namespace Engine
             _onStartComponents.Add(component);
 
             component.OnInitialize();
+
             return component;
         }
 
@@ -517,7 +527,7 @@ namespace Engine
             }
         }
 
-       
+
     }
 
     public class Actor<T1> : Actor where T1 : Component

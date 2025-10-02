@@ -1,4 +1,5 @@
 ﻿using Box2D.NET;
+using Engine.Types;
 using Engine.Utils;
 using GlmNet;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
+    [RequiredComponent(typeof(RigidBody2D))]
     public class BoxCollider2D : Collider2D
     {
         private vec2 _size = new vec2(1, 1);
@@ -38,23 +40,23 @@ namespace Engine
         {
             // TODO: instead of using the scale, use the bounds of the sprite
             var scale = Transform.WorldScale;
-            _size = new vec2(scale.x, scale.y);
+            //_size = new vec2(scale.x, scale.y);
 
-            var renderer = GetComponent<SpriteRenderer>();
+            //var renderer = GetComponent<SpriteRenderer>();
 
-            if (renderer && renderer.Sprite)
-            {
-                var chunk = renderer.Sprite.GetAtlasChunk();
+            //if (renderer && renderer.Sprite)
+            //{
+            //    var chunk = renderer.Sprite.GetAtlasChunk();
 
-                if (renderer.Sprite.Texture)
-                {
-                    var ppu = renderer.Sprite.Texture.PixelPerUnit;
-                    var width = (float)chunk.Width / ppu;
-                    var height = (float)chunk.Height / ppu;
+            //    if (renderer.Sprite.Texture)
+            //    {
+            //        var ppu = renderer.Sprite.Texture.PixelPerUnit;
+            //        var width = (float)chunk.Width / ppu;
+            //        var height = (float)chunk.Height / ppu;
 
-                    _size = new vec2(width * scale.x, height * scale.y);
-                }
-            }
+            //        _size = new vec2(width * scale.x, height * scale.y);
+            //    }
+            //}
 
 
             base.OnInitialize();
