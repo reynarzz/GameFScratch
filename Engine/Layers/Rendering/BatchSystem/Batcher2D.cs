@@ -99,8 +99,9 @@ namespace Engine.Rendering
 
             foreach (var renderer in renderers)
             {
-                if (!renderer.IsEnabled || !renderer.Actor.IsEnabled)
+                if (!renderer.IsEnabled || !renderer.Actor.IsActiveInHierarchy)
                 {
+                    // TODO: notify if need to be removed from a batch
                     continue;
                 }
 

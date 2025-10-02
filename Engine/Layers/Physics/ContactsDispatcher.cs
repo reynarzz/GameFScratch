@@ -391,7 +391,7 @@ namespace Engine.Layers
 
         private void OnNotifyScripts<T>(Collider2D current, Collider2D collided, Action<ScriptBehavior, T> funcEvent, ref T data)
         {
-            if (current && current.Actor && current.Actor.IsEnabled)
+            if (current && current.Actor && current.Actor.IsActiveInHierarchy)
             {
                 foreach (var component in current.Actor.Components)
                 {

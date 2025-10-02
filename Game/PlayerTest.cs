@@ -58,7 +58,7 @@ namespace Game
             var jumpTex = Assets.GetTexture(basePath + "Jump (78x58).png");
             var FallTex = Assets.GetTexture(basePath + "Fall (78x58).png");
             var attackTex = Assets.GetTexture(basePath + "Attack (78x58).png");
-           
+
             pTexture.PixelPerUnit = 16;
             pTexture2.PixelPerUnit = 16;
             jumpTex.PixelPerUnit = 16;
@@ -83,6 +83,13 @@ namespace Game
             //new Actor<RotateTest>();
         }
 
+        public override void OnEnabled()
+        {
+        }
+
+        public override void OnDisabled()
+        {
+        }
         public override void OnUpdate()
         {
             if (!_attacking && Input.GetKeyDown(KeyCode.F))
@@ -91,13 +98,13 @@ namespace Game
                 _currentAttackTime = _attackTime;
                 _animation.Loop = false;
                 _animation.PushFrames(_attackSprites);
-            }
 
-            if(_currentAttackTime > 0)
+            }
+            if (_currentAttackTime > 0)
             {
                 _currentAttackTime -= Time.DeltaTime;
 
-                if(_currentAttackTime <= 0)
+                if (_currentAttackTime <= 0)
                 {
                     _animation.Loop = true;
                     _animation.PushFrames(_idleSprites);
@@ -145,7 +152,7 @@ namespace Game
                 }
 
             }
-            else 
+            else
             {
                 if (!_attacking && _isOnGround && !_jumped)
                 {
@@ -153,12 +160,12 @@ namespace Game
                     _animation.PushFrames(_idleSprites);
                 }
 
-                if(!_attacking)
-                _rigid.Velocity = new vec2(0, _rigid.Velocity.y);
+                if (!_attacking)
+                    _rigid.Velocity = new vec2(0, _rigid.Velocity.y);
 
             }
 
-            if (!_attacking && !_isOnGround )
+            if (!_attacking && !_isOnGround)
             {
                 if (_rigid.Velocity.y > 0)
                 {
@@ -196,7 +203,6 @@ namespace Game
 
         public override void OnFixedUpdate()
         {
-
             TestGround();
 
 
@@ -292,7 +298,7 @@ namespace Game
 
         public override void OnCollisionStay2D(Collision2D collision)
         {
-            // Debug.Info("Player Collision stay: " + collision.OtherCollider.Name);
+            //Debug.Info("Player Collision stay: " + collision.OtherCollider.Name);
         }
         public override void OnTriggerEnter2D(Collider2D collider)
         {

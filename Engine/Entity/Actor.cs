@@ -25,7 +25,56 @@ namespace Engine
         }
 
         public Scene Scene { get; internal set; }
-        public bool IsEnabled { get; set; } = true;
+
+        private bool _isEnabled = true;
+        private bool _isActiveInHierarchy = true;
+        public bool IsActiveInHierarchy 
+        {
+            get => _isActiveInHierarchy;
+            private set
+            {
+                _isActiveInHierarchy = value;
+
+                foreach (var component in _components)
+                {
+                    if (value && component.IsEnabled)
+                    {
+                        component.OnEnabled();
+                    }
+                    else if (!value)
+                    {
+                        component.OnDisabled();
+                    }
+                }
+            } 
+        }
+
+        public bool IsActiveSelf
+        {
+            get => _isEnabled;
+            set
+            {
+                _isEnabled = value;
+                RecalculateHierarchyActivation();
+            }
+        }
+
+        internal void RecalculateHierarchyActivation()
+        {
+            void UpdateActiveInHierarchy(Actor actor)
+            {
+                var parent = actor.Transform.Parent;
+                actor.IsActiveInHierarchy = (parent != null? parent.Actor.IsActiveInHierarchy && actor.IsActiveSelf: actor.IsActiveSelf);
+
+                for (int i = 0; i < actor.Transform.Children.Count; i++)
+                {
+                    UpdateActiveInHierarchy(actor.Transform.Children[i].Actor);
+                }
+            }
+
+            UpdateActiveInHierarchy(this);
+        }
+
         public string Tag { get; set; }
 
         public int Layer { get; set; } = 0;
@@ -34,7 +83,7 @@ namespace Engine
 
         private List<Component> _onAwakeComponents;
         private List<Component> _onStartComponents;
-        private static readonly Action<ScriptBehavior> _awakeAction = x => x.OnAwake();
+        private static readonly Action<ScriptBehavior> _awakeAction = x => { x.OnEnabled(); if(x.Actor.IsActiveInHierarchy) x.OnAwake(); };
         private static readonly Action<ScriptBehavior> _startAction = x => x.OnStart();
         private static readonly Action<ScriptBehavior> _updateAction = x => x.OnUpdate();
         private static readonly Action<ScriptBehavior> _lateUpdateAction = x => x.OnLateUpdate();
@@ -195,6 +244,11 @@ namespace Engine
 
         }
 
+        private void NotifyScriptsActorActivation(bool isEnabled)
+        {
+
+        }
+
         public static void Destroy(Actor actor)
         {
             if (actor == null || !actor.IsAlive || actor.IsPendingToDestroy)
@@ -290,7 +344,7 @@ namespace Engine
         private void UpdateScriptBeginEvent(Actor actor, Func<Actor, List<Component>> getPendingComponents,
                                                          Action<ScriptBehavior> action)
         {
-            if (actor && actor.IsEnabled)
+            if (actor && actor.IsActiveInHierarchy)
             {
                 var components = getPendingComponents(actor);
                 var toDelete = new List<Component>();
@@ -302,7 +356,10 @@ namespace Engine
 #if DEBUG
                         try
                         {
-                            action(component);
+                            if (actor.IsActiveInHierarchy)
+                            {
+                                action(component);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -329,7 +386,7 @@ namespace Engine
 
         private void UpdateScriptsFunction(Actor actor, Action<ScriptBehavior> action)
         {
-            if (actor && actor.IsEnabled)
+            if (actor && actor.IsActiveInHierarchy)
             {
                 foreach (var comp in actor._components)
                 {
@@ -456,6 +513,8 @@ namespace Engine
                 Transform.Children[i].Actor.DeletePending();
             }
         }
+
+       
     }
 
     public class Actor<T1> : Actor where T1 : Component

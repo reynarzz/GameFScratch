@@ -26,7 +26,7 @@ namespace Engine
                 {
                     return comp;
                 }
-                else if (comp && comp.IsEnabled && comp.Actor.IsEnabled)
+                else if (comp && comp.IsEnabled && comp.Actor.IsActiveInHierarchy)
                 {
                     return comp;
                 }
@@ -203,7 +203,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor && actor.IsEnabled)
+                if (actor && actor.IsActiveInHierarchy)
                     actor.Awake();
             }
         }
@@ -213,7 +213,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor && actor.IsEnabled)
+                if (actor && actor.IsActiveInHierarchy)
                     actor.Start();
             }
         }
@@ -223,7 +223,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor && actor.IsEnabled)
+                if (actor && actor.IsActiveInHierarchy)
                     actor.Update();
             }
         }
@@ -233,7 +233,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor && actor.IsEnabled)
+                if (actor && actor.IsActiveInHierarchy)
                     actor.LateUpdate();
             }
         }
@@ -243,7 +243,7 @@ namespace Engine
             for (int i = 0; i < _rootActors.Count; i++)
             {
                 var actor = _rootActors[i];
-                if (actor && actor.IsEnabled)
+                if (actor && actor.IsActiveInHierarchy)
                     actor.FixedUpdate();
             }
         }

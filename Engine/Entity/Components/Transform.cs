@@ -15,7 +15,7 @@ namespace Engine
         private vec3 _localScale = new vec3(1, 1, 1);
         private Transform _parent = null;
 
-        
+
         private readonly List<Transform> _children = new List<Transform>();
 
         // Dirty flag and cached matrices
@@ -26,7 +26,7 @@ namespace Engine
         private vec3 _cachedWorldPosition = default;
         private quat _cachedWorldRotation = quat.Identity;
         private vec3 _cachedWorldScale = new vec3(1, 1, 1);
-       
+
         public vec3 LocalPosition
         {
             get => _localPosition;
@@ -85,6 +85,8 @@ namespace Engine
                 WorldPosition = oldWorldPos;
                 WorldRotation = oldWorldRot;
                 WorldScale = oldWorldScale;
+
+                Actor.RecalculateHierarchyActivation();
 
                 MarkDirty();
             }
@@ -296,7 +298,7 @@ namespace Engine
             return scaleMat * rotMat * transMat;
         }
 
-       
+
 
         internal void RemoveChild(Transform transform)
         {

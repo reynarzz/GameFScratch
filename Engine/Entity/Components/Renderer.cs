@@ -32,6 +32,18 @@ namespace Engine
             IsDirty = false;
         }
 
+        public override void OnEnabled()
+        {
+            base.OnEnabled();
+            IsDirty = true;
+        }
+
+        public override void OnDisabled()
+        {
+            base.OnDisabled();
+            IsDirty = true;
+        }
+
         public override void OnDestroy()
         {
             base.OnDestroy();

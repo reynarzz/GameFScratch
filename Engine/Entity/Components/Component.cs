@@ -33,13 +33,16 @@ namespace Engine
 
                 _isEnabled = value;
 
-                if (_isEnabled)
+                if (Actor.IsActiveInHierarchy)
                 {
-                    OnEnabled();
-                }
-                else
-                {
-                    OnDisabled();
+                    if (_isEnabled)
+                    {
+                        OnEnabled();
+                    }
+                    else
+                    {
+                        OnDisabled();
+                    }
                 }
             }
         }
@@ -48,6 +51,7 @@ namespace Engine
         public virtual void OnEnabled() { }
         public virtual void OnDisabled() { }
         public virtual void OnDestroy() { }
+        public virtual void OnActorEnableChange(bool enabled) { }
 
         public Component AddComponent(Type type)
         {
