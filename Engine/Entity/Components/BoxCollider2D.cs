@@ -40,6 +40,23 @@ namespace Engine
             var scale = Transform.WorldScale;
             _size = new vec2(scale.x, scale.y);
 
+            var renderer = GetComponent<SpriteRenderer>();
+
+            if (renderer && renderer.Sprite)
+            {
+                var chunk = renderer.Sprite.GetAtlasChunk();
+
+                if (renderer.Sprite.Texture)
+                {
+                    var ppu = renderer.Sprite.Texture.PixelPerUnit;
+                    var width = (float)chunk.Width / ppu;
+                    var height = (float)chunk.Height / ppu;
+
+                    _size = new vec2(width * scale.x, height * scale.y);
+                }
+            }
+
+
             base.OnInitialize();
         }
 

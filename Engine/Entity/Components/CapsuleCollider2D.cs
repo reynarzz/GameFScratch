@@ -1,4 +1,5 @@
 ﻿using Box2D.NET;
+using Engine.Utils;
 using GlmNet;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Engine
             get => _size;
             set
             {
-                _size = value;
+                _size = new vec2(Math.Clamp(value.x, 1.0f, float.MaxValue), Math.Clamp(value.y, 1.001f, float.MaxValue));
                 UpdateShape();
             }
         }
@@ -40,6 +41,7 @@ namespace Engine
         protected override B2ShapeId[] CreateShape(B2BodyId bodyId)
         {
             var capsule = GetCapsule();
+
             return [B2Shapes.b2CreateCapsuleShape(bodyId, ref ShapeDef, ref capsule)];
         }
 
@@ -52,11 +54,24 @@ namespace Engine
                 ? new B2Vec2(0, rectHeight / 2.0f)
                 : new B2Vec2(rectHeight / 2.0f, 0);
 
+            var rot = glm.radians(RotationOffset);
+
+            float cos = MathF.Cos(rot);
+            float sin = MathF.Sin(rot);
+
+            B2Vec2 Rotate(B2Vec2 v)
+            {
+                return new B2Vec2(v.X * cos - v.Y * sin,
+                                  v.X * sin + v.Y * cos);
+            }
+
+            var offset = new B2Vec2(Offset.x, Offset.y);
+
             return new B2Capsule()
             {
                 radius = radius,
-                center1 = centerOffset,
-                center2 = -centerOffset,
+                center1 = Rotate(centerOffset) + offset,
+                center2 = Rotate(-centerOffset) + offset,
             };
         }
 

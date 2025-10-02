@@ -60,12 +60,9 @@ namespace Game
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
         // Implement a simple file system (compression+encryption) (texture, audio, text)
-        // Tilemap (rendering, ldtk file loading, colliders)
         /* Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Investigate why colliders are not freed from memory automatically.
-        // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
-        // Fix rendering: If the actor/parent/component is disabled, the renderer will still be rendered.
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
@@ -77,6 +74,7 @@ namespace Game
         // -Stretch:
         // Implement bounds in sprites/renderers.
         // Implement event in transform to know when scale changed, and get the delta scale.
+        // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
 
         private void LoadTilemap(Camera cam)
         {
@@ -233,10 +231,10 @@ namespace Game
             playerActor.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
             playerActor.GetComponent<SpriteRenderer>().SortOrder = 1;
 
-       
+           
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
-            
+
 
             var collider3 = playerActor.GetComponent<Collider2D>();
             var rigid3 = playerActor.Transform.GetComponent<RigidBody2D>();

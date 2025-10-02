@@ -33,6 +33,9 @@ namespace Engine
             get => _isActiveInHierarchy;
             private set
             {
+                if (_isActiveInHierarchy == value)
+                    return;
+
                 _isActiveInHierarchy = value;
 
                 foreach (var component in _components)
