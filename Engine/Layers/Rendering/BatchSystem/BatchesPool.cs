@@ -23,13 +23,19 @@ namespace Engine.Rendering
         {
             foreach (var batch in _batches)
             {
+                if (batch.Contains(renderer))
+                {
+                    return batch;
+                }
+            }
+
+            foreach (var batch in _batches)
+            {
                 var isTotalSizeEnough = batch.MaxVertexSize >= maxVertexSize;
                 var hasSpaceLeftForAnother = (batch.MaxVertexSize - batch.VertexCount) > vertexToAdd;
                 //var hasSpaceLeftForAnother = batch.VertexCount > vertexToAdd && !batch.Contains(renderer);
 
-                var alreadyHasRenderer = batch.Contains(renderer);
-
-                if (isTotalSizeEnough && (hasSpaceLeftForAnother || alreadyHasRenderer) && (batch.Material == mat || batch.Material == null) && (renderer.SortOrder == batch.SortOrder || !batch.IsActive))
+                if (isTotalSizeEnough && hasSpaceLeftForAnother && (batch.Material == mat || batch.Material == null) && (renderer.SortOrder == batch.SortOrder || !batch.IsActive))
                 {
                     batch.Initialize(renderer);
                     _batches.Sort((x, y) => x.SortOrder.CompareTo(y.SortOrder));

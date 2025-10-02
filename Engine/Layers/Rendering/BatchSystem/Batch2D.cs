@@ -94,6 +94,7 @@ namespace Engine.Rendering
             IndexCount = 0;
             Material = null;
             _isDirty = false;
+            IsActive = false;
             _renderers.Clear();
 
             for (int i = 0; i < Textures.Length; i++)

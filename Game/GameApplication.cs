@@ -133,7 +133,7 @@ namespace Game
                 LayerToLoad = 3,
                 WorldDepth = 0
             });
-            tilemap2.SortOrder = -1;
+            tilemap2.SortOrder = 0;
             tilemap.SortOrder = 3;
         }
 
