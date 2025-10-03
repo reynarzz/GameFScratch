@@ -17,7 +17,7 @@ namespace Engine
         private static GeometryDescriptor _linesGeoDescriptor;
         private static Shader _shader;
 
-        private const int LINES_MAX_VERTICES = 10000;
+        private const int LINES_MAX_VERTICES = 1000000;
         private const float CIRCLE_MAX_SEGMENTS = 20;
 
         private static int _totalLinesVerticesToDraw = 0;

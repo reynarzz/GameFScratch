@@ -84,6 +84,18 @@ namespace Engine
 
         public static vec3 Lerp(vec3 a, vec3 b, float t)
             => a + (b - a) * Clamp01(t);
+
+        public static vec3 SmoothLerp(vec3 a, vec3 b, float t)
+        {
+            t = t * t * (3 - 2 * t);
+            return Lerp(a, b, t);    
+        }
+
+        public static vec3 SineLerp(vec3 a, vec3 b, float t)
+        {
+            t = 0.5f - 0.5f * glm.cos(t * (float)Math.PI);
+            return Lerp(a, b, t);
+        }
         public static vec2 MoveTowards(vec2 current, vec2 target, float maxDistanceDelta)
         {
             vec2 toVector = target - current;

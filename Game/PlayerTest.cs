@@ -14,7 +14,7 @@ namespace Game
     {
         private bool _extraJumpAvailable = false;
         private float _jumpForce = 11;
-        private float _walkSpeed = 4.4f;
+        private float _walkSpeed = 5.4f;
         private RigidBody2D _rigid;
         private bool _isOnGround = false;
         private float _gravityScale = 3;
@@ -268,8 +268,11 @@ namespace Game
                 _isOnGround = false;
             }
 
-            Debug.DrawRay(origin1, Transform.Down * length, color1);
-            Debug.DrawRay(origin2, Transform.Down * length, color2);
+            if (Physics2D.DrawColliders)
+            {
+                Debug.DrawRay(origin1, Transform.Down * length, color1);
+                Debug.DrawRay(origin2, Transform.Down * length, color2);
+            }
         }
         public override void OnCollisionEnter2D(Collision2D collision)
         {

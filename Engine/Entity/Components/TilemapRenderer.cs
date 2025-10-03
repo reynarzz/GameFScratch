@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-
     public struct Tile
     {
         public int Index { get; set; }
@@ -30,7 +29,8 @@ namespace Engine
     [UniqueComponent]
     public class TilemapRenderer : Renderer2D
     {
-        public List<vec2> TilesPositions { get; private set; } = new List<vec2>();
+        public IReadOnlyList<vec2> TilesPositions => _tilesPositions;
+        private List<vec2> _tilesPositions = new();
 
         internal override void OnInitialize()
         {
@@ -94,7 +94,7 @@ namespace Engine
                     0
                 );
 
-                TilesPositions.Add(new vec2(position.x, position.y));
+                _tilesPositions.Add(new vec2(position.x, position.y));
 
                 AddTile(new Tile((int)tile.T, isFlippedX, isFlippedY), position);
             }
@@ -102,6 +102,8 @@ namespace Engine
 
         public void SetTilemapLDtk(ldtk.LdtkJson project, LDtkOptions options)
         {
+            _tilesPositions.Clear();
+
             for (int i = 0; i < project.Levels.Length; i++)
             {
                 var level = project.Levels[i];
@@ -111,7 +113,7 @@ namespace Engine
 
                 for (int j = level.LayerInstances.Length - 1; j >= 0; j--)
                 {
-                    if ((options.LayersToLoadMask & (1UL << j)) == 0)
+                    if (((options.LayersToLoadMask & (1UL << j)) == 0) && options.LayersToLoadMask != 0)
                         continue;
 
                     var layer = level.LayerInstances[j];
@@ -134,13 +136,8 @@ namespace Engine
                         default:
                             break;
                     }
-
-                    break; // remove
                 }
-
-                break; // remove
             }
-
         }
 
         public void SetTilemapLDtk(string json, LDtkOptions options)

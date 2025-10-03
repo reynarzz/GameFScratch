@@ -257,11 +257,6 @@ namespace Engine
 
         }
 
-        private void NotifyScriptsActorActivation(bool isEnabled)
-        {
-
-        }
-
         public static void Destroy(Actor actor)
         {
             if (actor == null || !actor.IsAlive || actor.IsPendingToDestroy)
@@ -367,20 +362,21 @@ namespace Engine
                     if (components[i] is ScriptBehavior component && component && component.IsEnabled)
                     {
 #if DEBUG
-                        try
+                        if (actor.IsActiveInHierarchy)
                         {
-                            if (actor.IsActiveInHierarchy)
+                            try
                             {
                                 action(component);
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.Error(e);
-                        }
+                            catch (Exception e)
+                            {
+                                Debug.Error(e);
+                            }
 #else
-                        action(component);
+                            action(component);
 #endif
+                        }
+
                         toDelete.Add(component);
                     }
                 }

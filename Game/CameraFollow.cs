@@ -11,6 +11,7 @@ namespace Game
     public class CameraFollow : ScriptBehavior
     {
         public Transform Target { get; set; }
+        public float FollowSpeed { get; set; } = 10f;
         public override void OnUpdate()
         {
             if (Target)
@@ -18,7 +19,7 @@ namespace Game
                 var targetPos = Target.WorldPosition;
                 targetPos.z = Transform.WorldPosition.z;
 
-                var smoothPos = Mathf.Lerp(Transform.WorldPosition, targetPos, Time.DeltaTime); 
+                var smoothPos = Mathf.SineLerp(Transform.WorldPosition, targetPos, FollowSpeed * Time.DeltaTime);
                 vec2 pixelSize = new vec2(1f / 16.0f);
                 vec2 snappedPos = new vec2(
                     MathF.Round(smoothPos.x / pixelSize.x) * pixelSize.x,
