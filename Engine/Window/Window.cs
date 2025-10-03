@@ -21,6 +21,25 @@ namespace Engine
         private static string _windowName = "Game";
         public static event Action<int, int> OnWindowChanged;
 
+        private static bool _isMouseVisible = true;
+        public static bool MouseVisible
+        {
+            get => _isMouseVisible;
+
+            set
+            {
+                _isMouseVisible = value;
+
+                if (_isMouseVisible)
+                {
+                    Glfw.SetInputMode(NativeWindow, InputMode.Cursor, (int)CursorMode.Normal);
+                }
+                else
+                {
+                    Glfw.SetInputMode(NativeWindow, InputMode.Cursor, (int)CursorMode.Disabled);
+                }
+            }
+        }
         public static string Name
         {
             get => _windowName;
@@ -56,6 +75,7 @@ namespace Engine
             Glfw.WindowHint(Hint.ContextVersionMajor, 3);
             Glfw.WindowHint(Hint.ContextVersionMinor, 2);
             Glfw.WindowHint(Hint.Resizable, false);
+
 
             // Create a window
             NativeWindow = Glfw.CreateWindow(Width, Height, name, default, default);
@@ -111,7 +131,7 @@ namespace Engine
                 GLFW.Monitor monitor = Glfw.Monitors[monitorIndex];
                 var mode = Glfw.GetVideoMode(monitor);
 
-                Width = mode.Width; 
+                Width = mode.Width;
                 Height = mode.Height;
 
                 OnWindowChanged?.Invoke(Width, Height);
@@ -144,7 +164,7 @@ namespace Engine
                     0
                 );
 
-              
+
             }
         }
     }
