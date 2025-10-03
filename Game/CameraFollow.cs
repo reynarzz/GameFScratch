@@ -12,22 +12,48 @@ namespace Game
     {
         public Transform Target { get; set; }
         public float FollowSpeed { get; set; } = 5f;
-        public override void OnUpdate()
+
+        private vec2 deadZoneSize = new vec2(1f, 3f);
+        private float smoothTime = 0.3f;
+        private vec3 velocity;
+
+        public override void OnLateUpdate()
         {
-            if (Target)
+            Move();
+        }
+
+        private void Move()
+        {
+            if (!Target)
+                return;
+
+            var camPos = Transform.WorldPosition;
+            var targetPos = Target.WorldPosition;
+
+            // Dead zone boundaries relative to camera center
+            float left = camPos.x - deadZoneSize.x * 0.5f;
+            float right = camPos.x + deadZoneSize.x * 0.5f;
+            float bottom = camPos.y - deadZoneSize.y * 0.5f;
+            float top = camPos.y + deadZoneSize.y * 0.5f;
+
+            float newX = camPos.x;
+            float newY = camPos.y;
+
+            // Check horizontal
+            if (targetPos.x < left) newX = targetPos.x + deadZoneSize.x * 0.5f;
+            if (targetPos.x > right) newX = targetPos.x - deadZoneSize.x * 0.5f;
+
+            // Check vertical
+            if (targetPos.y < bottom) newY = targetPos.y + deadZoneSize.y * 0.5f;
+            if (targetPos.y > top) newY = targetPos.y - deadZoneSize.y * 0.5f;
+
+            var targetCameraPos = new vec3(newX, newY, camPos.z);
+
+            Transform.WorldPosition = Mathf.SmoothDamp(camPos, targetCameraPos, ref velocity, smoothTime);
+
+            if (Physics2D.DrawColliders)
             {
-                var targetPos = Target.WorldPosition;
-                targetPos.z = Transform.WorldPosition.z;
-
-                var smoothPos = Mathf.Lerp(Transform.WorldPosition, targetPos, FollowSpeed * Time.DeltaTime);
-                vec2 pixelSize = new vec2(1f / 16.0f);
-                vec2 snappedPos = new vec2(
-                    MathF.Round(smoothPos.x / pixelSize.x) * pixelSize.x,
-                    MathF.Round(smoothPos.y / pixelSize.y) * pixelSize.y
-                );
-
-                Transform.WorldPosition = smoothPos; // new vec3(snappedPos, Transform.WorldPosition.z);
-                //Transform.WorldPosition =  new vec3(snappedPos, Transform.WorldPosition.z);
+                Debug.DrawBox(new vec3(Transform.WorldPosition.x, Transform.WorldPosition.y, 0), new vec3(deadZoneSize.x, deadZoneSize.y, 0), Color.Green);
             }
         }
     }

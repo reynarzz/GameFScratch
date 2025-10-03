@@ -23,7 +23,7 @@ namespace Engine
            return GfxDeviceManager.Current.CreateRenderTarget(new RenderTargetDescriptor() { Width = Width, Height = Height });
         }
 
-        public byte[] ReadColors()
+        public byte[] ReadColorsRGBA()
         {
             return GfxDeviceManager.Current.ReadRenderTargetColors(NativeResource);
         }

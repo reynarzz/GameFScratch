@@ -70,7 +70,7 @@ namespace Game
         // Implement enemies
         // Five levels, small, one intro level falling from outside.
         // Colllect coins, hearts, attack enemies, go from door A to B
-        // 
+        // Start with nothing, then grab the hammer as a powerup (modify sprites)
 
         // -Stretch:
         // Implement bounds in sprites/renderers.
@@ -95,7 +95,7 @@ namespace Game
             tilemapSprite.Texture.PixelPerUnit = 16;
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
-            var filepath = testPathNow + "\\Tilemap2.ldtk";
+            var filepath = testPathNow + "\\WorldTilemap.ldtk";
             //var filepath = testPathNow + "\\Tilemap3.ldtk";
             string json = File.ReadAllText(filepath);
 
@@ -239,7 +239,7 @@ namespace Game
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
 
             playerActor.GetComponent<CapsuleCollider2D>().Offset = new vec2(0, 0.25f);
-            playerActor.GetComponent<CapsuleCollider2D>().Size = new vec2(1, 1.7f);
+            playerActor.GetComponent<CapsuleCollider2D>().Size = new vec2(1.4f, 1.7f);
             var collider3 = playerActor.GetComponent<Collider2D>();
             var rigid3 = playerActor.Transform.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);

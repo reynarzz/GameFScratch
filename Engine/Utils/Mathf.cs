@@ -91,6 +91,59 @@ namespace Engine
             return Lerp(a, b, t);    
         }
 
+        public static vec3 SmoothDamp(vec3 current,
+                                      vec3 target,
+                                      ref vec3 currentVelocity,
+                                      float smoothTime,
+                                      float maxSpeed = float.PositiveInfinity,
+                                      float deltaTime = -1f)
+        {
+            // if deltaTime not provided, use Time.DeltaTime
+            if (deltaTime < 0f)
+                deltaTime = Time.DeltaTime;
+
+            // Prevent tiny smoothTime (avoid divide by zero)
+            smoothTime = Math.Max(0.0001f, smoothTime);
+
+            float omega = 2f / smoothTime;
+
+            float x = omega * deltaTime;
+            float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);
+
+            vec3 change = current - target;
+            vec3 originalTo = target;
+
+            // Clamp maximum speed
+            float maxChange = maxSpeed * smoothTime;
+            float maxChangeSq = maxChange * maxChange;
+
+            // Inline squared magnitude
+            float sqrmag = change.x * change.x + change.y * change.y + change.z * change.z;
+            if (sqrmag > maxChangeSq)
+            {
+                float mag = MathF.Sqrt(sqrmag);
+                change *= maxChange / mag;
+            }
+
+            target = current - change;
+
+            vec3 temp = (currentVelocity + omega * change) * deltaTime;
+            currentVelocity = (currentVelocity - omega * temp) * exp;
+
+            vec3 output = target + (change + temp) * exp;
+
+            vec3 origToCurrent = originalTo - current;
+            vec3 outToOrig = output - originalTo;
+
+            if (Dot(origToCurrent, outToOrig) > 0f)
+            {
+                output = originalTo;
+                currentVelocity = (output - originalTo) / deltaTime;
+            }
+
+            return output;
+        }
+
         public static vec3 SineLerp(vec3 a, vec3 b, float t)
         {
             t = 0.5f - 0.5f * glm.cos(t * (float)Math.PI);

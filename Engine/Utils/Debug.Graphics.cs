@@ -163,14 +163,136 @@ namespace Engine
             }
         }
 
+        public static void DrawBox(vec3 origin, vec3 size, Color color)
+        {
+            Initialize();
+
+            // Half extents
+            vec3 half = size * 0.5f;
+
+            // 8 corners
+            vec3 c0 = new vec3(origin.x - half.x, origin.y - half.y, origin.z - half.z);
+            vec3 c1 = new vec3(origin.x + half.x, origin.y - half.y, origin.z - half.z);
+            vec3 c2 = new vec3(origin.x + half.x, origin.y + half.y, origin.z - half.z);
+            vec3 c3 = new vec3(origin.x - half.x, origin.y + half.y, origin.z - half.z);
+
+            vec3 c4 = new vec3(origin.x - half.x, origin.y - half.y, origin.z + half.z);
+            vec3 c5 = new vec3(origin.x + half.x, origin.y - half.y, origin.z + half.z);
+            vec3 c6 = new vec3(origin.x + half.x, origin.y + half.y, origin.z + half.z);
+            vec3 c7 = new vec3(origin.x - half.x, origin.y + half.y, origin.z + half.z);
+
+            // Bottom face
+            DrawLine(c0, c1, color);
+            DrawLine(c1, c2, color);
+            DrawLine(c2, c3, color);
+            DrawLine(c3, c0, color);
+
+            // Top face
+            DrawLine(c4, c5, color);
+            DrawLine(c5, c6, color);
+            DrawLine(c6, c7, color);
+            DrawLine(c7, c4, color);
+
+            // Side edges
+            DrawLine(c0, c4, color);
+            DrawLine(c1, c5, color);
+            DrawLine(c2, c6, color);
+            DrawLine(c3, c7, color);
+        }
+
         public static void DrawBox(vec3 origin, vec3 size, vec3 eulerAngles, Color color)
         {
             Initialize();
 
+            vec3 half = size * 0.5f;
+
+            // Convert euler angles to radians
+            float rx = eulerAngles.x * (MathF.PI / 180f);
+            float ry = eulerAngles.y * (MathF.PI / 180f);
+            float rz = eulerAngles.z * (MathF.PI / 180f);
+
+            float cx = MathF.Cos(rx), sx = MathF.Sin(rx);
+            float cy = MathF.Cos(ry), sy = MathF.Sin(ry);
+            float cz = MathF.Cos(rz), sz = MathF.Sin(rz);
+
+            float ox = origin.x, oy = origin.y, oz = origin.z;
+
+            // c0: (-x,-y,-z)
+            {
+                float x = -half.x, y = -half.y, z = -half.z;
+                float y1 = y * cx - z * sx, z1 = y * sx + z * cx; y = y1; z = z1;
+                float x2 = x * cy + z * sy, z2 = -x * sy + z * cy; x = x2; z = z2;
+                float x3 = x * cz - y * sz, y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c0 = new vec3(x + ox, y + oy, z + oz);
+
+                // c1: (x,-y,-z)
+                x = half.x; y = -half.y; z = -half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c1 = new vec3(x + ox, y + oy, z + oz);
+
+                // c2: (x,y,-z)
+                x = half.x; y = half.y; z = -half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c2 = new vec3(x + ox, y + oy, z + oz);
+
+                // c3: (-x,y,-z)
+                x = -half.x; y = half.y; z = -half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c3 = new vec3(x + ox, y + oy, z + oz);
+
+                // c4: (-x,-y,z)
+                x = -half.x; y = -half.y; z = half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c4 = new vec3(x + ox, y + oy, z + oz);
+
+                // c5: (x,-y,z)
+                x = half.x; y = -half.y; z = half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c5 = new vec3(x + ox, y + oy, z + oz);
+
+                // c6: (x,y,z)
+                x = half.x; y = half.y; z = half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c6 = new vec3(x + ox, y + oy, z + oz);
+
+                // c7: (-x,y,z)
+                x = -half.x; y = half.y; z = half.z;
+                y1 = y * cx - z * sx; z1 = y * sx + z * cx; y = y1; z = z1;
+                x2 = x * cy + z * sy; z2 = -x * sy + z * cy; x = x2; z = z2;
+                x3 = x * cz - y * sz; y3 = x * sz + y * cz; x = x3; y = y3;
+                vec3 c7 = new vec3(x + ox, y + oy, z + oz);
+
+                // --- Draw edges ---
+                DrawLine(c0, c1, color);
+                DrawLine(c1, c2, color);
+                DrawLine(c2, c3, color);
+                DrawLine(c3, c0, color);
+
+                DrawLine(c4, c5, color);
+                DrawLine(c5, c6, color);
+                DrawLine(c6, c7, color);
+                DrawLine(c7, c4, color);
+
+                DrawLine(c0, c4, color);
+                DrawLine(c1, c5, color);
+                DrawLine(c2, c6, color);
+                DrawLine(c3, c7, color);
+            }
         }
 
-       
-        
+
         internal static void DrawGeometries(mat4 ViewProj, GfxResource texture)
         {
             if (_initializedGraphics)

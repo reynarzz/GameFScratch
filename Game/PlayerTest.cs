@@ -29,6 +29,7 @@ namespace Game
         private SpriteAnimation2D _animation;
         private bool _attacking = false;
         private float _attackTime = 0.15f;
+        private float _maxFallYVelocity = -20;
 
         private float _currentAttackTime;
 
@@ -204,7 +205,7 @@ namespace Game
         public override void OnFixedUpdate()
         {
             TestGround();
-
+            _rigid.Velocity = new vec2(_rigid.Velocity.x, Math.Clamp(_rigid.Velocity.y, _maxFallYVelocity, float.MaxValue));
 
             // Error: Rays move late not in sync with the velocity
         }
