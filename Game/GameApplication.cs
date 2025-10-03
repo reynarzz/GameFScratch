@@ -82,8 +82,7 @@ namespace Game
 
         private void LoadTilemap(Camera cam)
         {
-            var rootPathTest = "D:\\Projects\\GameScratch\\Game\\Assets";
-            var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Test";
+            var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Tilemap";
             //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
             var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
             //var tilemapTexture = Assets.GetTexture(testPathNow + "\\Inca_front_by_Kronbits-extended.png");
@@ -97,16 +96,13 @@ namespace Game
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
             var filepath = testPathNow + "\\Tilemap2.ldtk";
-            var filepath2 = testPathNow + "\\Tilemap2_Grass.ldtk";
             //var filepath = testPathNow + "\\Tilemap3.ldtk";
             string json = File.ReadAllText(filepath);
-            string json2 = File.ReadAllText(filepath2);
 
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
 
 
             var project = ldtk.LdtkJson.FromJson(json);
-            var project2 = ldtk.LdtkJson.FromJson(json2);
             var color = project.BgColor;
 
             //cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
@@ -146,14 +142,14 @@ namespace Game
                 WorldDepth = 0
             });
 
-            tilemap3.SetTilemapLDtk(project2, new LDtkOptions()
-            {
-                RenderIntGridLayer = true,
-                RenderTilesLayer = true,
-                RenderAutoLayer = true,
-                LayersToLoadMask = 1 << 0,
-                WorldDepth = 0
-            });
+            //tilemap3.SetTilemapLDtk(project2, new LDtkOptions()
+            //{
+            //    RenderIntGridLayer = true,
+            //    RenderTilesLayer = true,
+            //    RenderAutoLayer = true,
+            //    LayersToLoadMask = 1 << 0,
+            //    WorldDepth = 0
+            //});
 
             tilemap2.SortOrder = 0;
             tilemap.SortOrder = 3;
