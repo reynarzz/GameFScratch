@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCooker", "GameCooker\GameCooker.csproj", "{6965C598-3825-472B-828B-D9E53F0EB090}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameAssetsEditor", "GameCookerGUI\GameAssetsEditor.csproj", "{8F657236-4D34-4E55-B5B9-38D766DCB72C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameAssetsEditor", "GameAssetsEditor\GameAssetsEditor.csproj", "{8F657236-4D34-4E55-B5B9-38D766DCB72C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
