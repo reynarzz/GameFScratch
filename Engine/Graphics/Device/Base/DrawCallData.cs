@@ -25,6 +25,7 @@ namespace Engine.Graphics
         internal PipelineFeatures Features { get; set; }
         internal GfxResource Shader { get; set; }
         internal GfxResource Geometry { get; set; }
+        internal GfxResource RenderTarget { get; set; }
         internal GfxResource[] Textures { get; set; }
         internal UniformValue[] Uniforms { get; set; }
 

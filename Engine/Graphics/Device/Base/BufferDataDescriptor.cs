@@ -14,7 +14,7 @@ namespace Engine.Graphics
         Stream,
     }
 
-    internal unsafe class BufferDataDescriptor : ResourceDescriptorBase
+    internal unsafe class BufferDataDescriptor : IGfxResourceDescriptor
     {
         internal int Count { get; set; }
         internal int Offset { get; set; }

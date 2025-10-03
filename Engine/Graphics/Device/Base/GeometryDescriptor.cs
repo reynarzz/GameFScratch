@@ -21,7 +21,7 @@ namespace Engine.Graphics
         internal List<VertexAtrib> Attribs { get; set; }
     }
 
-    internal class GeometryDescriptor : ResourceDescriptorBase
+    internal class GeometryDescriptor : IGfxResourceDescriptor
     {
         internal VertexDataDescriptor VertexDesc { get; set; }
 

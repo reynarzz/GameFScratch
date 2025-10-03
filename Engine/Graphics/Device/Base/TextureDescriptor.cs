@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal class TextureDescriptor : ResourceDescriptorBase
+    internal class TextureDescriptor : IGfxResourceDescriptor
     {
         internal int Width { get; set; }
         internal int Height { get; set; }

@@ -10,7 +10,7 @@ namespace Engine.Graphics.OpenGL
     /// Base class for all gl resources
     /// </summary>
     /// <typeparam name="T">Resource descriptor info used for creation</typeparam>
-    internal abstract class GLGfxResource<T> : GfxResource where T : ResourceDescriptorBase
+    internal abstract class GLGfxResource<T> : GfxResource where T : IGfxResourceDescriptor
     {
         public uint Handle { get; protected set; }
         public bool IsValidHandle => Handle > 0;

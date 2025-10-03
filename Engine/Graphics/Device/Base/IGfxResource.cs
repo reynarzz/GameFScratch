@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal class ShaderDescriptor : IGfxResourceDescriptor
+    public interface IResourceHandle
     {
-        public byte[] VertexSource { get; set; }
-        public byte[] FragmentSource { get; set; }
     }
 }

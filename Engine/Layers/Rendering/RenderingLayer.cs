@@ -32,7 +32,7 @@ namespace Engine.Layers
             _drawCallData = new DrawCallData()
             {
                 Textures = new GfxResource[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits],
-                Uniforms = new UniformValue[Consts.Graphics.MAX_UNIFORMS_PER_DRAWCALL]
+                Uniforms = new UniformValue[Consts.Graphics.MAX_UNIFORMS_PER_DRAWCALL],
             };
         }
 
@@ -56,7 +56,7 @@ namespace Engine.Layers
 
             GfxDeviceManager.Current.SetViewport(_mainCamera.Viewport);
             // Clear screen
-            GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor });
+            GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = _mainCamera.BackgroundColor, RenderTarget = _mainCamera.RenderTexture?.NativeResource });
 
             // TODO: improve this, don't ask for renderers but add/remove with events.
             var batches = _batcher2d.GetBatches(SceneManager.ActiveScene.FindAll<Renderer2D>(findDisabled: false));
@@ -69,13 +69,13 @@ namespace Engine.Layers
                     break;
 
                 batch.Flush();
-              
+
                 for (int i = 0; i < batch.Textures.Length; i++)
                 {
                     var tex = batch.Textures[i];
                     if (tex == null)
                         break;
-                    _drawCallData.Textures[i] = tex.NativeTexture;
+                    _drawCallData.Textures[i] = tex.NativeResource;
                 }
 
                 // Pipeline
@@ -88,6 +88,7 @@ namespace Engine.Layers
                 _drawCallData.Shader = batch.Material.Shader.NativeShader;
                 _drawCallData.Geometry = batch.Geometry;
                 _drawCallData.Features = _pipelineFeatures;
+                _drawCallData.RenderTarget = _mainCamera.RenderTexture?.NativeResource;
 
                 // Iniforms
                 _drawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
@@ -98,9 +99,11 @@ namespace Engine.Layers
                 GfxDeviceManager.Current.Draw(_drawCallData);
             }
 
-            Debug.DrawGeometries(VP);
 
-            GfxDeviceManager.Current.Present();
+            Debug.DrawGeometries(VP, _drawCallData.RenderTarget);
+
+            GfxDeviceManager.Current.Present(_drawCallData.RenderTarget);
+
         }
     }
 }

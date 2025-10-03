@@ -67,7 +67,9 @@ namespace Game
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
 
         // For game:
-        // Implement auto colliders for levels.
+        // Implement enemies
+        // Five levels, small, one intro level falling from outside.
+        // Colllect coins, hearts, attack enemies, go from door A to B
         // 
 
         // -Stretch:
@@ -181,28 +183,11 @@ namespace Game
 
             var mat1 = new Material(mainShader);
 
-            float CalculateOrthoSize(float desiredSizeInPixels, CameraOrthoMatch match, float pixelsPerUnit, int windowWidth, int windowHeight)
-            {
-                float halfSizeWorld = desiredSizeInPixels / 2.0f / pixelsPerUnit; // convert pixels to world units
-
-                if (match == CameraOrthoMatch.Width)
-                {
-                    // width fixed → vertical half-height scales according to aspect ratio
-                    float aspect = (float)windowWidth / (float)windowHeight;
-                    return halfSizeWorld * aspect;
-                }
-                else
-                {
-                    // height fixed → vertical half-height is just halfSizeWorld
-                    return halfSizeWorld;
-                }
-            }
-
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
-            camera.OrthographicSize = 256.0f / 2.0f / 16.0f;
-            camera.OrthoMatch = CameraOrthoMatch.Width;
-            camera.OrthographicSize = CalculateOrthoSize(256, camera.OrthoMatch, 16, 1920, 1080);
+            camera.OrthographicSize = 512.0f / 2.0f / 16.0f;
+            // camera.OrthoMatch = CameraOrthoMatch.Width;
+            // camera.RenderTexture = new RenderTexture(512, 288);
 
             LoadTilemap(camera);
 

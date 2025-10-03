@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-
     // Note: This is here just for showcase purposes, for this particular game it will not be implemented.
     internal class VulkanDevice : GfxDevice
     {
@@ -81,7 +80,22 @@ namespace Engine.Graphics
             throw new NotImplementedException();
         }
 
-        internal override void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc)
+        internal override void UpdateResouce(GfxResource resource, IGfxResourceDescriptor desc)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override GfxResource CreateRenderTarget(RenderTargetDescriptor desc)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Present(GfxResource renderTarget)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override byte[] ReadRenderTargetColors(GfxResource nativeResource)
         {
             throw new NotImplementedException();
         }

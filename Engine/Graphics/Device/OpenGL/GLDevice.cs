@@ -39,11 +39,24 @@ namespace Engine.Graphics.OpenGL
         {
         }
 
-
         internal override void Clear(ClearDeviceConfig config)
         {
+            var target = config.RenderTarget as GLFrameBuffer;
+
+            if(target != null)
+            {
+                target.Bind();
+            }
             glClearColor(config.Color.R, config.Color.G, config.Color.B, config.Color.A);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            if (target != null)
+                glViewport(0, 0, target.Width, target.Height);
+
+            if (target != null)
+            {
+                target.Unbind();
+            }
         }
 
         internal override GfxResource CreateGeometry(GeometryDescriptor desc)
@@ -84,6 +97,12 @@ namespace Engine.Graphics.OpenGL
             return texture;
         }
 
+        internal override GfxResource CreateRenderTarget(RenderTargetDescriptor desc)
+        {
+            var fbuffer = new GLFrameBuffer();
+            fbuffer.Create(desc);
+            return fbuffer;
+        }
 
         private void DrawIndexed(DrawMode mode, int indicesLength)
         {
@@ -92,7 +111,7 @@ namespace Engine.Graphics.OpenGL
                 glDrawElements(GetGLDrawMode(mode), indicesLength, GL_UNSIGNED_INT, null);
             }
         }
-        
+
         internal override void DrawArrays(DrawMode mode, int startIndex, int vertexCount)
         {
             glDrawArrays(GetGLDrawMode(mode), startIndex, vertexCount);
@@ -117,11 +136,15 @@ namespace Engine.Graphics.OpenGL
             return internalMode;
         }
 
-        internal override void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc)
+        internal override void UpdateResouce(GfxResource resource, IGfxResourceDescriptor desc)
         {
             if (resource as GLGeometry != null)
             {
                 (resource as GLGeometry).UpdateResource(desc as GeometryDescriptor);
+            }
+            else if (resource is GLFrameBuffer buffer)
+            {
+                buffer.UpdateResource(desc as RenderTargetDescriptor);
             }
         }
 
@@ -143,6 +166,17 @@ namespace Engine.Graphics.OpenGL
         internal override void Present()
         {
             Window.SwapBuffers();
+        }
+
+        internal override void Present(GfxResource renderTarget)
+        {
+            var frameBuffer = renderTarget as GLFrameBuffer;
+            if(frameBuffer != null)
+            {
+                frameBuffer.BlitToScreen(Window.Width, Window.Height);
+            }
+
+            Present();
         }
         private void SetUniforms(GfxResource shaderRes, UniformValue[] uniforms)
         {
@@ -209,6 +243,13 @@ namespace Engine.Graphics.OpenGL
                 (tex as GLTexture).Bind(i);
             }
 
+            var renderTarget = drawCallData.RenderTarget as GLFrameBuffer;
+
+            if(renderTarget != null)
+            {
+                renderTarget.Bind();
+            }
+
             SetUniforms(shader, drawCallData.Uniforms);
             SetPipelineFeatures(drawCallData.Features);
 
@@ -225,6 +266,21 @@ namespace Engine.Graphics.OpenGL
                     break;
             }
 
+            if (renderTarget != null)
+            {
+                renderTarget.Unbind();
+            }
+
+        }
+
+        internal override byte[] ReadRenderTargetColors(GfxResource nativeResource)
+        {
+            if(nativeResource is GLFrameBuffer buffer)
+            {
+                return buffer.ReadPixels();
+            }
+
+            return null;
         }
     }
 }

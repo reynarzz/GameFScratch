@@ -15,5 +15,16 @@ namespace Engine
         public Texture2D(int width, int height, int channels, byte[] data) : base(width, height, channels, data)
         {
         }
+
+        protected override IResourceHandle Create()
+        {
+            return GfxDeviceManager.Current.CreateTexture(new TextureDescriptor()
+            {
+                Width = Width,
+                Height = Height,
+                Channels = Channels,
+                Buffer = Data
+            });
+        }
     }
 }

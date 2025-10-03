@@ -9,7 +9,7 @@ namespace Engine.Graphics
     /// <summary>
     /// Base for all graphics resources.
     /// </summary>
-    internal abstract class GfxResource : IDisposable
+    internal abstract class GfxResource : IDisposable, IResourceHandle
     {
         private bool _disposed = false;
         public bool IsInitialized { get; protected set; } = false;

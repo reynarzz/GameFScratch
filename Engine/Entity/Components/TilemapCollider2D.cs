@@ -8,6 +8,7 @@ using GlmNet;
 using Box2D.NET;
 using Engine.Types;
 using Engine.Utils;
+using System.Numerics;
 
 namespace Engine
 {
@@ -83,132 +84,113 @@ namespace Engine
 
         private List<Box> MergeTiles(IReadOnlyList<vec2> tilePositions)
         {
-            // Handle null or empty input early
             if (tilePositions == null || tilePositions.Count == 0)
             {
                 return new List<Box>();
             }
 
-            // Deduplicate tile coordinates (So we don't process the same tile twice)
-            // Also track min/max bounds to know how large our occupancy grid needs to be.
+            // Deduplicate + bounds
             var tiles = new HashSet<(int x, int y)>();
             int minX = int.MaxValue, minY = int.MaxValue;
             int maxX = int.MinValue, maxY = int.MinValue;
 
             foreach (var pos in tilePositions)
             {
-                // This ensures that floating-point positions map to integer tile coordinates.
                 int tx = (int)MathF.Round(pos.x);
                 int ty = (int)MathF.Round(pos.y);
+                if (!tiles.Add((tx, ty))) { continue; }
 
-                // Add to HashSet; skip if already present (duplicate tile)
-                if (!tiles.Add((tx, ty)))
-                {
-                    continue;
-                }
-
-                // Update bounding box (min/max tile extents)
                 if (tx < minX) { minX = tx; }
                 if (ty < minY) { minY = ty; }
                 if (tx > maxX) { maxX = tx; }
                 if (ty > maxY) { maxY = ty; }
             }
 
-            // No valid tiles after deduplication
-            if (tiles.Count == 0)
-            {
-                return new List<Box>();
-            }
+            if (tiles.Count == 0) { return new List<Box>(); }
 
-            // Compute grid dimensions
             int width = maxX - minX + 1;
             int height = maxY - minY + 1;
             int totalTiles = tiles.Count;
 
-            // Build occupancy grid in a single 1D array (Better cache locality than 2D)
-            // grid[y * width + x] == true means tile exists at that position
-            var grid = new bool[width * height];
+            // Convert grid to int array for SIMD (1 = tile present, 0 = empty)
+            int[] grid = new int[width * height];
             foreach (var t in tiles)
             {
-                int gx = t.x - minX; // shift into [0..width)
-                int gy = t.y - minY; // shift into [0..height)
-                grid[gy * width + gx] = true;
+                int gx = t.x - minX;
+                int gy = t.y - minY;
+                grid[gy * width + gx] = 1;
             }
 
-            // Preallocate result list (Heuristic: about half the tile count will become boxes)
             var boxes = new List<Box>(Math.Max(4, totalTiles / 2));
-            int consumed = 0; // counter to allow early exit when all tiles are merged
+            int consumed = 0;
 
-            // Main merging loop: scan row by row
+            // Row-strip merging
             for (int y = 0; y < height; y++)
             {
                 int x = 0;
                 while (x < width)
                 {
                     int idx = y * width + x;
-
-                    // Skip if no tile at this position (Aleready merged or empty)
-                    if (!grid[idx])
+                    if (grid[idx] == 0)
                     {
                         x++;
                         continue;
                     }
 
-                    // Found start of a horizontal run of tiles, measure its length
                     int runStart = x;
-                    while (x < width && grid[y * width + x])
-                    {
-                        x++;
-                    }
+                    while (x < width && grid[y * width + x] == 1) { x++; }
                     int runLength = x - runStart;
 
-                    // Try to extend this horizontal run downward to form a taller rectangle
+                    // SIMD downward extension
                     int rectHeight = 1;
                     bool canExtend = true;
                     while (canExtend && (y + rectHeight) < height)
                     {
                         int rowStart = (y + rectHeight) * width + runStart;
-                        for (int i = 0; i < runLength; i++)
+                        int i = 0;
+                        int simdWidth = Vector<int>.Count;
+
+                        // Process vectorized chunks
+                        for (; i <= runLength - simdWidth; i += simdWidth)
                         {
-                            if (!grid[rowStart + i])
+                            var block = new Vector<int>(grid, rowStart + i);
+                            if (!Vector.EqualsAll(block, Vector<int>.One))
                             {
-                                // A gap in this row = can't extend further
                                 canExtend = false;
                                 break;
                             }
                         }
-                        if (canExtend)
+
+                        // Process remaining elements
+                        for (; i < runLength && canExtend; i++)
                         {
-                            rectHeight++;
+                            if (grid[rowStart + i] == 0)
+                            {
+                                canExtend = false;
+                                break;
+                            }
                         }
+
+                        if (canExtend) { rectHeight++; }
                     }
 
-                    // Clear merged tiles so they won't be visited again
+                    // Clear merged tiles
                     for (int dy = 0; dy < rectHeight; dy++)
                     {
                         int rowStart = (y + dy) * width + runStart;
                         for (int dx = 0; dx < runLength; dx++)
                         {
-                            grid[rowStart + dx] = false;
+                            grid[rowStart + dx] = 0;
                         }
                     }
 
-                    // Compute box center in world coordinates
-                    // Note: subtract 0.5 to correctly align box centers with tile centers
                     float worldX = runStart + minX + runLength * 0.5f - 0.5f;
                     float worldY = y + minY + rectHeight * 0.5f - 0.5f;
 
-                    boxes.Add(new Box(
-                        new B2Vec2(worldX, worldY),        // Center
-                        new B2Vec2(runLength, rectHeight)  // Size
-                    ));
+                    boxes.Add(new Box(new B2Vec2(worldX, worldY), new B2Vec2(runLength, rectHeight)));
 
-                    // Track how many tiles have been consumed so far
                     consumed += runLength * rectHeight;
-                    if (consumed >= totalTiles)
-                    {
-                        return boxes; // early exit: all tiles merged
-                    }
+                    if (consumed >= totalTiles) { return boxes; }
                 }
             }
 

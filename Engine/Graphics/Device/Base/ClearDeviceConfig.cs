@@ -10,6 +10,7 @@ namespace Engine.Graphics
     internal struct ClearDeviceConfig
     {
         public Color Color { get; set; }
+        public GfxResource RenderTarget { get; set; }
 
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Engine.Graphics;
 using Engine.Utils;
 using GlmNet;
 
@@ -29,6 +30,7 @@ namespace Engine
         public float FarPlane { get; set; } = 100;
         public Color BackgroundColor { get; set; } = new(1, 1, 1, 1);
         private CameraOrthoMatch _orthoMatch = CameraOrthoMatch.Width;
+        public RenderTexture RenderTexture { get; set; }
 
         public CameraOrthoMatch OrthoMatch
         {
@@ -44,9 +46,9 @@ namespace Engine
         }
 
         private CameraProjectionMode _projectionMode;
-        public CameraProjectionMode ProjectionMode 
+        public CameraProjectionMode ProjectionMode
         {
-            get => _projectionMode; 
+            get => _projectionMode;
             set
             {
                 if (_projectionMode == value)
@@ -56,7 +58,7 @@ namespace Engine
                 UpdateCurrent();
             }
         }
-        
+
         private float _orthoSize;
         public float OrthographicSize
         {
@@ -98,7 +100,7 @@ namespace Engine
 
         private void OnWindowChanged(int width, int height)
         {
-             UpdateCurrent();
+            UpdateCurrent();
         }
 
         private void UpdateCurrent()
@@ -129,9 +131,9 @@ namespace Engine
             {
                 aspect = viewport.w / viewport.z;
                 bottom = -size * aspect;
-                top =     size * aspect;
-                left =   -size;
-                right =   size;
+                top = size * aspect;
+                left = -size;
+                right = size;
             }
             else
             {

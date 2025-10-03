@@ -171,20 +171,29 @@ namespace Engine
 
        
         
-        internal static void DrawGeometries(mat4 ViewProj)
+        internal static void DrawGeometries(mat4 ViewProj, GfxResource texture)
         {
             if (_initializedGraphics)
             {
-                // Bind shader
+                // TODO: Needs refactoring, dirty drawing. 
                 var shader = (_shader.NativeShader as GLShader);
+                var renderTexture = texture as GLFrameBuffer;
                 shader.Bind();
                 shader.SetUniform(Consts.VIEW_PROJ_UNIFORM_NAME, ViewProj);
 
                 // Push geometries updates
                 PushLineGeometries();
 
+                if(renderTexture != null)
+                {
+                    renderTexture.Bind();
+                }
                 // Draw
                 DrawLines();
+                if(renderTexture != null)
+                {
+                    renderTexture.Unbind();
+                }
             }
         }
 

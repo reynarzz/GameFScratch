@@ -21,13 +21,17 @@ namespace Engine.Graphics
         internal abstract GfxResource CreateTexture(TextureDescriptor desc);
         internal abstract GfxResource CreateIndexBuffer(BufferDataDescriptor desc);
         internal abstract GfxResource CreateVertexBuffer(VertexDataDescriptor desc);
+        internal abstract GfxResource CreateRenderTarget(RenderTargetDescriptor desc);
 
         internal abstract void UpdateGeometry(GfxResource resource, GeometryDescriptor desc);
         internal abstract void SetViewport(vec4 viewport);
 
-        internal abstract void UpdateResouce(GfxResource resource, ResourceDescriptorBase desc);
+        internal abstract void UpdateResouce(GfxResource resource, IGfxResourceDescriptor desc);
+        internal abstract void Present(GfxResource renderTarget);
         internal abstract void Present();
 
         internal abstract void Draw(DrawCallData data);
+
+        internal abstract byte[] ReadRenderTargetColors(GfxResource nativeResource);
     }
 }
