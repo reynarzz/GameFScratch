@@ -11,9 +11,9 @@ namespace Game
 {
     internal class Platform : ScriptBehavior
     {
-        public vec3[] Points = [ new vec3(-3, -5, 0), new vec3(0, 5, 0)];
-        public float Speed { get; set; } = 2f;
-        public float WaitTime { get; set; } = 1.0f;
+        public vec3[] Points = [ new vec3(-23, -9, 0), new vec3(-23, 7, 0)];
+        public float Speed { get; set; } = 4f;
+        public float WaitTime { get; set; } = 1.5f;
         private float _currentWait = 0;
 
         private SpriteRenderer _renderer;

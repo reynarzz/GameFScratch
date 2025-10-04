@@ -202,36 +202,10 @@ namespace Game
             Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
 
-            var actor = new Actor<SpriteRenderer, RigidBody2D, RotateTest, BoxCollider2D, CollisionTest>("CenterRotParent");
-            actor.AddComponent<ParentTests>();
-            actor.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
-            actor.GetComponent<SpriteRenderer>().Material = mat1;
-            actor.GetComponent<SpriteRenderer>().Sprite = sprite1;
-            actor.GetComponent<SpriteRenderer>().SortOrder = 0;
-            actor.Layer = LayerMask.NameToLayer("Floor");
-            // actor.GetComponent<SpriteRenderer>().Color = new Color(0, 1, 0, 1);
-            actor.Transform.WorldPosition = new GlmNet.vec3(0, 0, 0);
-
-            //actor.GetComponent<Collider2D>().IsTrigger = true;
-
-
-            // (int i = 0; i < 33; i++)
-            {
-                var actor2 = new Actor<SpriteRenderer, RigidBody2D, BoxCollider2D, RotateTest, CollisionTest>("RotatedQuad");
-                actor2.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
-                actor2.GetComponent<RigidBody2D>().BodyType = Body2DType.Kinematic;
-
-                actor2.GetComponent<SpriteRenderer>().SortOrder = 0;
-                actor2.GetComponent<SpriteRenderer>().Sprite = sprite2;
-                actor2.Transform.WorldPosition = new GlmNet.vec3(-3, 0, 0);
-                actor2.Transform.Parent = actor.Transform;
-                actor2.Transform.LocalScale = new GlmNet.vec3(1, 1, 0);
-            }
-
 
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
-            playerActor.GetComponent<SpriteRenderer>().Material = actor.GetComponent<SpriteRenderer>().Material;
+            playerActor.GetComponent<SpriteRenderer>().Material = mat1;
             playerActor.GetComponent<SpriteRenderer>().SortOrder = 1;
 
 
@@ -260,8 +234,8 @@ namespace Game
                 camera.GetComponent<CameraFollow>().Target = playerActor.Transform;
             }
 
-            var platform = new Actor<Platform>("Platform");
-
+            var platform = new Actor<Platform, SpriteRenderer>("Platform");
+            platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
 

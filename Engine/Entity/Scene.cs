@@ -61,7 +61,6 @@ namespace Engine
 
         private List<Actor> _rootActors;
 
-        private readonly Func<Component, Component> _findComponent;
         public Scene()
         {
             Name = "Scene";

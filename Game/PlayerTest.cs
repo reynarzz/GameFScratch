@@ -13,11 +13,11 @@ namespace Game
     internal class PlayerTest : ScriptBehavior
     {
         private bool _extraJumpAvailable = false;
-        private float _jumpForce = 11;
-        private float _walkSpeed = 5.4f;
+        private float _jumpForce = 15;
+        private float _walkSpeed = 5.35f;
         private RigidBody2D _rigid;
         private bool _isOnGround = false;
-        private float _gravityScale = 3;
+        private float _gravityScale = 3.5f;
 
         private bool _jumped = false;
         private SpriteRenderer _renderer;
