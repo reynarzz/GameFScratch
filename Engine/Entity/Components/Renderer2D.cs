@@ -9,8 +9,8 @@ namespace Engine
     public abstract class Renderer2D : Renderer
     {
         public int SortOrder { get; set; } = 0;
-        public Color Color { get => PacketColor; set => PacketColor = value; }
-        public ColorPacketRGBA PacketColor { get; set; } = Color.White;
+        private Color _color = Color.White;
+        public Color Color { get => _color; set { _color = value; IsDirty = true; } }
 
         private Sprite _sprite;
         public Sprite Sprite 
@@ -22,8 +22,6 @@ namespace Engine
                 _sprite = value;
             }
         }
-
-
 
         public virtual bool FlipX { get; set; }
         public virtual bool FlipY { get; set; }

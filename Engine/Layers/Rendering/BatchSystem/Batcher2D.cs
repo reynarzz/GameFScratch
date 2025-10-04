@@ -149,7 +149,7 @@ namespace Engine.Rendering
                         }
 
                         QuadVertices quad = default;
-                        GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.PacketColor, worldMatrix);
+                        GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, width, height, chunk.Pivot, renderer.Color, worldMatrix);
 
                         _quadVertexArray[0] = quad.v0;
                         _quadVertexArray[1] = quad.v1;

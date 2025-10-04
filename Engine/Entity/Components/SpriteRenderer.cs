@@ -1,4 +1,5 @@
 ﻿using Engine.Graphics;
+using Engine.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
+    [UniqueComponent]
     public class SpriteRenderer : Renderer2D
     {
         public override bool FlipX

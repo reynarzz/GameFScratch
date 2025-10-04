@@ -11,7 +11,7 @@ namespace Game
 {
     internal class Platform : ScriptBehavior
     {
-        public vec3[] Points = [ new vec3(-23, -9, 0), new vec3(-23, 7, 0)];
+        public vec3[] Points = [ new vec3(-23, -9, 0), new vec3(-23, 6, 0)];
         public float Speed { get; set; } = 4f;
         public float WaitTime { get; set; } = 1.5f;
         private float _currentWait = 0;
@@ -23,9 +23,10 @@ namespace Game
         {
             base.OnStart();
             _renderer = AddComponent<SpriteRenderer>();
+            _renderer.Color = Color.Black;
             var rigid = AddComponent<RigidBody2D>();
             rigid.BodyType = Body2DType.Kinematic;
-
+            rigid.Interpolate = true;
             var trigger = AddComponent<BoxCollider2D>();
             trigger.Size = new vec2(3, 1);
             trigger.Offset = new vec2(0, 0.03f);
@@ -37,6 +38,7 @@ namespace Game
 
             Transform.WorldPosition = _startPos + Points[_pointIndex];
             _currentWait = WaitTime;
+            Debug.Log("Platform start");
         }
 
         public override void OnUpdate()

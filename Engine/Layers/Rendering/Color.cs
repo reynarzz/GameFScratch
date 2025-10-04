@@ -23,15 +23,6 @@ namespace Engine
             A = a;
         }
 
-        public static implicit operator Color32(Color c)
-        {
-            return new Color32(
-                (byte)(c.R * 255f),
-                (byte)(c.G * 255f),
-                (byte)(c.B * 255f),
-                (byte)(c.A * 255f));
-        }
-
         public static implicit operator ColorPacketRGBA(Color c)
         {
             return (ColorPacketRGBA)(Color32)c;
@@ -85,6 +76,11 @@ namespace Engine
             byte b = (byte)(v >> 8);
             byte a = (byte)v;
             return new Color32(r, g, b, a);
+        }
+
+        public static implicit operator Color32(Color color)
+        {
+            return new Color32((byte)(color.R * 255.0f), (byte)(color.G * 255.0f), (byte)(color.B * 255.0f), (byte)(color.A * 255.0f));
         }
     }
 
