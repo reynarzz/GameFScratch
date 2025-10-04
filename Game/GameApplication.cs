@@ -90,7 +90,7 @@ namespace Game
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
             var tilemapSprite = new Sprite();
-
+            
             tilemapSprite.Texture = tilemapTexture;
             tilemapSprite.Texture.PixelPerUnit = 16;
 

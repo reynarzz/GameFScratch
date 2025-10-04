@@ -10,7 +10,7 @@ namespace Engine
     [UniqueComponent]
     public class SpriteAnimation2D : ScriptBehavior
     {
-        public Sprite[] _frames;
+        private Sprite[] _frames;
         public int FPS { get; set; } = 12;
         private float _accumulator = 0.0f;
         private int _currentFrame;
