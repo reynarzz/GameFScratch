@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace GameCooker
 {
-
     internal class TextAssetProcessor : IAssetProcessor
     {
         byte[] IAssetProcessor.Process(string path)
