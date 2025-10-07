@@ -10,16 +10,9 @@ namespace Engine.IO
 {
     internal class AssetDatabaseBuild : AssetDatabaseBase
     {
-        private BiDictionary<string, string> _guidPathDict;
-
-        internal override T GetAsset<T>(string path)
+        protected override T GetAsset<T>(Guid guid, AssetInfo info)
         {
-            return default;
-        }
-
-        internal override void Initialize(AssetsDatabaseInfo database)
-        {
-           
+            throw new NotImplementedException();
         }
     }
 }

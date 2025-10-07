@@ -12,8 +12,8 @@ namespace Engine.IO
     internal abstract class AssetDatabaseBase
     {
         private Dictionary<AssetType, AssetBuilderBase> _assetbuilder;
-        protected BiDictionary<Guid, string> GuidPathDict { get; private set; }
-        protected AssetsDatabaseInfo Database { get; private set; }
+        private BiDictionary<Guid, string> GuidPathDict { get; set; }
+        private AssetsDatabaseInfo Database { get; set; }
 
         protected AssetDatabaseBase()
         {
@@ -35,7 +35,19 @@ namespace Engine.IO
             }
         }
 
-        internal abstract T GetAsset<T>(string path) where T : EObject;
+        internal T GetAsset<T>(string path) where T : EObject
+        {
+            if (GuidPathDict.TryGetByValue(path, out var guid))
+            {
+                return GetAsset<T>(guid, Database.Assets[guid]);
+            }
+
+            Debug.Error($"Asset doesn't exists at path: {path}");
+
+            return default;
+        }
+
+        protected abstract T GetAsset<T>(Guid guid, AssetInfo info) where T : EObject;
 
         protected EObject BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
         {

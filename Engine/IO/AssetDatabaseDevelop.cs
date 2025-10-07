@@ -10,28 +10,22 @@ namespace Engine.IO
 {
     internal class AssetDatabaseDevelop : AssetDatabaseBase
     {
-        internal override T GetAsset<T>(string path)
+        protected override T GetAsset<T>(Guid guid, AssetInfo assetInfo)
         {
-            if (GuidPathDict.TryGetByValue(path, out var guid))
+            using (FileStream fs = new FileStream(AssetsCooker.ASSET_DATABASE_ROOT_TEST + "/" + guid + ".bin", FileMode.Open, FileAccess.Read))
             {
-                var assetInfo = Database.Assets[guid];
+                var encoding = Encoding.Default;
 
-                using (FileStream fs = new FileStream(AssetsCooker.ASSET_DATABASE_ROOT_TEST + "/" + guid + ".bin", FileMode.Open, FileAccess.Read))
+                if (assetInfo.Type == AssetType.Text)
                 {
-                   var encoding = Encoding.Default;
+                    encoding = Encoding.UTF8;
+                }
 
-                    using (BinaryReader reader = (assetInfo.Type == AssetType.Text ? new BinaryReader(fs, Encoding.UTF8) : new BinaryReader(fs)))
-                    {
-                        return BuildAsset(assetInfo, guid, reader) as T;
-                    }
+                using (BinaryReader reader = new BinaryReader(fs, encoding))
+                {
+                    return BuildAsset(assetInfo, guid, reader) as T;
                 }
             }
-            else
-            {
-                Debug.Error($"Asset doesn't exists at path: {path}");
-            }
-
-            return default;
         }
     }
 }

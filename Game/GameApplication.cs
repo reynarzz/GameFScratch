@@ -12,51 +12,6 @@ namespace Game
     {
         public override string GameName => "Game";
 
-        private string SpriteVertexShader = @"
-        #version 330 core
-        layout(location = 0) in vec3 position;
-        layout(location = 1) in vec2 uv;
-        layout(location = 2) in vec3 normals;
-        layout(location = 3) in uint color; 
-        layout(location = 4) in int texIndex; 
-        
-        out vec2 fragUV;
-        flat out int fragTexIndex;            // flat = no interpolation between vertices
-        out vec4 vColor;
-        uniform mat4 uVP;
-        
-        vec4 unpackColor(uint c) 
-        {
-            float r = float((c >> 24) & 0xFFu) / 255.0;
-            float g = float((c >> 16) & 0xFFu) / 255.0;
-            float b = float((c >>  8) & 0xFFu) / 255.0;
-            float a = float( c        & 0xFFu) / 255.0;
-            return vec4(r,g,b,a);
-        }
-        
-        void main() 
-        {
-            fragUV = uv;
-            fragTexIndex = texIndex; 
-            vColor = unpackColor(color);
-            gl_Position = uVP * vec4(position, 1.0);
-        }";
-
-        public string SpriteFragmentShader = $@"
-        #version 330 core
-        
-        uniform sampler2D uTextures[{32}];
-        in vec2 fragUV;
-        in vec4 vColor;
-        
-        flat in int fragTexIndex;
-        out vec4 fragColor;
-        
-        void main()
-        {{
-            fragColor = texture(uTextures[fragTexIndex], fragUV) * vColor;
-        }}";
-
         // -TODO:
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
@@ -102,7 +57,7 @@ namespace Game
             //var filepath = testPathNow + "\\Tilemap3.ldtk";
             string json = Assets.GetText(filepath).Text;
 
-            var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
+            var mat1 = new Material(new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text));
 
             var project = ldtk.LdtkJson.FromJson(json);
             var color = project.BgColor;
@@ -200,7 +155,7 @@ namespace Game
             sprite3.Texture.PixelPerUnit = 1;
 
 
-            var mainShader = new Shader(SpriteVertexShader, SpriteFragmentShader);
+            var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);
 
