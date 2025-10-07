@@ -83,9 +83,9 @@ namespace Game
         private vec3 _playerStartPosTest;
         private void LoadTilemap(Camera cam)
         {
-            var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Tilemap";
+            var testPathNow = "Tilemap";
             //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
-            var tilemapTexture = Assets.GetTexture(testPathNow + "\\SunnyLand_by_Ansimuz-extended.png");
+            var tilemapTexture = Assets.GetTexture(testPathNow + "/SunnyLand_by_Ansimuz-extended.png");
             //var tilemapTexture = Assets.GetTexture(testPathNow + "\\Inca_front_by_Kronbits-extended.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
@@ -96,12 +96,13 @@ namespace Game
             tilemapSprite.Texture.PixelPerUnit = 16;
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
-            var filepath = testPathNow + "\\WorldTilemap.ldtk";
+
+           
+            var filepath = testPathNow + "/WorldTilemap.ldtk";
             //var filepath = testPathNow + "\\Tilemap3.ldtk";
-            string json = File.ReadAllText(filepath);
+            string json = Assets.GetText(filepath).Text;
 
             var mat1 = new Material(new Shader(SpriteVertexShader, SpriteFragmentShader));
-
 
             var project = ldtk.LdtkJson.FromJson(json);
             var color = project.BgColor;
@@ -199,8 +200,6 @@ namespace Game
             sprite3.Texture.PixelPerUnit = 1;
 
 
-
-
             var mainShader = new Shader(SpriteVertexShader, SpriteFragmentShader);
 
             var mat1 = new Material(mainShader);
@@ -232,7 +231,7 @@ namespace Game
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
             playerActor.GetComponent<SpriteRenderer>().Material = mat1;
-            playerActor.GetComponent<SpriteRenderer>().SortOrder = 1;
+            playerActor.GetComponent<SpriteRenderer>().SortOrder = 4;
 
 
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];

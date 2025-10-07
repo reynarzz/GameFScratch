@@ -53,7 +53,7 @@ namespace Game
             //act2.Transform.Parent = act.Transform;
             //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
 
-            var basePath = "D:\\Projects\\GameScratch\\Game\\Assets\\KingsAndPigsSprites\\01-King Human\\";
+            var basePath = "KingsAndPigsSprites/01-King Human/";
             var pTexture = Assets.GetTexture(basePath + "Run (78x58).png");
             var pTexture2 = Assets.GetTexture(basePath + "Idle (78x58).png");
             var jumpTex = Assets.GetTexture(basePath + "Jump (78x58).png");

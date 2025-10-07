@@ -44,6 +44,12 @@ namespace Engine
             }
         }
 
+        public EObject(string name, Guid id)
+        {
+            Name = name;
+            _guid = id;
+        }
+
         public Guid GetID()
         {
             return _guid;

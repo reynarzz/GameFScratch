@@ -1,4 +1,5 @@
-﻿using GameCooker;
+﻿using Engine.IO;
+using GameCooker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,26 +10,27 @@ namespace Engine.Layers
 {
     internal class IOLayer : LayerBase
     {
-        public override void Close()
-        {
-        }
+        private static AssetDatabaseBase _assetDatabase;
 
         public override void Initialize()
         {
             var cooker = new AssetsCooker();
+            _assetDatabase = new AssetDatabaseDevelop();
 
-            async void Cook()
-            {
-                var result = await cooker.CookAll(new CookOptions() { Type = CookingType.Monolith},
-                                                        "D:\\Projects\\GameScratch\\Game\\Assets", "D:\\Projects\\GameScratch\\Game\\Library\\AssetsDatabase");
-
-                if (result)
-                {
-                    Debug.Success("Cook completed");
-                }
-            }
-
-            Cook();
+            var result = cooker.CookAll(new CookOptions() { Type = CookingType.Monolith },
+                                                    "D:\\Projects\\GameScratch\\Game\\Assets", 
+                                                    "D:\\Projects\\GameScratch\\Game\\Library\\AssetsDatabase").Result;
+            _assetDatabase.Initialize(result);
         }
+
+        internal static AssetDatabaseBase GetDatabase() // Refactor
+        {
+            return _assetDatabase;
+        }
+
+        public override void Close()
+        {
+        }
+
     }
 }

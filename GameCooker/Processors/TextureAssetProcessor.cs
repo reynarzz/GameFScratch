@@ -31,7 +31,7 @@ namespace GameCooker
                 {
                     bw.Write(result.Width);
                     bw.Write(result.Height);
-                    bw.Write((byte)result.Comp);
+                    bw.Write((int)result.Comp);
                     bw.Write(result.Data);
                     bw.Flush();
 
