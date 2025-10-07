@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Characters\" />
+  </ItemGroup>
+
 </Project>

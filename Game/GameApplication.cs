@@ -3,6 +3,7 @@ using Engine;
 using Engine.Layers;
 using Engine.Utils;
 using GlmNet;
+using ldtk;
 using System.Text.Json;
 
 namespace Game
@@ -79,7 +80,7 @@ namespace Game
         // Investigate why colliders are not freed from memory automatically.
         // Game using both assets, and using stencil buffer to change beteen them sphere.
 
-
+        private vec3 _playerStartPosTest;
         private void LoadTilemap(Camera cam)
         {
             var testPathNow = "D:\\Projects\\GameScratch\\Game\\Assets\\Tilemap";
@@ -90,7 +91,7 @@ namespace Game
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
             var tilemapSprite = new Sprite();
-            
+
             tilemapSprite.Texture = tilemapTexture;
             tilemapSprite.Texture.PixelPerUnit = 16;
 
@@ -104,6 +105,31 @@ namespace Game
 
             var project = ldtk.LdtkJson.FromJson(json);
             var color = project.BgColor;
+
+            vec3 ConvertToWorld(long[] px, Level level, LayerInstance layer)
+            {
+                return new vec3(level.WorldX + px[0] + layer.PxOffsetX, -level.WorldY + -px[1] + -layer.PxOffsetY, 0);
+            }
+
+            foreach (var level in project.Levels)
+            {
+                foreach (var layer in level.LayerInstances)
+                {
+                    foreach (var entity in layer.EntityInstances)
+                    {
+                        Debug.Log("Entity: " + entity.Identifier);
+                        if (entity.Identifier.Equals("Player"))
+                        {
+                            _playerStartPosTest = ConvertToWorld(entity.Px, level, layer) / tilemapTexture.PixelPerUnit;
+                        }
+
+                        foreach (var field in entity.FieldInstances)
+                        {
+                            Debug.Log("Name: " + field.Identifier + ", Type: " + field.Type + ", Value: " + field.Value);
+                        }
+                    }
+                }
+            }
 
             //cam.BackgroundColor = new Color32(project.BackgroundColor.R, project.BackgroundColor.G, project.BackgroundColor.B, project.BackgroundColor.A);
             //cam.BackgroundColor = new Color32(23, 28, 57, project.BackgroundColor.A);
@@ -215,9 +241,9 @@ namespace Game
             playerActor.GetComponent<CapsuleCollider2D>().Offset = new vec2(0, 0.25f);
             playerActor.GetComponent<CapsuleCollider2D>().Size = new vec2(1.4f, 1.7f);
             var collider3 = playerActor.GetComponent<Collider2D>();
-            var rigid3 = playerActor.Transform.GetComponent<RigidBody2D>();
+            var rigid3 = playerActor.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
-            rigid3.Transform.WorldPosition = new GlmNet.vec3(0.5f, -10, 0);
+            rigid3.Transform.WorldPosition = _playerStartPosTest;
             camera.Transform.WorldPosition = new GlmNet.vec3(playerActor.Transform.WorldPosition.x,
                                                              playerActor.Transform.WorldPosition.y, -12);
             rigid3.LockZRotation = true;
