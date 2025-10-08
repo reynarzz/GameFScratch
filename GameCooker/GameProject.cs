@@ -18,20 +18,20 @@ namespace GameCooker
     {
         public void Initialize(ProjectConfig config)
         {
-            if (string.IsNullOrEmpty(config.ProjectFolderRoot))
+            if (string.IsNullOrEmpty(config.ProjectFolderRoot) || !Directory.Exists(config.ProjectFolderRoot))
             {
-                Console.WriteLine("Wrong path");
+                Console.WriteLine("Wrong root path");
                 return;
             }
-            
+
             InitializeProjectDirectories(config.ProjectFolderRoot);
         }
 
         private void InitializeProjectDirectories(string projectRoot)
         {
             ProjectPaths.ProjectRootFolder = projectRoot;
-            foreach (var dir in new string[] 
-            { 
+            foreach (var dir in new string[]
+            {
                 ProjectPaths.GetAssetsFolderPath(),
                 ProjectPaths.GetLibraryFolderPath(),
                 ProjectPaths.GetProjectSettingsFolder(),

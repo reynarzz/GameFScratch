@@ -39,6 +39,8 @@ namespace GameCooker
         public AssetType Type { get; set; }
         public DateTime LastWriteTime { get; set; }
         public string Path { get; set; }
+        public bool IsCompressed { get; set; }
+        public bool IsEncrypted { get; set; }
     }
 
     public class AssetsCooker
@@ -122,10 +124,23 @@ namespace GameCooker
 
                 var latestWriteTime = File.GetLastWriteTime(fileCleanPath);
 
+                bool isFileCompressed = true;
+                bool isFileEncrypted = true;
+
                 if (!constainsAssetInfo || latestWriteTime > assetInfo.LastWriteTime || !isInLibrary)
                 {
-                    var data = ProcessAsset(fileCleanPath);
+                    byte[] data = ProcessAsset(fileCleanPath);
 
+                    if (isFileCompressed)
+                    {
+                        data = AssetCompressor.CompressBytes(data);
+                    }
+
+                    if (isFileEncrypted)
+                    {
+                        data = AssetEncrypter.EncryptBytes(data, "1234");
+                    }
+                    
                     var assetRelPath = ProjectPaths.GetRelativeAssetPath(fileCleanPath);
                     if (data != null)
                     {
@@ -141,7 +156,7 @@ namespace GameCooker
                         {
                             Console.WriteLine("Importing asset file: " + fileCleanPath);
                             var guid = meta != null ? meta.GUID : Guid.NewGuid();
-                            _databaseInfo.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath });
+                            _databaseInfo.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath, IsEncrypted = isFileEncrypted, IsCompressed = isFileCompressed });
                             // Write meta
                             File.WriteAllText(fileCleanPath + ProjectPaths.ASSET_META_EXT_NAME, JsonConvert.SerializeObject(meta, Formatting.Indented));
                         }

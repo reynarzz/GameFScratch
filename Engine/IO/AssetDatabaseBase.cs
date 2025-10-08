@@ -1,5 +1,5 @@
 ﻿using Engine.Utils;
-using GameCooker;
+using GameCooker;// remove
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -53,6 +53,16 @@ namespace Engine.IO
         {
             if (_assetbuilder.TryGetValue(info.Type, out AssetBuilderBase builder))
             {
+                if (info.IsEncrypted)
+                {
+                    reader = new BinaryReader(AssetEncrypter.DecryptFromStream(reader.BaseStream, "1234"));
+                }
+
+                if (info.IsCompressed)
+                {
+                    reader = new BinaryReader(AssetCompressor.DecompressStream(reader.BaseStream));
+                }
+
                 return builder.BuildAsset(info, guid, reader);
             }
 
