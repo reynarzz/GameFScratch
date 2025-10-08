@@ -26,6 +26,7 @@ namespace GameCooker
     {
         byte[] Process(string path);
     }
+
     public class AssetsDatabaseInfo
     {
         public int TotalAssets { get; set; }
@@ -46,12 +47,6 @@ namespace GameCooker
         private Dictionary<AssetType, IAssetProcessor> _assetsProcessors;
         private AssetsDatabaseInfo _databaseInfo;
 
-        public const string ASSET_DATABASE_ROOT_TEST = "D:\\Projects\\GameScratch\\Game\\Library\\AssetsDatabase";
-        private const string AssetDatabaseFileTestPath = ASSET_DATABASE_ROOT_TEST + "/" + ASSET_DATABASE_FILE_NAME;
-
-
-        private const string ASSET_DATABASE_FILE_NAME = "AssetDatabase.txt";
-        private const string ASSET_META_EXTENSION_NAME = ".meta";
         public AssetsCooker()
         {
             _assetsTypes = new Dictionary<string, AssetType>(StringComparer.OrdinalIgnoreCase)
@@ -83,9 +78,9 @@ namespace GameCooker
                 { AssetType.Text, new TextAssetProcessor() }
             };
 
-            if (File.Exists(AssetDatabaseFileTestPath))
+            if (File.Exists(ProjectPaths.GetAssetDatabaseFilePath()))
             {
-                _databaseInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(AssetDatabaseFileTestPath));
+                _databaseInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(ProjectPaths.GetAssetDatabaseFilePath()));
             }
 
             if (_databaseInfo == null)
@@ -100,7 +95,7 @@ namespace GameCooker
 
         public async Task<AssetsDatabaseInfo> CookAll(CookOptions options, string assetsRootFolder, string folderOut)
         {
-            var files = Directory.GetFiles(assetsRootFolder, ".", SearchOption.AllDirectories).Where(x => !x.EndsWith(ASSET_META_EXTENSION_NAME));
+            var files = Directory.GetFiles(assetsRootFolder, ".", SearchOption.AllDirectories).Where(x => !x.EndsWith(ProjectPaths.ASSET_META_EXT_NAME));
 
             foreach (var filepath in files)
             {
@@ -118,7 +113,9 @@ namespace GameCooker
 
                 bool isInLibrary = false;
 
-                if (meta != null && File.Exists(ASSET_DATABASE_ROOT_TEST + "/" + meta.GUID + ".bin"))
+                var binPath = ProjectPaths.CreateAssetDatabaseBinFilePath(meta.GUID.ToString());
+
+                if (meta != null && File.Exists(binPath))
                 {
                     isInLibrary = true;
                 }
@@ -128,8 +125,8 @@ namespace GameCooker
                 if (!constainsAssetInfo || latestWriteTime > assetInfo.LastWriteTime || !isInLibrary)
                 {
                     var data = ProcessAsset(fileCleanPath);
-                    const string assetsFolderName = "Assets";
-                    var assetRelPath = fileCleanPath.Substring(fileCleanPath.IndexOf(assetsFolderName) + assetsFolderName.Length + 1);
+
+                    var assetRelPath = ProjectPaths.GetRelativeAssetPath(fileCleanPath);
                     if (data != null)
                     {
                         if (constainsAssetInfo)
@@ -146,7 +143,7 @@ namespace GameCooker
                             var guid = meta != null ? meta.GUID : Guid.NewGuid();
                             _databaseInfo.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath });
                             // Write meta
-                            File.WriteAllText(fileCleanPath + ASSET_META_EXTENSION_NAME, JsonConvert.SerializeObject(meta, Formatting.Indented));
+                            File.WriteAllText(fileCleanPath + ProjectPaths.ASSET_META_EXT_NAME, JsonConvert.SerializeObject(meta, Formatting.Indented));
                         }
 
                         // Write asset to library
@@ -158,7 +155,7 @@ namespace GameCooker
             _databaseInfo.TotalAssets = _databaseInfo.Assets.Count;
 
             // Write asset database
-            File.WriteAllText(AssetDatabaseFileTestPath, JsonConvert.SerializeObject(_databaseInfo, Formatting.Indented));
+            File.WriteAllText(ProjectPaths.GetAssetDatabaseFilePath(), JsonConvert.SerializeObject(_databaseInfo, Formatting.Indented));
 
             return _databaseInfo;
         }
@@ -176,16 +173,16 @@ namespace GameCooker
             {
                 if (_assetsProcessors.TryGetValue(assetType, out var processor))
                 {
-                    return processor.Process(path); // TODO: don't process if last write time is same in database and real
+                    return processor.Process(path);
                 }
             }
 
-            return default;
+            return null;
         }
 
         private AssetMetaFileBase GetMeta(string path, AssetType assetType)
         {
-            var metaFilePath = path + ASSET_META_EXTENSION_NAME;
+            var metaFilePath = path + ProjectPaths.ASSET_META_EXT_NAME;
             string metaJson = null;
 
             if (File.Exists(metaFilePath))

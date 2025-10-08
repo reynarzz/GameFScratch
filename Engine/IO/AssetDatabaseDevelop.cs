@@ -12,7 +12,9 @@ namespace Engine.IO
     {
         protected override T GetAsset<T>(Guid guid, AssetInfo assetInfo)
         {
-            using (FileStream fs = new FileStream(AssetsCooker.ASSET_DATABASE_ROOT_TEST + "/" + guid + ".bin", FileMode.Open, FileAccess.Read))
+            var binPath = ProjectPaths.CreateAssetDatabaseBinFilePath(guid.ToString());
+
+            using (FileStream fs = new FileStream(binPath, FileMode.Open, FileAccess.Read))
             {
                 var encoding = Encoding.Default;
 

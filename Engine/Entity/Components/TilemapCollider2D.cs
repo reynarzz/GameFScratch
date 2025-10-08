@@ -33,8 +33,10 @@ namespace Engine
         internal override void OnInitialize()
         {
             _renderer = GetComponent<TilemapRenderer>();
-            GetComponent<RigidBody2D>().BodyType = Body2DType.Static;
+
             base.OnInitialize();
+
+            RigidBody.BodyType = Body2DType.Static;
         }
 
         protected override B2ShapeId[] CreateShape(B2BodyId bodyId)

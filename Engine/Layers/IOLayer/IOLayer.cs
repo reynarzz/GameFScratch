@@ -14,12 +14,14 @@ namespace Engine.Layers
 
         public override void Initialize()
         {
+            new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = "D:/Projects/GameScratch/Game" });
+
             var cooker = new AssetsCooker();
             _assetDatabase = new AssetDatabaseDevelop();
 
             var result = cooker.CookAll(new CookOptions() { Type = CookingType.Monolith },
-                                                    "D:\\Projects\\GameScratch\\Game\\Assets", 
-                                                    "D:\\Projects\\GameScratch\\Game\\Library\\AssetsDatabase").Result;
+                                                    ProjectPaths.GetAssetsFolderPath(),
+                                                    ProjectPaths.GetAssetDatabaseFolder()).Result;
             _assetDatabase.Initialize(result);
         }
 

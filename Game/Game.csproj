@@ -2,16 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>false</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <BaseIntermediateOutputPath>Library\Build\obj\</BaseIntermediateOutputPath>
+    <BaseOutputPath>Library\Build\bin\</BaseOutputPath>
+	<DefineConstants>$(DefineConstants);PROJECT_PATH="$(MSBuildProjectFullPath)"</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Engine\Engine.csproj" />
+    <Compile Remove="Characters\**" />
+    <Compile Remove="Library\**" />
+    <EmbeddedResource Remove="Characters\**" />
+    <EmbeddedResource Remove="Library\**" />
+    <None Remove="Characters\**" />
+    <None Remove="Library\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Characters\" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>
 
 </Project>
