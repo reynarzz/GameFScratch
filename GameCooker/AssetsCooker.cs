@@ -44,7 +44,8 @@ namespace GameCooker
 
             _assetCookers = new Dictionary<CookingType, AssetsCookerBase>()
             {
-                {  CookingType.SeparatedFiles, new SeparatedFilesCooker() }
+                {  CookingType.DevMode, new DevModeFilesCooker() },
+                {  CookingType.ReleaseMode, new ReleaseModeFilesCooker() },
             };
 
             if (File.Exists(Paths.GetAssetDatabaseFilePath()))
@@ -74,7 +75,7 @@ namespace GameCooker
             return _databaseInfo;
         }
 
-        public  AssetsDatabaseInfo CookAll(CookOptions options, string assetsRootFolder, string folderOut)
+        public AssetsDatabaseInfo CookAll(CookOptions options, string assetsRootFolder, string folderOut)
         {
             return CookAllAsync(options, assetsRootFolder, folderOut).Result;
         }
@@ -86,8 +87,7 @@ namespace GameCooker
                 return processor.Process(path);
             }
 
-            return null;
+            return [];
         }
-
     }
 }

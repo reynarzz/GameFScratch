@@ -31,7 +31,7 @@ namespace Sandbox
 
             var cooker = new AssetsCooker();
 
-            cooker.CookAll(new CookOptions() { Type = CookingType.SeparatedFiles },
+            cooker.CookAll(new CookOptions() { Type = CookingType.DevMode },
                                                     Paths.GetAssetsFolderPath(),
                                                     Paths.GetAssetDatabaseFolder());
 #endif

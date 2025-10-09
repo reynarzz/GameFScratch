@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace GameCooker
 {
-    internal class SeparatedFilesCooker : AssetsCookerBase
+    internal class DevModeFilesCooker : AssetsCookerBase
     {
         internal override async Task CookAssetsAsync(IEnumerable<(string, AssetType)> files, Func<AssetType, string, byte[]> processAssetCallback, 
                                                      AssetsDatabaseInfo database, string outFolder)
         {
-            foreach (var file in files.OrderBy(x => x.Item2))
+            foreach (var file in files)
             {
                 var filePath = file.Item1;
                 var assetType = file.Item2;

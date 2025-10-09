@@ -8,7 +8,7 @@ namespace GameCooker
 {
     public enum CookingType
     {
-        Monolith,
-        SeparatedFiles
+        ReleaseMode,
+        DevMode
     }
 }
