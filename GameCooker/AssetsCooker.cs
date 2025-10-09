@@ -19,10 +19,17 @@ namespace GameCooker
                 { ".png", AssetType.Texture },
                 { ".tga", AssetType.Texture },
                 { ".jpg", AssetType.Texture },
+                { ".psd", AssetType.Texture },
+                { ".hdr", AssetType.Texture },
+                { ".pic", AssetType.Texture },
+                { ".bmp", AssetType.Texture },
+                
 
                 // Audio
                 { ".mp3", AssetType.Audio },
                 { ".wav", AssetType.Audio },
+                { ".aac", AssetType.Audio },
+                { ".wma", AssetType.Audio },
 
                 // Text
                 { ".txt", AssetType.Text },

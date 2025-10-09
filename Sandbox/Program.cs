@@ -16,7 +16,6 @@ namespace Sandbox
 
         private static void Main()
         {
-
 #if RELEASE
             var libsPath = Path.Combine(AppContext.BaseDirectory, "Data/Assemblies");
 

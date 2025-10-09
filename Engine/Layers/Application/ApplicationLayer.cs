@@ -8,7 +8,6 @@ namespace Engine.Layers
 {
     public abstract class ApplicationLayer : LayerBase
     {
-        public abstract string GameName { get; }
         public virtual void OnFocusEnter() { }
         public virtual void OnFocusExit() { }
     }

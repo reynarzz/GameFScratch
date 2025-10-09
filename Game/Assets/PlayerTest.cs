@@ -91,8 +91,11 @@ namespace Game
         public override void OnDisabled()
         {
         }
+
         public override void OnUpdate()
         {
+            Window.Name = $"Game (FPS: {Time.FPS})";
+
             if (!_attacking && Input.GetKeyDown(KeyCode.F))
             {
                 _attacking = true;

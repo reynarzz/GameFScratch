@@ -10,8 +10,6 @@ namespace Game
 {
     public class GameApplication : ApplicationLayer
     {
-        public override string GameName => "Game";
-
         // -TODO:
         // Implement physics: raycast, boxcast, circle cast.
         // Implement audio
