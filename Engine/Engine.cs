@@ -10,10 +10,6 @@ namespace Engine
     {
         private LayersManager _layersManager;
 
-        public Engine()
-        {
-        }
-
         public Engine Initialize(params Type[] layers)
         {
             var win = new Window("Game", 920, 600);
@@ -29,6 +25,12 @@ namespace Engine
 
         public void Run()
         {
+            if (_layersManager == null)
+            {
+                Debug.Error("FATAL: Engine couldn't not be initialized correctly.");
+                return;
+            }
+
             while (!Window.ShouldClose)
             {
                 _layersManager.Update();
