@@ -14,7 +14,7 @@ namespace Engine
         {
         }
 
-        public void Initialize(params Type[] layers)
+        public Engine Initialize(params Type[] layers)
         {
             var win = new Window("Game", 920, 600);
 
@@ -23,6 +23,8 @@ namespace Engine
                 _layersManager = new LayersManager(layers);
                 _layersManager.Initialize();
             }
+
+            return this;
         }
 
         public void Run()

@@ -12,7 +12,7 @@ namespace Sandbox
 {
     internal class Program
     {
-        const string GAME_FOLDER_NAME = "Game";
+        private const string GAME_FOLDER_NAME = "Game";
 
         private static void Main()
         {
@@ -28,6 +28,7 @@ namespace Sandbox
                 catch { }
             }
 #else
+            // This will import all the assets without using the GUI tool. Useful for recruiters needing to just run the project.
             var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
             var path = Path.GetFullPath(Path.Combine(assemblyDir, "..", "..", "..", "..", "..", GAME_FOLDER_NAME));
 
@@ -36,30 +37,14 @@ namespace Sandbox
                                        Paths.GetAssetsFolderPath(),
                                        Paths.GetAssetDatabaseFolder());
 #endif
-
-            var engine = new Engine.Engine();
-            engine.Initialize(typeof(TimeLayer),
-                              typeof(Input),
-                              typeof(GameApplication),
-                              typeof(SceneLayer),
-                              typeof(PhysicsLayer),
-                              typeof(RenderingLayer),
-                              typeof(IOLayer));
-
-            engine.Run();
-
-//#if DEBUG
-//            try
-//            {
-//                engine.Run();
-//            }
-//            catch (Exception e)
-//            {
-//                Log.Error(e);
-//            }
-//#else
-//            engine.Run();
-//#endif
+            new Engine.Engine().Initialize(typeof(TimeLayer),
+                                           typeof(Input),
+                                           typeof(GameApplication),
+                                           typeof(SceneLayer),
+                                           typeof(PhysicsLayer),
+                                           typeof(RenderingLayer),
+                                           typeof(IOLayer))
+                                          .Run();
         }
     }
 }
