@@ -1,5 +1,5 @@
 ﻿using Engine.Utils;
-using GameCooker;
+using SharedTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace Engine.IO
     {
         protected override T GetAsset<T>(Guid guid, AssetInfo assetInfo)
         {
-            var binPath = ProjectPaths.CreateAssetDatabaseBinFilePath(guid.ToString());
+            var binPath = Paths.CreateBinFilePath(Paths.GetAssetDatabaseFolder(), guid.ToString());
 
             using (FileStream fs = new FileStream(binPath, FileMode.Open, FileAccess.Read))
             {

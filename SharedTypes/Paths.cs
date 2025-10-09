@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameCooker
+namespace SharedTypes
 {
-    public static class ProjectPaths
+    public static class Paths
     {
         public const string LIBRARY_FOLDER_NAME = "Library";
         public const string BUILD_TEMP_FOLDER_NAME = "BuildTemp";
@@ -19,7 +19,7 @@ namespace GameCooker
         public const string ASSET_META_EXT_NAME = ".meta";
         public const string ASSET_BUILD_DATA_EXT_NAME = ".gfs"; // "Game from scratch"
 
-        private static string _projectRootFolder; // Remove path
+        private static string _projectRootFolder;
         public static string ProjectRootFolder
         {
             get => _projectRootFolder;
@@ -36,7 +36,7 @@ namespace GameCooker
 
         public static string GetAssetDatabaseFolder(bool isRelativePath = false)
         {
-            return Path.Join(GetAbsolutePathFlag(isRelativePath), LIBRARY_FOLDER_NAME, ASSET_DATABASE_FOLDER_NAME);
+            return Path.Join(GetAbsolutePathFlag(isRelativePath), GetLibraryFolderPath(true), ASSET_DATABASE_FOLDER_NAME);
         }
         public static string GetProjectSettingsFolder(bool isRelativePath = false)
         {
@@ -44,7 +44,7 @@ namespace GameCooker
         }
         public static string GetAssetDatabaseFilePath(bool isRelativePath = false)
         {
-            return Path.Join(GetAbsolutePathFlag(isRelativePath), LIBRARY_FOLDER_NAME, ASSET_DATABASE_FOLDER_NAME, ASSET_DATABASE_FILE_NAME);
+            return Path.Join(GetAbsolutePathFlag(isRelativePath), GetAssetDatabaseFolder(true), ASSET_DATABASE_FILE_NAME);
         }
 
         public static string GetLibraryFolderPath(bool isRelativePath = false)
@@ -57,14 +57,14 @@ namespace GameCooker
             return Path.Join(GetAbsolutePathFlag(isRelativePath), ASSETS_FOLDER_NAME);
         }
 
-        public static string CreateAssetDatabaseBinFilePath(string guid, bool isRelativePath = false)
+        public static string CreateBinFilePath(string folderPath, string guid, bool isRelativePath = false)
         {
-            return Path.Join(GetAssetDatabaseFolder(isRelativePath), guid + ASSET_DATABASE_BINARY_EXT_NAME);
+            return Path.Join(folderPath, guid + ASSET_DATABASE_BINARY_EXT_NAME);
         }
 
         public static string GetBuildTempFolderPath(bool isRelativePath = false)
         {
-            return Path.Join(GetAbsolutePathFlag(isRelativePath), BUILD_TEMP_FOLDER_NAME);
+            return Path.Join(GetAbsolutePathFlag(isRelativePath), GetLibraryFolderPath(true), BUILD_TEMP_FOLDER_NAME);
         }
 
         public static string GetRelativeAssetPath(string absoluteAssetPath)

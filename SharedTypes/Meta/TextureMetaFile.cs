@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameCooker
+namespace SharedTypes
 {
     [Serializable]
-    internal struct TextureConfig
+    public struct TextureConfig
     {
         public bool IsNearest { get; set; }
         public bool IsAtlas { get; set; }
     }
 
     [Serializable]
-    internal class TextureMetaFile : AssetMetaFileBase
+    public class TextureMetaFile : AssetMetaFileBase
     {
         public TextureConfig Config { get; set; }
     }

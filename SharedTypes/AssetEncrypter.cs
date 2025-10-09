@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace GameCooker
+namespace SharedTypes
 {
     public static class AssetEncrypter
     {

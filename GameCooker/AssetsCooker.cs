@@ -1,52 +1,14 @@
 ﻿using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+using SharedTypes;
 
 namespace GameCooker
 {
-    public enum CookingType
-    {
-        Monolith,
-        SeparatedFiles
-    }
-
-    public struct CookOptions
-    {
-        public CookingType Type { get; set; }
-    }
-
-    public enum AssetType
-    {
-        Invalid,
-        Texture,
-        Audio,
-        Text
-    }
-
-    internal interface IAssetProcessor
-    {
-        byte[] Process(string path);
-    }
-
-    public class AssetsDatabaseInfo
-    {
-        public int TotalAssets { get; set; }
-        public DateTime CreationDate { get; set; }
-        public Dictionary<Guid, AssetInfo> Assets { get; private set; } = new();
-    }
-
-    public class AssetInfo
-    {
-        public AssetType Type { get; set; }
-        public DateTime LastWriteTime { get; set; }
-        public string Path { get; set; }
-        public bool IsCompressed { get; set; }
-        public bool IsEncrypted { get; set; }
-    }
-
     public class AssetsCooker
     {
         private Dictionary<string, AssetType> _assetsTypes;
         private Dictionary<AssetType, IAssetProcessor> _assetsProcessors;
+        private Dictionary<CookingType, AssetsCookerBase> _assetCookers;
+
         private AssetsDatabaseInfo _databaseInfo;
 
         public AssetsCooker()
@@ -80,9 +42,14 @@ namespace GameCooker
                 { AssetType.Text, new TextAssetProcessor() }
             };
 
-            if (File.Exists(ProjectPaths.GetAssetDatabaseFilePath()))
+            _assetCookers = new Dictionary<CookingType, AssetsCookerBase>()
             {
-                _databaseInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(ProjectPaths.GetAssetDatabaseFilePath()));
+                {  CookingType.SeparatedFiles, new SeparatedFilesCooker() }
+            };
+
+            if (File.Exists(Paths.GetAssetDatabaseFilePath()))
+            {
+                _databaseInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(Paths.GetAssetDatabaseFilePath()));
             }
 
             if (_databaseInfo == null)
@@ -95,144 +62,32 @@ namespace GameCooker
             }
         }
 
-        public async Task<AssetsDatabaseInfo> CookAll(CookOptions options, string assetsRootFolder, string folderOut)
+        public async Task<AssetsDatabaseInfo> CookAllAsync(CookOptions options, string assetsRootFolder, string folderOut)
         {
-            var files = Directory.GetFiles(assetsRootFolder, ".", SearchOption.AllDirectories).Where(x => !x.EndsWith(ProjectPaths.ASSET_META_EXT_NAME));
+            var files = Directory.GetFiles(assetsRootFolder, "*", SearchOption.AllDirectories).Where(x => !x.EndsWith(Paths.ASSET_META_EXT_NAME));
 
-            foreach (var filepath in files)
-            {
-                var fileCleanPath = filepath.Replace("\\", "/");
+            var selectedFiles = files.Where(path => _assetsTypes.TryGetValue(Path.GetExtension(path), out _))
+                                     .Select(path => (path.Replace("\\", "/"), _assetsTypes[Path.GetExtension(path)]));
 
-                // Console.WriteLine(file + ", etx: " + Path.GetExtension(file));
-                if (!_assetsTypes.TryGetValue(Path.GetExtension(fileCleanPath), out var assetType))
-                    continue;
-
-                var meta = GetMeta(fileCleanPath, assetType);
-
-                AssetInfo assetInfo = null;
-
-                bool constainsAssetInfo = meta != null ? _databaseInfo.Assets.TryGetValue(meta.GUID, out assetInfo) : false;
-
-                bool isInLibrary = false;
-
-                var binPath = ProjectPaths.CreateAssetDatabaseBinFilePath(meta.GUID.ToString());
-
-                if (meta != null && File.Exists(binPath))
-                {
-                    isInLibrary = true;
-                }
-
-                var latestWriteTime = File.GetLastWriteTime(fileCleanPath);
-
-                bool isFileCompressed = true;
-                bool isFileEncrypted = true;
-
-                if (!constainsAssetInfo || latestWriteTime > assetInfo.LastWriteTime || !isInLibrary)
-                {
-                    byte[] data = ProcessAsset(fileCleanPath);
-
-                    if (isFileCompressed)
-                    {
-                        data = AssetCompressor.CompressBytes(data);
-                    }
-
-                    if (isFileEncrypted)
-                    {
-                        data = AssetEncrypter.EncryptBytes(data, "1234");
-                    }
-                    
-                    var assetRelPath = ProjectPaths.GetRelativeAssetPath(fileCleanPath);
-                    if (data != null)
-                    {
-                        if (constainsAssetInfo)
-                        {
-                            Console.WriteLine("Updating asset file: " + fileCleanPath);
-                            assetInfo = _databaseInfo.Assets[meta.GUID];
-
-                            assetInfo.LastWriteTime = latestWriteTime;
-                            assetInfo.Path = assetRelPath;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Importing asset file: " + fileCleanPath);
-                            var guid = meta != null ? meta.GUID : Guid.NewGuid();
-                            _databaseInfo.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath, IsEncrypted = isFileEncrypted, IsCompressed = isFileCompressed });
-                            // Write meta
-                            File.WriteAllText(fileCleanPath + ProjectPaths.ASSET_META_EXT_NAME, JsonConvert.SerializeObject(meta, Formatting.Indented));
-                        }
-
-                        // Write asset to library
-                        File.WriteAllBytes(folderOut + "/" + meta.GUID + ".bin", data);
-                    }
-                }
-            }
-            
-            _databaseInfo.TotalAssets = _databaseInfo.Assets.Count;
-
-            // Write asset database
-            File.WriteAllText(ProjectPaths.GetAssetDatabaseFilePath(), JsonConvert.SerializeObject(_databaseInfo, Formatting.Indented));
+            await _assetCookers[options.Type].CookAssetsAsync(selectedFiles, ProcessAsset, _databaseInfo, folderOut);
 
             return _databaseInfo;
         }
 
-        internal class AssetData
+        public  AssetsDatabaseInfo CookAll(CookOptions options, string assetsRootFolder, string folderOut)
         {
-            internal AssetType Type { get; set; }
-            internal byte[] Data { get; set; }
-            internal AssetMetaFileBase Meta { get; set; }
+            return CookAllAsync(options, assetsRootFolder, folderOut).Result;
         }
 
-        private byte[] ProcessAsset(string path)
+        private byte[] ProcessAsset(AssetType type, string path)
         {
-            if (_assetsTypes.TryGetValue(Path.GetExtension(path), out var assetType))
+            if (_assetsProcessors.TryGetValue(type, out var processor))
             {
-                if (_assetsProcessors.TryGetValue(assetType, out var processor))
-                {
-                    return processor.Process(path);
-                }
+                return processor.Process(path);
             }
 
             return null;
         }
 
-        private AssetMetaFileBase GetMeta(string path, AssetType assetType)
-        {
-            var metaFilePath = path + ProjectPaths.ASSET_META_EXT_NAME;
-            string metaJson = null;
-
-            if (File.Exists(metaFilePath))
-            {
-                metaJson = File.ReadAllText(metaFilePath);
-            }
-
-            AssetMetaFileBase metaFile = null;
-
-            if (string.IsNullOrEmpty(metaJson))
-            {
-                if (assetType == AssetType.Texture)
-                {
-                    metaFile = new TextureMetaFile();
-                }
-                else
-                {
-                    metaFile = new DefaultMetaFile();
-                }
-
-                metaFile.GUID = Guid.NewGuid();
-            }
-            else
-            {
-                if (assetType == AssetType.Texture)
-                {
-                    metaFile = JsonConvert.DeserializeObject<TextureMetaFile>(metaJson);
-                }
-                else
-                {
-                    metaFile = JsonConvert.DeserializeObject<DefaultMetaFile>(metaJson);
-                }
-            }
-
-            return metaFile;
-        }
     }
 }

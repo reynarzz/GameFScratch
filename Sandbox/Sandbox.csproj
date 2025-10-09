@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\GameCooker\GameCooker.csproj" />
     <ProjectReference Include="..\Game\Game.csproj" />
   </ItemGroup>
 

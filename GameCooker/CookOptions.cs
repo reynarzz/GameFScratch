@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace GameCooker
 {
-    internal class DefaultMetaFile : AssetMetaFileBase
+    public struct CookOptions
     {
+        public CookingType Type { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Engine.IO;
-using GameCooker;
+using Newtonsoft.Json;
+using SharedTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +15,13 @@ namespace Engine.Layers
 
         public override void Initialize()
         {
-            new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = "D:/Projects/GameScratch/Game" });
-
-            var cooker = new AssetsCooker();
+#if DEBUG
             _assetDatabase = new AssetDatabaseDevelop();
+#else
 
-            var result = cooker.CookAll(new CookOptions() { Type = CookingType.Monolith },
-                                                    ProjectPaths.GetAssetsFolderPath(),
-                                                    ProjectPaths.GetAssetDatabaseFolder()).Result;
-            _assetDatabase.Initialize(result);
+#endif
+            var testInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(Paths.GetAssetDatabaseFilePath()));
+            _assetDatabase.Initialize(testInfo);
         }
 
         internal static AssetDatabaseBase GetDatabase() // Refactor

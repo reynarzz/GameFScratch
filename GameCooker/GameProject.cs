@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,14 +7,6 @@ using System.Threading.Tasks;
 
 namespace GameCooker
 {
-    [Serializable]
-    public struct ProjectConfig
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string ProjectFolderRoot { get; set; }
-    }
-
     public class GameProject
     {
         public void Initialize(ProjectConfig config)
@@ -29,14 +22,14 @@ namespace GameCooker
 
         private void InitializeProjectDirectories(string projectRoot)
         {
-            ProjectPaths.ProjectRootFolder = projectRoot;
+            Paths.ProjectRootFolder = projectRoot;
             foreach (var dir in new string[]
             {
-                ProjectPaths.GetAssetsFolderPath(),
-                ProjectPaths.GetLibraryFolderPath(),
-                ProjectPaths.GetProjectSettingsFolder(),
-                ProjectPaths.GetAssetDatabaseFolder(),
-                ProjectPaths.GetBuildTempFolderPath(),
+                Paths.GetAssetsFolderPath(),
+                Paths.GetLibraryFolderPath(),
+                Paths.GetProjectSettingsFolder(),
+                Paths.GetAssetDatabaseFolder(),
+                Paths.GetBuildTempFolderPath(),
             })
             {
                 Directory.CreateDirectory(dir);

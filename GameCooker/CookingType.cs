@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace GameCooker
 {
-    internal abstract class AssetMetaFileBase
+    public enum CookingType
     {
-        public Guid GUID { get; set; }
+        Monolith,
+        SeparatedFiles
     }
 }

@@ -5,6 +5,8 @@ using Engine;
 using Engine.Layers;
 
 using Game;
+using GameCooker;
+using SharedTypes;
 
 namespace Sandbox
 {
@@ -24,6 +26,14 @@ namespace Sandbox
                 }
                 catch { }
             }
+#else
+            new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = "B:/Projects/GameFScratch/Game" });
+
+            var cooker = new AssetsCooker();
+
+            cooker.CookAll(new CookOptions() { Type = CookingType.SeparatedFiles },
+                                                    Paths.GetAssetsFolderPath(),
+                                                    Paths.GetAssetDatabaseFolder());
 #endif
 
             var engine = new Engine.Engine();

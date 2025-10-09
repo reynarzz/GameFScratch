@@ -8,9 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Animation\**" />
+    <Compile Remove="Scene\**" />
+    <EmbeddedResource Remove="Animation\**" />
+    <EmbeddedResource Remove="Scene\**" />
+    <None Remove="Animation\**" />
+    <None Remove="Scene\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Graphics\Device\Null\" />
-    <Folder Include="Animation\" />
-    <Folder Include="Scene\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GameCooker\GameCooker.csproj" />
+    <ProjectReference Include="..\SharedTypes\SharedTypes.csproj" />
   </ItemGroup>
 
 </Project>

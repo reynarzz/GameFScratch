@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using K4os.Compression.LZ4.Streams;
 
-namespace GameCooker
+namespace SharedTypes
 {
 
     public static class AssetCompressor
