@@ -81,10 +81,17 @@ namespace Engine
             Glfw.WindowHint(Hint.ContextVersionMinor, 2);
             Glfw.WindowHint(Hint.Resizable, false);
 
+            try
+            {
+                NativeWindow = Glfw.CreateWindow(Width, Height, name, default, default);
+            }
+            catch
+            {
+                _isInitialized = false;
+                return;
+            }
 
             // Create a window
-            NativeWindow = Glfw.CreateWindow(Width, Height, name, default, default);
-
             if (NativeWindow == GLFW.Window.None)
             {
                 Console.WriteLine("Failed to create GLFW window");
