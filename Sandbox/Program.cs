@@ -12,6 +12,8 @@ namespace Sandbox
 {
     internal class Program
     {
+        const string GAME_FOLDER_NAME = "Game";
+
         private static void Main()
         {
 
@@ -27,19 +29,19 @@ namespace Sandbox
                 catch { }
             }
 #else
-            new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = "B:/Projects/GameFScratch/Game" });
+            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            var path = Path.GetFullPath(Path.Combine(assemblyDir, "..", "..", "..", "..", "..", GAME_FOLDER_NAME));
 
-            var cooker = new AssetsCooker();
-
-            cooker.CookAll(new CookOptions() { Type = CookingType.DevMode },
-                                                    Paths.GetAssetsFolderPath(),
-                                                    Paths.GetAssetDatabaseFolder());
+            new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = path });
+            new AssetsCooker().CookAll(new CookOptions() { Type = CookingType.DevMode },
+                                       Paths.GetAssetsFolderPath(),
+                                       Paths.GetAssetDatabaseFolder());
 #endif
 
             var engine = new Engine.Engine();
             engine.Initialize(typeof(TimeLayer),
                               typeof(Input),
-                              typeof(GameApplication), 
+                              typeof(GameApplication),
                               typeof(SceneLayer),
                               typeof(PhysicsLayer),
                               typeof(RenderingLayer),

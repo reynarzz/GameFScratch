@@ -20,6 +20,7 @@ namespace Engine
         private static int _startHeight;
         private static string _windowName = "Game";
         public static event Action<int, int> OnWindowChanged;
+        private static bool _isInitialized = false;
 
         private static bool _isMouseVisible = true;
         public static bool MouseVisible
@@ -55,11 +56,12 @@ namespace Engine
             }
         }
 
-        internal static bool ShouldClose => Glfw.WindowShouldClose(NativeWindow);
+        internal static bool ShouldClose => _isInitialized && Glfw.WindowShouldClose(NativeWindow);
 
         public int MonitorCount => Glfw.Monitors.Length;
 
         internal static GLFW.Window NativeWindow { get; private set; }
+        public bool IsInitialized => _isInitialized;
 
         internal Window(string name, int width, int height)
         {
@@ -69,7 +71,10 @@ namespace Engine
             _startWidth = width;
             _startHeight = height;
 
-            Glfw.Init();
+            _isInitialized = Glfw.Init();
+
+            if (!_isInitialized)
+                return;
 
             Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
             Glfw.WindowHint(Hint.ContextVersionMajor, 3);

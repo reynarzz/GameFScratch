@@ -18,8 +18,11 @@ namespace Engine
         {
             var win = new Window("Game", 920, 600);
 
-            _layersManager = new LayersManager(layers);
-            _layersManager.Initialize();
+            if (win.IsInitialized)
+            {
+                _layersManager = new LayersManager(layers);
+                _layersManager.Initialize();
+            }
         }
 
         public void Run()

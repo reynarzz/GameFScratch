@@ -8,6 +8,7 @@
 	  <SelfContained>true</SelfContained>
 	  <PublishSingleFile>true</PublishSingleFile>
     <InvariantGlobalization>true</InvariantGlobalization>
+	  <DefineConstants>$(DefineConstants);PROJECT_DIR="$(MSBuildProjectDirectory)"</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
