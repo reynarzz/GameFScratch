@@ -17,13 +17,15 @@ namespace Game
         private float _currentWait = 0;
 
         private SpriteRenderer _renderer;
-        private int _pointIndex = 1;
+        private int _pointIndex = 0;
+        private int _direction = 1;
+
         private vec3 _startPos;
         public override void OnStart()
         {
             base.OnStart();
             _renderer = AddComponent<SpriteRenderer>();
-            _renderer.Color = Color.Black;
+            _renderer.Color = Color.Green;
             var rigid = AddComponent<RigidBody2D>();
             rigid.BodyType = Body2DType.Kinematic;
             rigid.Interpolate = true;
@@ -54,12 +56,14 @@ namespace Game
                 _currentWait = WaitTime;
                 if (_pointIndex + 1 >= Points.Length)
                 {
-                    _pointIndex = 0;
+                    _direction = -1;
                 }
-                else
+                else if(_pointIndex <= 0)
                 {
-                    _pointIndex++;
+                    _direction = 1;
                 }
+
+                _pointIndex += _direction;
             }
         }
 
