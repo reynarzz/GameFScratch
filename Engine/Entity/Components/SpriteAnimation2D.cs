@@ -32,6 +32,9 @@ namespace Engine
         }
         public override void OnUpdate()
         {
+            if (_frames == null)
+                return;
+
             var frameDuration = 1.0f / (float)FPS;
             _accumulator += Time.DeltaTime;
 

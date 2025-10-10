@@ -11,20 +11,24 @@ namespace Engine.Layers
 {
     internal class IOLayer : LayerBase
     {
-        private static AssetDatabaseBase _assetDatabase;
+        private static AssetDatabase _assetDatabase;
 
         public override void Initialize()
         {
+            DiskBase disk = null;
+            _assetDatabase = new AssetDatabase();
+
 #if DEBUG
-            _assetDatabase = new AssetDatabaseDevelop();
+            disk = new DevModeDisk();
 #else
 
 #endif
-            var testInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(Paths.GetAssetDatabaseFilePath()));
-            _assetDatabase.Initialize(testInfo);
+            disk.Initialize();
+
+            _assetDatabase.Initialize(disk);
         }
 
-        internal static AssetDatabaseBase GetDatabase() // Refactor
+        internal static AssetDatabase GetDatabase() // Refactor
         {
             return _assetDatabase;
         }

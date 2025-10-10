@@ -33,7 +33,7 @@ namespace Game
 
         private float _currentAttackTime;
 
-        public override void OnAwake()
+        public override async void OnAwake()
         {
             Debug.Info("Awake");
             //new Actor<RotateTest>();
@@ -52,6 +52,7 @@ namespace Game
             //var act2 = new Actor<SpriteRenderer>();
             //act2.Transform.Parent = act.Transform;
             //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
+            _animation = GetComponent<SpriteAnimation2D>();
 
             var basePath = "KingsAndPigsSprites/01-King Human/";
             var pTexture = Assets.GetTexture(basePath + "Run (78x58).png");
@@ -72,7 +73,6 @@ namespace Game
             _fallSprites = TextureAtlasUtils.SliceSprites(FallTex, 78, 58, new vec2(0.4f, 0.4f));
             _attackSprites = TextureAtlasUtils.SliceSprites(attackTex, 78, 58, new vec2(0.4f, 0.4f));
 
-            _animation = GetComponent<SpriteAnimation2D>();
             _animation.Renderer = _renderer;
             _animation.PushFrames(_idleSprites);
             _animation.FPS = 14;

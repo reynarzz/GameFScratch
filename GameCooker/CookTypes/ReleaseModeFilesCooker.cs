@@ -22,45 +22,44 @@ namespace GameCooker
             
             Location table
             [
-                - asset guid (string)
                 - asset block location (int64)
+                - asset data (in block) location (int64)
                 - asset's meta (in block) location (int64)
             }
             
             Assets block (n times)
             [
+                - asset guid size (int32)
+                - asset guid (byte[])
+                - asset path size (int32)
+                - asset path (byte[])
                 - asset type (int32)
                 - isCompressed (bool)
                 - isEncrypted (bool)
                 - asset data size (int32)
-                - asset data (byte[])
                 - meta data size (int32)
+                - asset data (byte[])
                 - meta data (format defined by asset type)
             ]
          */
 
         private long metaLocSize = sizeof(long);
+        private long assetBlockLocSize = sizeof(long);
         private long assetDataLocSize = sizeof(long);
-        private long guidSize = Unsafe.SizeOf<Guid>();
-        private long fieldIfOffset => guidSize + assetDataLocSize + metaLocSize;
+        private long fieldIfOffset => assetBlockLocSize + assetDataLocSize + metaLocSize;
 
         private const int TEMP_BUFFER_SIZE = 81920;
-        public static class ReleaseFormat
-        {
-            public static string HEADER = "GFSD";
-
-
-        }
-
+       
         internal override async Task CookAssetsAsync((string, AssetType)[] files,
                                                     Func<AssetType, string, byte[]> processAssetCallback,
                                                     string outFolder)
         {
-            await using var fs = new FileStream(Path.Combine(outFolder, Paths.GetAssetBuildDataFilename()), FileMode.Create, FileAccess.Write, FileShare.None, TEMP_BUFFER_SIZE, useAsync: true);
+            var path = Path.Combine(outFolder, Paths.GetAssetBuildDataFilename());
+            await using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, TEMP_BUFFER_SIZE, useAsync: true);
             using var bufWritter = new BinaryWriter(fs, Encoding.UTF8, leaveOpen: true);
 
             // Writes header
-            bufWritter.Write(Encoding.ASCII.GetBytes(ReleaseFormat.HEADER));
+            bufWritter.Write(Encoding.ASCII.GetBytes(AssetUtils.GFSFileFormat.HEADER));
 
             // Writes total asset files
             bufWritter.Write(files.Length);
@@ -79,7 +78,23 @@ namespace GameCooker
 
             foreach (var (filePath, assetType) in files)
             {
-                long startAssetPos = bufWritter.BaseStream.Position;
+                long startAssetBlockPos = bufWritter.BaseStream.Position;
+
+                var meta = AssetUtils.GetMeta(filePath + Paths.ASSET_META_EXT_NAME, assetType);
+                var relAssetPath = Paths.GetRelativeAssetPath(filePath);
+
+                var guidBinary = meta.GUID.ToByteArray();
+                // asset guid size
+                bufWritter.Write(guidBinary.Length);
+
+                // asset guid
+                bufWritter.Write(guidBinary);
+
+                // asset path size
+                bufWritter.Write(relAssetPath.Length);
+
+                // asset path
+                bufWritter.Write(Encoding.UTF8.GetBytes(relAssetPath));
 
                 // Writes asset type
                 bufWritter.Write((int)assetType);
@@ -105,32 +120,32 @@ namespace GameCooker
                 // Asset length
                 bufWritter.Write(assetData.Length);
 
+                var metaBuffer = MetadataBufferWriter(bufWritter, meta);
+
+                // meta size
+                bufWritter.Write(metaBuffer.Length);
+
+                long assetDataLoc = bufWritter.BaseStream.Position;
                 // Asset data
                 bufWritter.Write(assetData);
 
 
                 long metaStartLocation = bufWritter.BaseStream.Position;
 
-                var meta = AssetUtils.GetMeta(filePath + Paths.ASSET_META_EXT_NAME, assetType);
-
-                var metaBuffer = MetadataBufferWriter(bufWritter, meta);
-
-                // meta size
-                bufWritter.Write(metaBuffer.Length);
-
                 // metadata
                 bufWritter.Write(metaBuffer);
 
                 long assetEndPos = bufWritter.BaseStream.Position;
 
-                // Set table position to write asset info
+                // ---- Set table position to write asset info
                 bufWritter.BaseStream.Position = currentFileIdPosition;
 
-                // asset guid
-                bufWritter.Write(meta.GUID.ToByteArray());
+                
+                // asset block location
+                bufWritter.Write(startAssetBlockPos);
 
                 // asset data location
-                bufWritter.Write(startAssetPos);
+                bufWritter.Write(assetDataLoc);
 
                 // asset's meta location
                 bufWritter.Write(metaStartLocation);

@@ -10,6 +10,12 @@ namespace SharedTypes
     public static class AssetUtils
     {
         public const string ENCRYPTION_VERY_SECURE_PASSWORD = "ThisDefinitelyShouldNotBeHereInProdCode";
+        public static class GFSFileFormat
+        {
+            public static string HEADER = "GFSD";
+
+
+        }
 
         public static AssetMetaFileBase GetMeta(string path, AssetType assetType)
         {

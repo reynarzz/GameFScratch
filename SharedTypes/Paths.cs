@@ -79,6 +79,11 @@ namespace SharedTypes
             return absoluteAssetPath.Substring(absoluteAssetPath.IndexOf(ASSETS_FOLDER_NAME) + ASSETS_FOLDER_NAME.Length + 1);
         }
 
+        public static string GetAbsoluteAssetPath(string relativeAssetPath)
+        {
+            return Path.Combine(ProjectRootFolder, ASSETS_FOLDER_NAME, relativeAssetPath);
+        }
+
         private static string GetAbsolutePathFlag(bool isRelativePath)
         {
             return isRelativePath ? null : ProjectRootFolder;

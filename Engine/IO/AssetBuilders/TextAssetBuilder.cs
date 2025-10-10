@@ -11,9 +11,10 @@ namespace Engine.IO
     {
         internal override EObject BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
         {
-            byte[] bytes = reader.ReadBytes((int)reader.BaseStream.Length);
-
-            string text = Encoding.UTF8.GetString(bytes);
+            var length = reader.BaseStream.Length;
+            var data = new byte[length];
+            int bytesRead =  reader.BaseStream.Read(data, 0, (int)length);
+            string text = Encoding.UTF8.GetString(data, 0, bytesRead);
 
             return new TextAsset(text, info.Path, guid);
         }

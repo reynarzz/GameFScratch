@@ -8,7 +8,7 @@ namespace SharedTypes
 {
     public class AssetInfo
     {
-        public AssetType Type { get; set; }
+        public AssetType Type { get; set; } = AssetType.Invalid;
         public DateTime LastWriteTime { get; set; }
         public string Path { get; set; }
         public bool IsCompressed { get; set; }

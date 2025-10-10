@@ -40,6 +40,7 @@ namespace Sandbox
             new Engine.Engine().Initialize(typeof(TimeLayer),
                                            typeof(Input),
                                            typeof(GameApplication),
+                                           typeof(MainThreadDispatcher),
                                            typeof(SceneLayer),
                                            typeof(PhysicsLayer),
                                            typeof(RenderingLayer),
