@@ -11,15 +11,12 @@ namespace GameCooker
 {
     internal class DevModeFilesCooker : AssetsCookerBase
     {
-        internal override async Task CookAssetsAsync(IEnumerable<(string, AssetType)> files, Func<AssetType, string, byte[]> processAssetCallback, 
+        internal override async Task CookAssetsAsync((string, AssetType)[] files, Func<AssetType, string, byte[]> processAssetCallback, 
                                                      AssetsDatabaseInfo database, string outFolder)
         {
-            foreach (var file in files)
+            foreach (var (filePath, assetType) in files)
             {
-                var filePath = file.Item1;
-                var assetType = file.Item2;
-
-                var meta = AssetUtils.GetMeta(filePath + Paths.ASSET_META_EXT_NAME, file.Item2);
+                var meta = AssetUtils.GetMeta(filePath + Paths.ASSET_META_EXT_NAME, assetType);
 
                 AssetInfo assetInfo = null;
 

@@ -11,6 +11,7 @@ namespace SharedTypes
         Invalid,
         Texture,
         Audio,
-        Text
+        Text,
+        Shader
     }
 }

@@ -23,7 +23,6 @@ namespace GameCooker
                 { ".hdr", AssetType.Texture },
                 { ".pic", AssetType.Texture },
                 { ".bmp", AssetType.Texture },
-                
 
                 // Audio
                 { ".mp3", AssetType.Audio },
@@ -36,17 +35,22 @@ namespace GameCooker
                 { ".ldtk", AssetType.Text },
                 { ".json", AssetType.Text },
                 { ".xml", AssetType.Text },
-                { ".shader", AssetType.Text },
-                { ".vert", AssetType.Text },
-                { ".vertex", AssetType.Text },
-                { ".frag", AssetType.Text },
-                { ".fragment", AssetType.Text },
+
+                // Shader
+                { ".shader", AssetType.Shader },
+                { ".glsl", AssetType.Shader },
+                { ".vert", AssetType.Shader },
+                { ".vertex", AssetType.Shader },
+                { ".frag", AssetType.Shader },
+                { ".fragment", AssetType.Shader },
             };
 
             _assetsProcessors = new Dictionary<AssetType, IAssetProcessor>()
             {
                 { AssetType.Texture, new TextureAssetProcessor() },
-                { AssetType.Text, new TextAssetProcessor() }
+                { AssetType.Text, new TextAssetProcessor() },
+                { AssetType.Shader, new TextAssetProcessor() },
+
             };
 
             _assetCookers = new Dictionary<CookingType, AssetsCookerBase>()
@@ -77,7 +81,7 @@ namespace GameCooker
             var selectedFiles = files.Where(path => _assetsTypes.TryGetValue(Path.GetExtension(path), out _))
                                      .Select(path => (path.Replace("\\", "/"), _assetsTypes[Path.GetExtension(path)]));
 
-            await _assetCookers[options.Type].CookAssetsAsync(selectedFiles, ProcessAsset, _databaseInfo, folderOut);
+            await _assetCookers[options.Type].CookAssetsAsync(selectedFiles.ToArray(), ProcessAsset, _databaseInfo, folderOut);
 
             return _databaseInfo;
         }
