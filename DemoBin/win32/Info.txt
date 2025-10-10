@@ -3,3 +3,4 @@ Jump: Space
 Attack: F
 Debug toggle: Q
 FullScreen: Escape
+Physics Interpolation toggle: I
