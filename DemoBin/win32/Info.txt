@@ -1,4 +1,5 @@
 Move: WASD
 Jump: Space
 Attack: F
-Debug on/off: Q
+Debug toggle: Q
+FullScreen: Escape
