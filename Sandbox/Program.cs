@@ -33,9 +33,12 @@ namespace Sandbox
             var path = Path.GetFullPath(Path.Combine(assemblyDir, "..", "..", "..", "..", "..", GAME_FOLDER_NAME));
 
             new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = path });
-            new AssetsCooker().CookAll(new CookOptions() { Type = CookingType.DevMode },
-                                       Paths.GetAssetsFolderPath(),
-                                       Paths.GetAssetDatabaseFolder());
+            new AssetsCooker().CookAll(new CookOptions()
+            {
+                Type = CookingType.DevMode,
+                AssetsFolderPath = Paths.GetAssetsFolderPath(),
+                ExportFolderPath = Paths.GetAssetDatabaseFolder()
+            });
 #endif
             new Engine.Engine().Initialize(typeof(TimeLayer),
                                            typeof(Input),

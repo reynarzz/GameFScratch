@@ -18,7 +18,7 @@ namespace GameCooker
             _database = database;
         }
 
-        internal override async Task CookAssetsAsync((string, AssetType)[] files, Func<AssetType, string, byte[]> processAssetCallback,
+        internal override async Task CookAssetsAsync(CookFileOptions fileOptions, (string, AssetType)[] files, Func<AssetType, string, byte[]> processAssetCallback,
                                                      string outFolder)
         {
             foreach (var (filePath, assetType) in files)

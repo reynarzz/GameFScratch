@@ -73,21 +73,21 @@ namespace GameCooker
             };
         }
 
-        public async Task<AssetsDatabaseInfo> CookAllAsync(CookOptions options, string assetsRootFolder, string folderOut)
+        public async Task<AssetsDatabaseInfo> CookAllAsync(CookOptions options)
         {
-            var files = Directory.GetFiles(assetsRootFolder, "*", SearchOption.AllDirectories).Where(x => !x.EndsWith(Paths.ASSET_META_EXT_NAME));
+            var files = Directory.GetFiles(options.AssetsFolderPath, "*", SearchOption.AllDirectories).Where(x => !x.EndsWith(Paths.ASSET_META_EXT_NAME));
 
             var selectedFiles = files.Where(path => _assetsTypes.TryGetValue(Path.GetExtension(path), out _))
                                      .Select(path => (path.Replace("\\", "/"), _assetsTypes[Path.GetExtension(path)]));
 
-            await _assetCookers[options.Type].CookAssetsAsync(selectedFiles.ToArray(), ProcessAsset, folderOut);
+            await _assetCookers[options.Type].CookAssetsAsync(options.FileOptions, selectedFiles.ToArray(), ProcessAsset, options.ExportFolderPath);
 
             return _databaseInfo;
         }
 
-        public AssetsDatabaseInfo CookAll(CookOptions options, string assetsRootFolder, string folderOut)
+        public AssetsDatabaseInfo CookAll(CookOptions options)
         {
-            return CookAllAsync(options, assetsRootFolder, folderOut).Result;
+            return CookAllAsync(options).Result;
         }
 
         private byte[] ProcessAsset(AssetType type, string path)

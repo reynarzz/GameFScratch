@@ -9,7 +9,7 @@ namespace GameCooker
 {
     internal abstract class AssetsCookerBase
     {
-        internal abstract Task CookAssetsAsync((string, AssetType)[] files, 
+        internal abstract Task CookAssetsAsync(CookFileOptions fileOptions, (string, AssetType)[] files, 
                                                               Func<AssetType, string, byte[]> processAssetCallback, string outFolder);
     }
 }

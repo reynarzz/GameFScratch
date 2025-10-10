@@ -50,7 +50,7 @@ namespace GameCooker
 
         private const int TEMP_BUFFER_SIZE = 81920;
        
-        internal override async Task CookAssetsAsync((string, AssetType)[] files,
+        internal override async Task CookAssetsAsync(CookFileOptions fileOptions, (string, AssetType)[] files,
                                                     Func<AssetType, string, byte[]> processAssetCallback,
                                                     string outFolder)
         {
@@ -73,9 +73,6 @@ namespace GameCooker
 
             bufWritter.BaseStream.Position += currentAssetOffset;
 
-            bool isEncryptedFile = false;
-            bool isCompressedFile = false;
-
             foreach (var (filePath, assetType) in files)
             {
                 long startAssetBlockPos = bufWritter.BaseStream.Position;
@@ -90,29 +87,42 @@ namespace GameCooker
                 // asset guid
                 bufWritter.Write(guidBinary);
 
+                var pathBytes = Encoding.UTF8.GetBytes(relAssetPath);
+                
+                if(fileOptions.EncryptFilesPath)
+                {
+                    pathBytes = await Task.Run(() => AssetEncrypter.EncryptBytes(pathBytes, AssetUtils.ENCRYPTION_VERY_SECURE_PASSWORD));
+                }
+               
                 // asset path size
-                bufWritter.Write(relAssetPath.Length);
+                bufWritter.Write(pathBytes.Length);
 
                 // asset path
-                bufWritter.Write(Encoding.UTF8.GetBytes(relAssetPath));
+                bufWritter.Write(pathBytes);
 
                 // Writes asset type
                 bufWritter.Write((int)assetType);
 
+                var shouldCompressFile = fileOptions.CompressAllFiles || fileOptions.FilesToCompress.Contains(assetType);
+                var shouldEncryptFile = fileOptions.EncryptAllFiles || fileOptions.FilesToEncrypt.Contains(assetType);
+
                 // is compressed
-                bufWritter.Write(isCompressedFile);
+                bufWritter.Write(shouldCompressFile);
 
                 // is encrypted
-                bufWritter.Write(isEncryptedFile);
+                bufWritter.Write(shouldEncryptFile);
+
+                // encrypt files path
+                bufWritter.Write(fileOptions.EncryptFilesPath);
 
                 var assetData = await Task.Run(() => processAssetCallback(assetType, filePath));
 
-                if (isCompressedFile)
+                if (shouldCompressFile)
                 {
                     assetData = await Task.Run(() => AssetCompressor.CompressBytes(assetData));
                 }
 
-                if (isEncryptedFile)
+                if (shouldEncryptFile)
                 {
                     assetData = await Task.Run(() => AssetEncrypter.EncryptBytes(assetData, AssetUtils.ENCRYPTION_VERY_SECURE_PASSWORD));
                 }

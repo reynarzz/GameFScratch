@@ -62,20 +62,25 @@ namespace Engine.IO
 
                 int pathSize = _reader.ReadInt32();
 
-                string path = Encoding.UTF8.GetString(_reader.ReadBytes(pathSize));
+                var pathBytes = _reader.ReadBytes(pathSize);
 
                 var assetType = (AssetType)_reader.ReadInt32();
                 bool isCompressed = _reader.ReadBoolean();
                 bool isEncrypted = _reader.ReadBoolean();
+                bool isPathEncrypted = _reader.ReadBoolean();
                 int assetDataSize = _reader.ReadInt32();
                 int metaDataSize = _reader.ReadInt32();
 
+                if (isPathEncrypted)
+                {
+                    pathBytes = AssetEncrypter.DecryptBytes(pathBytes, AssetUtils.ENCRYPTION_VERY_SECURE_PASSWORD);
+                }
                 AssetDatabaseInfo.Assets.Add(guid, new AssetInfo()
                 {
                     Type = assetType,
                     IsCompressed = isCompressed,
                     IsEncrypted = isEncrypted,
-                    Path = path,
+                    Path = Encoding.UTF8.GetString(pathBytes)
                 });
 
                 _assetsLocations.Add(guid, new AssetLocInfo()

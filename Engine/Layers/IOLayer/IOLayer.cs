@@ -13,6 +13,7 @@ namespace Engine.Layers
     {
         private static AssetDatabase _assetDatabase;
 
+        // Refactor: (factory)
         public override void Initialize()
         {
             DiskBase disk = null;
@@ -21,8 +22,9 @@ namespace Engine.Layers
 #if DEBUG
             disk = new DevModeDisk();
 #else
-
+            disk = new ReleaseModeDisk(AppContext.BaseDirectory);
 #endif
+
             disk.Initialize();
 
             _assetDatabase.Initialize(disk);

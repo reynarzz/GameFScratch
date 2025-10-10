@@ -22,9 +22,18 @@ namespace GameCooker
                 return;
             }
 
-            var result = new AssetsCooker().CookAllAsync(new CookOptions() { Type = (CookingType)int.Parse(args[2]) },
-                                                         args[0],
-                                                         args[1]).Result;
+            new AssetsCooker().CookAll(new CookOptions()
+            {
+                Type = (CookingType)int.Parse(args[2]),
+                AssetsFolderPath = args[0],
+                ExportFolderPath = args[1],
+                FileOptions = new CookFileOptions()
+                {
+                    CompressAllFiles = true,
+                    EncryptAllFiles = true,
+                    EncryptFilesPath = false
+                }
+            });
         }
     }
 }

@@ -361,9 +361,9 @@ namespace Engine
                 {
                     if (components[i] is ScriptBehavior component && component && component.IsEnabled)
                     {
-#if DEBUG
                         if (actor.IsActiveInHierarchy)
                         {
+#if DEBUG
                             try
                             {
                                 action(component);
