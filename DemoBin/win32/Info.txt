@@ -1,0 +1,4 @@
+Move: WASD
+Jump: Space
+Attack: F
+Debug on/off: Q
