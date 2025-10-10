@@ -29,7 +29,7 @@ namespace Sandbox
             }
 #else
             // This will import all the assets without using the GUI tool. Useful for recruiters needing to just run the project.
-            var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            var assemblyDir = Path.GetDirectoryName(AppContext.BaseDirectory)!;
             var path = Path.GetFullPath(Path.Combine(assemblyDir, "..", "..", "..", "..", "..", GAME_FOLDER_NAME));
 
             new GameProject().Initialize(new ProjectConfig() { ProjectFolderRoot = path });

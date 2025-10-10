@@ -20,7 +20,8 @@ namespace Engine.IO
             _assetbuilder = new()
             {
                 { AssetType.Texture, new TextureAssetBuilder() },
-                { AssetType.Text, new TextAssetBuilder() }
+                { AssetType.Text, new TextAssetBuilder() },
+                { AssetType.Shader, new TextAssetBuilder() },
             };
         }
 

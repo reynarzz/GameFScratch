@@ -16,7 +16,7 @@ namespace SharedTypes
         public const string ASSET_DATABASE_FOLDER_NAME = "AssetsDatabase";
         public const string ASSET_DATABASE_FILE_NAME = "AssetsDatabase.txt";
         public const string ASSET_DATABASE_BINARY_EXT_NAME = ".bin";
-        public const string ASSET_META_EXT_NAME = ".meta";
+        public const string ASSET_META_EXT_NAME = ".mt";
         public const string ASSET_BUILD_DATA_EXT_NAME = ".gfs"; // "Game from scratch"
         public const string ASSET_BUILD_DATA_FILE_NAME = "data"; // "Game from scratch"
 

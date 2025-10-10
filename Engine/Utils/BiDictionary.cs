@@ -19,11 +19,6 @@ namespace Engine.Utils
 
         public void Add(TKey key, TValue value)
         {
-            if (_keyToValue.ContainsKey(key))
-                throw new ArgumentException($"Duplicate key: {key}");
-            if (_valueToKey.ContainsKey(value))
-                throw new ArgumentException($"Duplicate value: {value}");
-
             _keyToValue[key] = value;
             _valueToKey[value] = key;
         }
