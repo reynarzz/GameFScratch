@@ -11,8 +11,15 @@ namespace GameCooker
 {
     internal class DevModeFilesCooker : AssetsCookerBase
     {
-        internal override async Task CookAssetsAsync((string, AssetType)[] files, Func<AssetType, string, byte[]> processAssetCallback, 
-                                                     AssetsDatabaseInfo database, string outFolder)
+        private AssetsDatabaseInfo _database;
+
+        public DevModeFilesCooker(AssetsDatabaseInfo database)
+        {
+            _database = database;
+        }
+
+        internal override async Task CookAssetsAsync((string, AssetType)[] files, Func<AssetType, string, byte[]> processAssetCallback,
+                                                     string outFolder)
         {
             foreach (var (filePath, assetType) in files)
             {
@@ -20,7 +27,7 @@ namespace GameCooker
 
                 AssetInfo assetInfo = null;
 
-                bool constainsAssetInfo = meta != null ? database.Assets.TryGetValue(meta.GUID, out assetInfo) : false;
+                bool constainsAssetInfo = meta != null ? _database.Assets.TryGetValue(meta.GUID, out assetInfo) : false;
 
                 bool isInLibrary = false;
 
@@ -43,7 +50,7 @@ namespace GameCooker
                         if (constainsAssetInfo)
                         {
                             Console.WriteLine("Updating asset file: " + filePath);
-                            assetInfo = database.Assets[meta.GUID];
+                            assetInfo = _database.Assets[meta.GUID];
 
                             assetInfo.LastWriteTime = latestWriteTime;
                             assetInfo.Path = assetRelPath;
@@ -52,7 +59,7 @@ namespace GameCooker
                         {
                             Console.WriteLine("Importing asset file: " + filePath);
                             var guid = meta != null ? meta.GUID : Guid.NewGuid();
-                            database.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath, IsEncrypted = false, IsCompressed = false });
+                            _database.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath, IsEncrypted = false, IsCompressed = false });
                             // Write meta
                             File.WriteAllText(filePath + Paths.ASSET_META_EXT_NAME, JsonConvert.SerializeObject(meta, Formatting.Indented));
                         }
@@ -63,10 +70,10 @@ namespace GameCooker
                 }
             }
 
-            database.TotalAssets = database.Assets.Count;
+            _database.TotalAssets = _database.Assets.Count;
 
             // Write asset database
-            File.WriteAllText(Path.Combine(outFolder, Paths.ASSET_DATABASE_FILE_NAME), JsonConvert.SerializeObject(database, Formatting.Indented));
+            File.WriteAllText(Path.Combine(outFolder, Paths.ASSET_DATABASE_FILE_NAME), JsonConvert.SerializeObject(_database, Formatting.Indented));
         }
     }
 }

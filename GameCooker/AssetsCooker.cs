@@ -53,12 +53,6 @@ namespace GameCooker
 
             };
 
-            _assetCookers = new Dictionary<CookingType, AssetsCookerBase>()
-            {
-                {  CookingType.DevMode, new DevModeFilesCooker() },
-                {  CookingType.ReleaseMode, new ReleaseModeFilesCooker() },
-            };
-
             if (File.Exists(Paths.GetAssetDatabaseFilePath()))
             {
                 _databaseInfo = JsonConvert.DeserializeObject<AssetsDatabaseInfo>(File.ReadAllText(Paths.GetAssetDatabaseFilePath()));
@@ -68,10 +62,15 @@ namespace GameCooker
             {
                 _databaseInfo = new AssetsDatabaseInfo()
                 {
-                    CreationDate = DateTime.Now,
-                    TotalAssets = 0
+                    CreationDate = DateTime.Now
                 };
             }
+            
+            _assetCookers = new Dictionary<CookingType, AssetsCookerBase>()
+            {
+                {  CookingType.DevMode, new DevModeFilesCooker(_databaseInfo) },
+                {  CookingType.ReleaseMode, new ReleaseModeFilesCooker() },
+            };
         }
 
         public async Task<AssetsDatabaseInfo> CookAllAsync(CookOptions options, string assetsRootFolder, string folderOut)
@@ -81,7 +80,7 @@ namespace GameCooker
             var selectedFiles = files.Where(path => _assetsTypes.TryGetValue(Path.GetExtension(path), out _))
                                      .Select(path => (path.Replace("\\", "/"), _assetsTypes[Path.GetExtension(path)]));
 
-            await _assetCookers[options.Type].CookAssetsAsync(selectedFiles.ToArray(), ProcessAsset, _databaseInfo, folderOut);
+            await _assetCookers[options.Type].CookAssetsAsync(selectedFiles.ToArray(), ProcessAsset, folderOut);
 
             return _databaseInfo;
         }

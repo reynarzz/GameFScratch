@@ -17,6 +17,7 @@ namespace GameCooker
             Data info    
             [
                 - total assets (int32)
+                - creation date (int64)
             ]
             
             Location table
@@ -53,7 +54,6 @@ namespace GameCooker
 
         internal override async Task CookAssetsAsync((string, AssetType)[] files,
                                                     Func<AssetType, string, byte[]> processAssetCallback,
-                                                    AssetsDatabaseInfo database,
                                                     string outFolder)
         {
             await using var fs = new FileStream(Path.Combine(outFolder, Paths.GetAssetBuildDataFilename()), FileMode.Create, FileAccess.Write, FileShare.None, TEMP_BUFFER_SIZE, useAsync: true);
@@ -64,6 +64,9 @@ namespace GameCooker
 
             // Writes total asset files
             bufWritter.Write(files.Length);
+
+            // creation date
+            bufWritter.Write(DateTime.Now.ToBinary());
 
             var currentFileIdPosition = bufWritter.BaseStream.Position;
 
