@@ -1,6 +1,7 @@
 ﻿using Engine.Audio;
 using GlmNet;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using System;
 
 namespace Engine
@@ -8,9 +9,33 @@ namespace Engine
     public class AudioSource : Component
     {
         private WaveOutEvent _output;
-        private WaveStream _waveStream;
-        private WaveChannel32 _channel;
+        private BufferedWaveProvider _bufferedProvider;
+        private ISampleProvider _sampleProviderToPlay;
+        private VolumeSampleProvider _volumeProvider;
+        private PanningSampleProvider _panProvider;
         private AudioClip _audioClip;
+
+        public float Volume
+        {
+            get => _volumeProvider?.Volume ?? 1f;
+            set
+            {
+                if (_volumeProvider != null)
+                    _volumeProvider.Volume = Math.Clamp(value, 0f, 1f);
+            }
+        }
+
+        public float Pan
+        {
+            get => _panProvider?.Pan ?? 0f;
+            set
+            {
+                if (_panProvider != null)
+                    _panProvider.Pan = Math.Clamp(value, -1f, 1f);
+            }
+        }
+
+
 
         public AudioClip Clip
         {
@@ -22,23 +47,42 @@ namespace Engine
 
                 _audioClip = value;
 
-                _waveStream?.Dispose();
-                _waveStream = null;
-                _channel = null;
+                _bufferedProvider = null;
+                _sampleProviderToPlay = null;
+                _volumeProvider = null;
+                _panProvider = null;
 
-                if (_audioClip != null)
+                if (_audioClip != null && _audioClip.RawPCM.Length > 0)
                 {
-                    WaveFormat format;
-                    if (_audioClip.BitsPerSample == 32)
-                        format = WaveFormat.CreateIeeeFloatWaveFormat(_audioClip.SampleRate, _audioClip.Channels);
+                    WaveFormat format = (_audioClip.BitsPerSample == 32)
+                        ? WaveFormat.CreateIeeeFloatWaveFormat(_audioClip.SampleRate, _audioClip.Channels)
+                        : new WaveFormat(_audioClip.SampleRate, _audioClip.BitsPerSample, _audioClip.Channels);
+
+                    _bufferedProvider = new BufferedWaveProvider(format)
+                    {
+                        BufferLength = _audioClip.RawPCM.Length,
+                        DiscardOnBufferOverflow = true
+                    };
+                    _bufferedProvider.AddSamples(_audioClip.RawPCM, 0, _audioClip.RawPCM.Length);
+
+                    _volumeProvider = new VolumeSampleProvider(_bufferedProvider.ToSampleProvider())
+                    {
+                        Volume = 1f
+                    };
+
+                    if (_audioClip.Channels == 1)
+                    {
+                        // Only mono supports PanningSampleProvider
+                        _panProvider = new PanningSampleProvider(_volumeProvider)
+                        {
+                            Pan = 0f
+                        };
+                        _sampleProviderToPlay = _panProvider;
+                    }
                     else
-                        format = new WaveFormat(_audioClip.SampleRate, _audioClip.BitsPerSample, _audioClip.Channels);
-
-                    int frameSize = format.BlockAlign;
-                    long alignedLength = _audioClip.RawPCM.Length - (_audioClip.RawPCM.Length % frameSize);
-
-                    _waveStream = new RawSourceWaveStream(_audioClip.RawPCM, 0, (int)alignedLength, format);
-                    _channel = new WaveChannel32(_waveStream);
+                    {
+                        _sampleProviderToPlay = _volumeProvider; // stereo, no pan
+                    }
                 }
             }
         }
@@ -51,54 +95,57 @@ namespace Engine
 
         public void Play()
         {
-            if (_channel == null)
+            if (_sampleProviderToPlay == null)
             {
                 Debug.Error("Audio clip not set before playing.");
                 return;
             }
 
-            _waveStream.Position = 0;
-            _output.Init(_channel);
+            _bufferedProvider.ClearBuffer();
+            _bufferedProvider.AddSamples(_audioClip.RawPCM, 0, _audioClip.RawPCM.Length);
+
+            _output.Init(_sampleProviderToPlay);
             _output.Play();
         }
 
         public void PlayAt(float seconds)
         {
-            if (_channel == null)
+            if (_sampleProviderToPlay == null)
             {
                 Debug.Error("Audio clip not set before playing.");
                 return;
             }
 
-            if (_waveStream is AudioFileReader afr)
-            {
-                afr.CurrentTime = TimeSpan.FromSeconds(seconds);
-            }
-            else
-            {
-                long startPosition = (long)(seconds * _waveStream.WaveFormat.AverageBytesPerSecond);
-                long frameSize = _waveStream.WaveFormat.BlockAlign;
-                startPosition -= startPosition % frameSize;
-                startPosition = Math.Clamp(startPosition, 0, _waveStream.Length);
-                _waveStream.Position = startPosition;
-            }
+            WaveFormat format = _bufferedProvider.WaveFormat;
+            long startByte = (long)(seconds * format.AverageBytesPerSecond);
+            startByte -= startByte % format.BlockAlign;
+            startByte = Math.Clamp(startByte, 0, _audioClip.RawPCM.Length - format.BlockAlign);
 
-            _output.Init(_channel);
+            int length = _audioClip.RawPCM.Length - (int)startByte;
+
+            _bufferedProvider.ClearBuffer();
+            _bufferedProvider.AddSamples(_audioClip.RawPCM, (int)startByte, length);
+
+            _output.Init(_sampleProviderToPlay);
             _output.Play();
         }
 
         public void Apply3DAudio(vec3 listenerPos, vec3 sourcePos, float maxDistance = 20f)
         {
-            if (_channel == null) return;
+            if (_volumeProvider == null) return;
 
             vec3 diff = sourcePos - listenerPos;
             float distance = diff.length();
 
             float volume = Math.Clamp(1f - (distance / maxDistance), 0f, 1f);
-            float pan = Math.Clamp(diff.x / maxDistance, -1f, 1f);
 
-            _channel.Volume = volume;
-            _channel.Pan = pan;
+            _volumeProvider.Volume = volume;
+
+            if (_panProvider != null)
+            {
+                float pan = Math.Clamp(diff.x / maxDistance, -1f, 1f);
+                _panProvider.Pan = pan;
+            }
         }
 
         public void PlayReverse()
@@ -108,43 +155,61 @@ namespace Engine
 
         public void PlayReverseAt(float seconds)
         {
-            if (_audioClip == null)
-            {
-                Debug.Error("Audio clip not set before playing.");
-                return;
-            }
-
-            if (_audioClip.RawPCM.Length == 0)
+            if (_audioClip == null || _audioClip.RawPCM.Length == 0)
             {
                 Debug.Error("No PCM data to reverse.");
                 return;
             }
 
-            var format = (_audioClip.BitsPerSample == 32)
+            WaveFormat format = (_audioClip.BitsPerSample == 32)
                 ? WaveFormat.CreateIeeeFloatWaveFormat(_audioClip.SampleRate, _audioClip.Channels)
                 : new WaveFormat(_audioClip.SampleRate, _audioClip.BitsPerSample, _audioClip.Channels);
 
             int frameSize = format.BlockAlign;
             long startByte = (long)(seconds * format.AverageBytesPerSecond);
-
-            // Align to frame
             startByte -= startByte % frameSize;
             startByte = Math.Clamp(startByte, 0, _audioClip.RawPCM.Length - frameSize);
 
-            long lengthToReverse = _audioClip.RawPCM.Length - startByte;
-            var reversed = new byte[lengthToReverse];
+            long totalFrames = (_audioClip.RawPCM.Length - startByte) / frameSize;
+            int chunkFrames = 4096; // memory-efficient chunks
+            byte[] chunkBuffer = new byte[chunkFrames * frameSize];
 
-            for (long i = 0; i < lengthToReverse; i += frameSize)
+            _bufferedProvider = new BufferedWaveProvider(format)
             {
-                long destIndex = lengthToReverse - frameSize - i;
-                Buffer.BlockCopy(_audioClip.RawPCM, (int)(startByte + i), reversed, (int)destIndex, frameSize);
+                BufferLength = (int)(_audioClip.RawPCM.Length - startByte),
+                DiscardOnBufferOverflow = true
+            };
+
+            for (long frame = 0; frame < totalFrames; frame += chunkFrames)
+            {
+                int framesThisChunk = (int)Math.Min(chunkFrames, totalFrames - frame);
+                int bytesThisChunk = framesThisChunk * frameSize;
+
+                for (int i = 0; i < framesThisChunk; i++)
+                {
+                    long srcIndex = _audioClip.RawPCM.Length - frameSize - (frame + i) * frameSize;
+                    Buffer.BlockCopy(_audioClip.RawPCM, (int)srcIndex, chunkBuffer, i * frameSize, frameSize);
+                }
+
+                _bufferedProvider.AddSamples(chunkBuffer, 0, bytesThisChunk);
             }
 
-            _waveStream?.Dispose();
-            _waveStream = new RawSourceWaveStream(reversed, 0, reversed.Length, format);
-            _channel = new WaveChannel32(_waveStream);
+            _volumeProvider = new VolumeSampleProvider(_bufferedProvider.ToSampleProvider())
+            {
+                Volume = 1f
+            };
+             
+            if (_audioClip.Channels == 1)
+            {
+                _panProvider = new PanningSampleProvider(_volumeProvider) { Pan = 0f };
+                _sampleProviderToPlay = _panProvider;
+            }
+            else
+            {
+                _sampleProviderToPlay = _volumeProvider;
+            }
 
-            _output.Init(_channel);
+            _output.Init(_sampleProviderToPlay);
             _output.Play();
         }
 
@@ -155,11 +220,12 @@ namespace Engine
 
         public override void OnDestroy()
         {
-            _waveStream?.Dispose();
             _output?.Dispose();
-            _waveStream = null;
-            _channel = null;
             _output = null;
+            _bufferedProvider = null;
+            _sampleProviderToPlay = null;
+            _volumeProvider = null;
+            _panProvider = null;
             base.OnDestroy();
         }
     }

@@ -50,9 +50,9 @@ namespace GameCooker
             _assetsProcessors = new Dictionary<AssetType, IAssetProcessor>()
             {
                 { AssetType.Texture, new TextureAssetProcessor() },
+                { AssetType.Audio, new AudioAssetProcessor() },
                 { AssetType.Text, new TextAssetProcessor() },
-                { AssetType.Shader, new TextAssetProcessor() },
-                { AssetType.Audio, new AudioAssetProcessor() }
+                { AssetType.Shader, new TextAssetProcessor() }
 
             };
 
