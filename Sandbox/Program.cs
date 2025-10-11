@@ -45,7 +45,7 @@ namespace Sandbox
                 }
             });
 #endif
-            new Engine.Engine().Initialize(typeof(TimeLayer),
+            new Engine.Engine().Initialize("The King", typeof(TimeLayer),
                                            typeof(Input),
                                            typeof(GameApplication),
                                            typeof(MainThreadDispatcher),

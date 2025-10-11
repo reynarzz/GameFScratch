@@ -18,8 +18,16 @@ namespace Engine
         private bool _isReverse = false;
         private ReverseWaveStream _reverseStream;
 
-        public bool Loop { get; set; } = false;
-
+        private bool _loop;
+        public bool Loop
+        {
+            get => _loop;
+            set
+            {
+                _loop = value;
+                RebuildSampleProvider();
+            }
+        }
         public AudioClip Clip
         {
             get => _audioClip;
@@ -56,18 +64,7 @@ namespace Engine
                         Volume = 1f
                     };
 
-                    if (_audioClip.Channels == 1)
-                    {
-                        _panProvider = new PanningSampleProvider(_volumeProvider)
-                        {
-                            Pan = 0f
-                        };
-                        _sampleProviderToPlay = _panProvider;
-                    }
-                    else
-                    {
-                        _sampleProviderToPlay = _volumeProvider;
-                    }
+                    RebuildSampleProvider();
                 }
             }
         }
@@ -129,27 +126,29 @@ namespace Engine
         {
             base.OnInitialize();
             _output = new WaveOutEvent();
-            _output.PlaybackStopped += OnPlaybackStopped;
         }
 
-        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
+
+        private void RebuildSampleProvider()
         {
-            if (Loop && _audioClip != null)
+            if (_audioClip == null || _audioClip.RawPCM.Length == 0 || _volumeProvider == null)
+                return;
+
+            ISampleProvider baseProvider;
+
+            if (_audioClip.Channels == 1)
             {
-                if (_isReverse && _reverseStream != null)
-                {
-                    _reverseStream.Position = 0;
-                    _output.Init(_reverseStream.ToSampleProvider());
-                    _output.Play();
-                }
-                else if (!_isReverse && _sampleProviderToPlay != null)
-                {
-                    _bufferedProvider.ClearBuffer();
-                    _bufferedProvider.AddSamples(_audioClip.RawPCM, 0, _audioClip.RawPCM.Length);
-                    _output.Init(_sampleProviderToPlay);
-                    _output.Play();
-                }
+                if (_panProvider == null)
+                    _panProvider = new PanningSampleProvider(_volumeProvider) { Pan = 0f };
+
+                baseProvider = _panProvider;
             }
+            else
+            {
+                baseProvider = _volumeProvider;
+            }
+
+            _sampleProviderToPlay = Loop ? new LoopingSampleProvider(baseProvider) : baseProvider;
         }
 
         public void Play()
@@ -184,36 +183,22 @@ namespace Engine
             PlayOneShot(clip, 1.0f);
         }
 
-        public void PlayOneShot(AudioClip clip, float volume)
+        public void PlayOneShot(AudioClip clip, float volume = 1f)
         {
-            if (clip == null || clip.RawPCM.Length == 0)
-                return;
+            if (clip == null || clip.RawPCM.Length == 0) return;
 
-            var format = (clip.BitsPerSample == 32)
+            WaveFormat format = (clip.BitsPerSample == 32)
                 ? WaveFormat.CreateIeeeFloatWaveFormat(clip.SampleRate, clip.Channels)
                 : new WaveFormat(clip.SampleRate, clip.BitsPerSample, clip.Channels);
 
-            var provider = new BufferedWaveProvider(format)
-            {
-                BufferLength = clip.RawPCM.Length,
-                DiscardOnBufferOverflow = true
-            };
-            provider.AddSamples(clip.RawPCM, 0, clip.RawPCM.Length);
-
-            var volumeProvider = new VolumeSampleProvider(provider.ToSampleProvider())
-            {
-                Volume = Math.Clamp(volume, 0.0f, 1.0f)
-            };
-
             var output = new WaveOutEvent();
+            var provider = new BufferedWaveProvider(format);
+            provider.AddSamples(clip.RawPCM, 0, clip.RawPCM.Length);
+            var volumeProvider = new VolumeSampleProvider(provider.ToSampleProvider()) { Volume = volume };
             output.Init(volumeProvider);
             output.Play();
 
-            // Dispose automatically when finished
-            output.PlaybackStopped += (s, e) =>
-            {
-                output.Dispose();
-            };
+            output.PlaybackStopped += (s, e) => output.Dispose();
         }
 
         public void PlayReverseAt(float seconds)
@@ -233,8 +218,18 @@ namespace Engine
             _reverseStream = new ReverseWaveStream(_audioClip.RawPCM, format);
             _reverseStream.CurrentTime = TimeSpan.FromSeconds(seconds);
 
-            _output.Init(_reverseStream.ToSampleProvider());
+            _output.Init(GetReverseProvider());
             _output.Play();
+        }
+
+        private ISampleProvider GetReverseProvider()
+        {
+            if (_reverseStream == null) return null;
+
+            ISampleProvider provider = _reverseStream.ToSampleProvider();
+            if (Loop)
+                provider = new LoopingReverseWaveStream(_reverseStream).ToSampleProvider();
+            return provider;
         }
 
         public void Stop()
@@ -278,7 +273,7 @@ namespace Engine
             set => _framePosition = Math.Clamp(value / _frameSize, 0, Length / _frameSize);
         }
 
-        public TimeSpan CurrentTime
+        public override TimeSpan CurrentTime
         {
             get => TimeSpan.FromSeconds((_data.Length / _frameSize - _framePosition) / (double)_format.SampleRate);
             set
@@ -341,4 +336,80 @@ namespace Engine
             return floatsRead;
         }
     }
+
+    public class LoopingSampleProvider : ISampleProvider
+    {
+        private readonly ISampleProvider _source;
+
+        public LoopingSampleProvider(ISampleProvider source)
+        {
+            _source = source;
+            WaveFormat = source.WaveFormat;
+        }
+
+        public WaveFormat WaveFormat { get; }
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            int totalRead = 0;
+
+            while (totalRead < count)
+            {
+                int read = _source.Read(buffer, offset + totalRead, count - totalRead);
+                if (read == 0) // reached end of source
+                {
+                    if (_source is WaveStream ws)
+                    {
+                        ws.Position = 0; // rewind
+                    }
+                    else
+                    {
+                        break; // cannot loop, stop reading
+                    }
+                }
+                totalRead += read;
+            }
+
+            return totalRead;
+        }
+    }
+
+    public class LoopingReverseWaveStream : WaveStream
+    {
+        private readonly ReverseWaveStream _reverseStream;
+
+        public LoopingReverseWaveStream(ReverseWaveStream reverseStream)
+        {
+            _reverseStream = reverseStream ?? throw new ArgumentNullException(nameof(reverseStream));
+        }
+
+        public override WaveFormat WaveFormat => _reverseStream.WaveFormat;
+        public override long Length => _reverseStream.Length;
+
+        public override long Position
+        {
+            get => _reverseStream.Position;
+            set => _reverseStream.Position = value;
+        }
+
+        public override TimeSpan CurrentTime
+        {
+            get => _reverseStream.CurrentTime;
+            set => _reverseStream.CurrentTime = value;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            int bytesRead = _reverseStream.Read(buffer, offset, count);
+
+            if (bytesRead == 0 && _reverseStream.Length > 0) // reached start
+            {
+                _reverseStream.Position = 0; // rewind to end for looping
+                bytesRead = _reverseStream.Read(buffer, offset, count);
+            }
+
+            return bytesRead;
+        }
+    }
+
 }

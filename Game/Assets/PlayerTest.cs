@@ -32,6 +32,10 @@ namespace Game
         private float _maxFallYVelocity = -20;
 
         private float _currentAttackTime;
+        private AudioSource _audioSource;
+        private AudioClip _fallSfx;
+        private AudioClip _jumpSfx;
+        private AudioClip _attackSfx;
 
         public override async void OnAwake()
         {
@@ -53,7 +57,13 @@ namespace Game
             //act2.Transform.Parent = act.Transform;
             //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
             _animation = GetComponent<SpriteAnimation2D>();
+            _audioSource = GetComponent<AudioSource>();
 
+            _fallSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Hit_4.wav");
+            _jumpSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Jump_3.wav");
+            _attackSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Slash_1.wav");
+            
+            
             var basePath = "KingsAndPigsSprites/01-King Human/";
             var pTexture = Assets.GetTexture(basePath + "Run (78x58).png");
             var pTexture2 = Assets.GetTexture(basePath + "Idle (78x58).png");
@@ -94,15 +104,16 @@ namespace Game
 
         public override void OnUpdate()
         {
+#if DEBUG
             Window.Name = $"Game (FPS: {Time.FPS})";
-
+#endif
             if (!_attacking && Input.GetKeyDown(KeyCode.F))
             {
                 _attacking = true;
                 _currentAttackTime = _attackTime;
                 _animation.Loop = false;
                 _animation.PushFrames(_attackSprites);
-
+                _audioSource.PlayOneShot(_attackSfx, 0.7f);
             }
             if (_currentAttackTime > 0)
             {
@@ -118,6 +129,7 @@ namespace Game
 
             if ((_isOnGround /*|| _extraJumpAvailable*/) && Input.GetKeyDown(KeyCode.Space))
             {
+                _audioSource.PlayOneShot(_jumpSfx, 0.5f);
                 _extraJumpAvailable = false;
                 _jumped = true;
                 _rigid.GravityScale = _gravityScale;
@@ -259,6 +271,12 @@ namespace Game
                 if (!pressingKeysToMove && !_jumped)
                 {
                     _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
+                }
+                if (!_isOnGround)
+                {
+                    _audioSource.PlayOneShot(_fallSfx, 0.7f);
+
+
                 }
                 _isOnGround = true;
                 _extraJumpAvailable = true;

@@ -186,10 +186,11 @@ namespace Game
             playerActor.GetComponent<SpriteRenderer>().Material = mat1;
             playerActor.GetComponent<SpriteRenderer>().SortOrder = 4;
 
-            var audioClip = Assets.GetAudioClip("TestAUdio.mp3");
+            var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2023-11-29.wav");
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
-            //source.PlayAt(20);
+            source.Loop = true;
+            source.Play();
             //source.PlayOneShot(audioClip);
 
             // source.Volume = 0.3f;
