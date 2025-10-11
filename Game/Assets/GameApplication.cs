@@ -50,7 +50,6 @@ namespace Game
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
 
-           
             var filepath = testPathNow + "/WorldTilemap.ldtk";
             //var filepath = testPathNow + "\\Tilemap3.ldtk";
             string json = Assets.GetText(filepath).Text;
@@ -168,6 +167,7 @@ namespace Game
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
             //sprite1.Texture.Atlas.UpdateChunk(0, defChunk);
+            
 
             LayerMask.AssignName(3, "Player");
             LayerMask.AssignName(1, "Floor");
@@ -186,7 +186,10 @@ namespace Game
             playerActor.GetComponent<SpriteRenderer>().Material = mat1;
             playerActor.GetComponent<SpriteRenderer>().SortOrder = 4;
 
-
+            var audioClip = Assets.GetAudioClip("TestAUdio.mp3");
+            var source = playerActor.AddComponent<AudioSource>();
+            source.Clip = audioClip;
+            source.PlayAt(20);
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
 

@@ -12,8 +12,13 @@ namespace Engine
         public TextureAtlasData Atlas { get; } = new();
         public int PixelPerUnit { get; set; } = 32;
 
-        public Texture2D(int width, int height, int channels, byte[] data) : 
-                base(width, height, channels, data)
+        public Texture2D(string name, Guid guid, int width, int height, int channels, byte[] data) : 
+                base(name, guid, width, height, channels, data)
+        {
+        }
+
+        public Texture2D(int width, int height, int channels, byte[] data) :
+                base(string.Empty, Guid.NewGuid(), width, height, channels, data)
         {
         }
 

@@ -42,7 +42,7 @@ namespace Engine.IO
                 bytesRead += read;
             }
 
-            return new Texture2D(width, height, comp, imageData);
+            return new Texture2D(Path.GetFileNameWithoutExtension(info.Path), guid, width, height, comp, imageData);
         }
     }
 }

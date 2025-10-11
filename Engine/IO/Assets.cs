@@ -29,5 +29,10 @@ namespace Engine
         {
             return IOLayer.GetDatabase().GetAsset<Texture2D>(path);
         }
+
+        public static AudioClip GetAudioClip(string path)
+        {
+            return IOLayer.GetDatabase().GetAsset<AudioClip>(path);
+        }
     }
 }

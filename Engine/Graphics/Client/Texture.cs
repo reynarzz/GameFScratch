@@ -16,7 +16,7 @@ namespace Engine
 
         internal GfxResource NativeResource { get; }
 
-        internal Texture(int width, int height, int channels, byte[] data)
+        internal Texture(string name, Guid guid, int width, int height, int channels, byte[] data) : base(name, guid)
         {
             Width = width;
             Height = height;

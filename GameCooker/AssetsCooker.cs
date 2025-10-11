@@ -29,6 +29,8 @@ namespace GameCooker
                 { ".wav", AssetType.Audio },
                 { ".aac", AssetType.Audio },
                 { ".wma", AssetType.Audio },
+                { ".flac", AssetType.Audio },
+                
 
                 // Text
                 { ".txt", AssetType.Text },
@@ -50,6 +52,7 @@ namespace GameCooker
                 { AssetType.Texture, new TextureAssetProcessor() },
                 { AssetType.Text, new TextAssetProcessor() },
                 { AssetType.Shader, new TextAssetProcessor() },
+                { AssetType.Audio, new AudioAssetProcessor() }
 
             };
 

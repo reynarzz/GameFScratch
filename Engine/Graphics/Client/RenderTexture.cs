@@ -9,7 +9,7 @@ namespace Engine
 {
     public class RenderTexture : Texture
     {
-        public RenderTexture(int width, int height) : base(width, height, 4, null)
+        public RenderTexture(int width, int height) : base(string.Empty, Guid.NewGuid(), width, height, 4, null)
         {
         }
 

@@ -22,6 +22,7 @@ namespace Engine.IO
                 { AssetType.Texture, new TextureAssetBuilder() },
                 { AssetType.Text, new TextAssetBuilder() },
                 { AssetType.Shader, new TextAssetBuilder() },
+                { AssetType.Audio, new AudioClipAssetBuilder() },
             };
         }
 
