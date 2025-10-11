@@ -28,23 +28,17 @@ namespace Engine
 
                 if (_audioClip != null)
                 {
-                    // Correct WaveFormat for raw PCM
                     WaveFormat format;
                     if (_audioClip.BitsPerSample == 32)
-                    {
                         format = WaveFormat.CreateIeeeFloatWaveFormat(_audioClip.SampleRate, _audioClip.Channels);
-                    }
                     else
-                    {
                         format = new WaveFormat(_audioClip.SampleRate, _audioClip.BitsPerSample, _audioClip.Channels);
-                    }
 
-                    // Ensure RawPCM length is multiple of BlockAlign
                     int frameSize = format.BlockAlign;
                     long alignedLength = _audioClip.RawPCM.Length - (_audioClip.RawPCM.Length % frameSize);
 
                     _waveStream = new RawSourceWaveStream(_audioClip.RawPCM, 0, (int)alignedLength, format);
-                    _channel = new WaveChannel32(_waveStream); // enables volume/pan
+                    _channel = new WaveChannel32(_waveStream);
                 }
             }
         }
@@ -109,13 +103,18 @@ namespace Engine
 
         public void PlayReverse()
         {
+            PlayReverseAt(0f);
+        }
+
+        public void PlayReverseAt(float seconds)
+        {
             if (_audioClip == null)
             {
                 Debug.Error("Audio clip not set before playing.");
                 return;
             }
 
-            if (!(_audioClip.RawPCM.Length > 0))
+            if (_audioClip.RawPCM.Length == 0)
             {
                 Debug.Error("No PCM data to reverse.");
                 return;
@@ -126,12 +125,19 @@ namespace Engine
                 : new WaveFormat(_audioClip.SampleRate, _audioClip.BitsPerSample, _audioClip.Channels);
 
             int frameSize = format.BlockAlign;
-            var reversed = new byte[_audioClip.RawPCM.Length];
+            long startByte = (long)(seconds * format.AverageBytesPerSecond);
 
-            for (int i = 0; i < _audioClip.RawPCM.Length; i += frameSize)
+            // Align to frame
+            startByte -= startByte % frameSize;
+            startByte = Math.Clamp(startByte, 0, _audioClip.RawPCM.Length - frameSize);
+
+            long lengthToReverse = _audioClip.RawPCM.Length - startByte;
+            var reversed = new byte[lengthToReverse];
+
+            for (long i = 0; i < lengthToReverse; i += frameSize)
             {
-                int destIndex = _audioClip.RawPCM.Length - frameSize - i;
-                Buffer.BlockCopy(_audioClip.RawPCM, i, reversed, destIndex, frameSize);
+                long destIndex = lengthToReverse - frameSize - i;
+                Buffer.BlockCopy(_audioClip.RawPCM, (int)(startByte + i), reversed, (int)destIndex, frameSize);
             }
 
             _waveStream?.Dispose();

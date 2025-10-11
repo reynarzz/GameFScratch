@@ -37,7 +37,12 @@ namespace Sandbox
             {
                 Type = CookingType.DevMode,
                 AssetsFolderPath = Paths.GetAssetsFolderPath(),
-                ExportFolderPath = Paths.GetAssetDatabaseFolder()
+                ExportFolderPath = Paths.GetAssetDatabaseFolder(),
+                FileOptions = new CookFileOptions()
+                {
+                    CompressAllFiles = false,
+                    EncryptAllFiles = false,
+                }
             });
 #endif
             new Engine.Engine().Initialize(typeof(TimeLayer),

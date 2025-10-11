@@ -30,17 +30,7 @@ namespace Engine.IO
             int imageSize = checked(width * height * comp);
             var imageData = new byte[imageSize];
 
-            int bytesRead = 0;
-            while (bytesRead < imageSize)
-            {
-                int read = reader.BaseStream.Read(imageData, bytesRead, imageSize - bytesRead);
-
-                if (read == 0)
-                {
-                    throw new EndOfStreamException("Unexpected end of stream while reading texture data.");
-                }
-                bytesRead += read;
-            }
+            reader.BaseStream.ReadExactly(imageData);
 
             return new Texture2D(Path.GetFileNameWithoutExtension(info.Path), guid, width, height, comp, imageData);
         }

@@ -189,7 +189,7 @@ namespace Game
             var audioClip = Assets.GetAudioClip("TestAUdio.mp3");
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
-            source.PlayAt(20);
+            source.Play();
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
 

@@ -12,21 +12,33 @@ namespace GameCooker
     {
         byte[] IAssetProcessor.Process(string path)
         {
-            using var reader = new AudioFileReader(path);
-            var format = reader.WaveFormat;
+            WaveStream reader;
+
+            // Select the correct reader based on file extension
+            string ext = Path.GetExtension(path).ToLowerInvariant();
+            if (ext == ".wav")
+            {
+                reader = new WaveFileReader(path); // gives true bits per sample
+            }
+            else
+            {
+                reader = new MediaFoundationReader(path); // MP3, AAC, WMA, FLAC
+            }
 
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);
 
-            // Write header (leave PCM length for now)
+            var format = reader.WaveFormat;
+
+            // Write header
             bw.Write(format.SampleRate);
-            bw.Write(format.BitsPerSample); // 32-bit float
+            bw.Write(format.BitsPerSample);
             bw.Write(format.Channels);
             bw.Write(reader.TotalTime.TotalSeconds);
             long pcmLengthPosition = ms.Position;
             bw.Write(0L); // placeholder for PCM length
 
-            // Write PCM data and count bytes
+            int bytesPerSample = format.BitsPerSample / 8;
             var buffer = new byte[format.AverageBytesPerSecond];
             int bytesRead;
             long totalPCMBytes = 0;
@@ -37,14 +49,15 @@ namespace GameCooker
                 totalPCMBytes += bytesRead;
             }
 
-            // Go back and write the actual PCM length
+            // Write the actual PCM length
             long endPosition = ms.Position;
             ms.Position = pcmLengthPosition;
             bw.Write(totalPCMBytes);
             ms.Position = endPosition;
+            reader.Dispose();
 
             return ms.ToArray();
         }
-
     }
+
 }

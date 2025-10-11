@@ -17,18 +17,7 @@ namespace Engine.IO
             var pcmBytes = reader.ReadInt64();
 
             var data = new byte[pcmBytes];
-
-            int bytesRead = 0;
-            while (bytesRead < data.Length)
-            {
-                int read = reader.BaseStream.Read(data, bytesRead, data.Length - bytesRead);
-
-                if (read == 0)
-                {
-                    throw new EndOfStreamException("Unexpected end of stream while reading texture data.");
-                }
-                bytesRead += read;
-            }
+            reader.BaseStream.ReadExactly(data);
 
             return new AudioClip(Path.GetFileNameWithoutExtension(info.Path), guid, data, duration, sampleRate, bitsPerSample, channels);
         }
