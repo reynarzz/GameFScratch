@@ -18,6 +18,10 @@ namespace Engine
         private bool _isReverse = false;
         private ReverseWaveStream _reverseStream;
 
+        private static WaveOutEvent _sharedOutput;
+        private static MixingSampleProvider _mixer;
+
+
         private bool _loop;
         public bool Loop
         {
@@ -122,6 +126,21 @@ namespace Engine
             }
         }
 
+        static AudioSource()
+        {
+            _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2))
+            {
+                ReadFully = true
+            };
+            _sharedOutput = new WaveOutEvent()
+            {
+                DesiredLatency = 70, // This should come from a config file
+                NumberOfBuffers = 2,
+            };
+            _sharedOutput.Init(_mixer);
+            _sharedOutput.Play();
+        }
+
         internal override void OnInitialize()
         {
             base.OnInitialize();
@@ -185,20 +204,35 @@ namespace Engine
 
         public void PlayOneShot(AudioClip clip, float volume = 1f)
         {
-            if (clip == null || clip.RawPCM.Length == 0) return;
+            if (clip == null || clip.RawPCM.Length == 0)
+                return;
 
-            WaveFormat format = (clip.BitsPerSample == 32)
+            // Convert clip format to mixer format if needed
+            var clipFormat = (clip.BitsPerSample == 32)
                 ? WaveFormat.CreateIeeeFloatWaveFormat(clip.SampleRate, clip.Channels)
                 : new WaveFormat(clip.SampleRate, clip.BitsPerSample, clip.Channels);
 
-            var output = new WaveOutEvent();
-            var provider = new BufferedWaveProvider(format);
+            var provider = new BufferedWaveProvider(clipFormat);
             provider.AddSamples(clip.RawPCM, 0, clip.RawPCM.Length);
-            var volumeProvider = new VolumeSampleProvider(provider.ToSampleProvider()) { Volume = volume };
-            output.Init(volumeProvider);
-            output.Play();
 
-            output.PlaybackStopped += (s, e) => output.Dispose();
+            ISampleProvider sampleProvider = provider.ToSampleProvider();
+
+            // Resample if the sample rate doesn't match the mixer's
+            if (clipFormat.SampleRate != _mixer.WaveFormat.SampleRate)
+            {
+                sampleProvider = new WdlResamplingSampleProvider(sampleProvider, _mixer.WaveFormat.SampleRate);
+            }
+
+            // Convert mono to stereo if needed
+            if (clipFormat.Channels == 1 && _mixer.WaveFormat.Channels == 2)
+            {
+                sampleProvider = new MonoToStereoSampleProvider(sampleProvider);
+            }
+
+            // Apply volume
+            sampleProvider = new VolumeSampleProvider(sampleProvider) { Volume = volume };
+
+            _mixer.AddMixerInput(sampleProvider);
         }
 
         public void PlayReverseAt(float seconds)
