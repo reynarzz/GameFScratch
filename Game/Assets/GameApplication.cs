@@ -70,7 +70,7 @@ namespace Game
                 {
                     foreach (var entity in layer.EntityInstances)
                     {
-                        Debug.Log("Entity: " + entity.Identifier);
+                        //Debug.Log("Entity: " + entity.Identifier);
                         if (entity.Identifier.Equals("Player"))
                         {
                             _playerStartPosTest = ConvertToWorld(entity.Px, level, layer) / tilemapTexture.PixelPerUnit;
@@ -78,7 +78,7 @@ namespace Game
 
                         foreach (var field in entity.FieldInstances)
                         {
-                            Debug.Log("Name: " + field.Identifier + ", Type: " + field.Type + ", Value: " + field.Value);
+                            //Debug.Log("Name: " + field.Identifier + ", Type: " + field.Type + ", Value: " + field.Value);
                         }
                     }
                 }

@@ -90,7 +90,7 @@ namespace GameCooker
 
         public AssetsDatabaseInfo CookAll(CookOptions options)
         {
-            return CookAllAsync(options).Result;
+            return CookAllAsync(options).GetAwaiter().GetResult();
         }
 
         private byte[] ProcessAsset(AssetType type, string path)

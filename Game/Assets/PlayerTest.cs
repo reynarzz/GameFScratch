@@ -228,7 +228,7 @@ namespace Game
 
         private void TestGround()
         {
-            var length = 1.0f;
+            var length = 0.7f;
             var yOffset = 0;//-0.55f;
             var origin1 = Transform.WorldPosition + new vec3(-0.45f, yOffset, 0);
             var origin2 = Transform.WorldPosition + new vec3(0.45f, yOffset, 0);
