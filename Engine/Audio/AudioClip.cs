@@ -8,18 +8,16 @@ namespace Engine
 {
     public class AudioClip : EObject
     {
-        internal byte[] RawPCM { get; }
+        internal float[] RawPCM { get; }
         public double Duration { get; }
         public int SampleRate { get; }
-        public int BitsPerSample { get; }
         public int Channels { get; }
 
-        public AudioClip(string name, Guid id, byte[] rawPCM, double duration, int sampleRate, int bitsPerSample, int channels) : base(name, id)
+        public AudioClip(string name, Guid id, float[] rawPCM, int sampleRate, int totalFrames, int channels) : base(name, id)
         {
             RawPCM = rawPCM;
-            Duration = duration;
+            Duration = (float)totalFrames / sampleRate;
             SampleRate = sampleRate;
-            BitsPerSample = bitsPerSample;
             Channels = channels;
         }
     }

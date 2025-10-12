@@ -27,8 +27,7 @@ namespace GameCooker
                 // Audio
                 { ".mp3", AssetType.Audio },
                 { ".wav", AssetType.Audio },
-                { ".aac", AssetType.Audio },
-                { ".wma", AssetType.Audio },
+                { ".ogg", AssetType.Audio },
                 { ".flac", AssetType.Audio },
                 
 
