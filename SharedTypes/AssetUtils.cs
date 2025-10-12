@@ -17,42 +17,32 @@ namespace SharedTypes
 
         public static AssetMetaFileBase GetMeta(string path, AssetType assetType)
         {
-            var metaFilePath = path;
             string metaJson = null;
 
-            if (File.Exists(metaFilePath))
+            if (File.Exists(path))
             {
-                metaJson = File.ReadAllText(metaFilePath);
+                metaJson = File.ReadAllText(path);
             }
 
-            AssetMetaFileBase metaFile = null;
-
-            if (string.IsNullOrEmpty(metaJson))
+            AssetMetaFileBase GetMeta<T>(string json) where T : AssetMetaFileBase, new()
             {
-                if (assetType == AssetType.Texture)
+                if (!string.IsNullOrEmpty(json))
                 {
-                    metaFile = new TextureMetaFile();
-                }
-                else
-                {
-                    metaFile = new DefaultMetaFile();
+                    return JsonConvert.DeserializeObject<T>(json);
                 }
 
-                metaFile.GUID = Guid.NewGuid();
-            }
-            else
-            {
-                if (assetType == AssetType.Texture)
-                {
-                    metaFile = JsonConvert.DeserializeObject<TextureMetaFile>(metaJson);
-                }
-                else
-                {
-                    metaFile = JsonConvert.DeserializeObject<DefaultMetaFile>(metaJson);
-                }
+                return new T { GUID = Guid.NewGuid() };
             }
 
-            return metaFile;
+            return assetType switch
+            {
+                AssetType.Invalid => GetMeta<DefaultMetaFile>(metaJson),
+                AssetType.Texture => GetMeta<TextureMetaFile>(metaJson),
+                AssetType.Audio => GetMeta<AudioMetaFile>(metaJson),
+                AssetType.Text => GetMeta<DefaultMetaFile>(metaJson),
+                AssetType.Shader => GetMeta<DefaultMetaFile>(metaJson),
+                _ => GetMeta<DefaultMetaFile>(metaJson)
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using StbImageSharp;
+﻿using SharedTypes;
+using StbImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace GameCooker
 
     internal class TextureAssetProcessor : IAssetProcessor
     {
-        byte[] IAssetProcessor.Process(string path)
+        byte[] IAssetProcessor.Process(string path, AssetMetaFileBase meta)
         {
             StbImage.stbi_set_flip_vertically_on_load(1);
 

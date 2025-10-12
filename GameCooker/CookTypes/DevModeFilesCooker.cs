@@ -18,16 +18,19 @@ namespace GameCooker
             _database = database;
         }
 
-        internal override async Task CookAssetsAsync(CookFileOptions fileOptions, (string, AssetType)[] files, Func<AssetType, string, byte[]> processAssetCallback,
+        internal override async Task CookAssetsAsync(CookFileOptions fileOptions, (string, AssetType)[] files,
+                                                     Func<AssetType, AssetMetaFileBase, string, byte[]> processAssetCallback,
                                                      string outFolder)
         {
             foreach (var (filePath, assetType) in files)
             {
-                var meta = AssetUtils.GetMeta(filePath + Paths.ASSET_META_EXT_NAME, assetType);
+                var metaPath = filePath + Paths.ASSET_META_EXT_NAME;
+
+                var meta = AssetUtils.GetMeta(metaPath, assetType);
 
                 AssetInfo assetInfo = null;
 
-                bool constainsAssetInfo = meta != null ? _database.Assets.TryGetValue(meta.GUID, out assetInfo) : false;
+                bool constainsAssetInfo = _database.Assets.TryGetValue(meta.GUID, out assetInfo);
 
                 bool isInLibrary = false;
 
@@ -39,10 +42,12 @@ namespace GameCooker
                 }
 
                 var latestWriteTime = File.GetLastWriteTime(filePath);
+                var metaLatestWriteTime = File.GetLastWriteTime(metaPath);
 
-                if (!constainsAssetInfo || latestWriteTime > assetInfo.LastWriteTime || !isInLibrary)
+                if (!constainsAssetInfo || latestWriteTime > assetInfo.LastWriteTime ||
+                    !isInLibrary || metaLatestWriteTime > assetInfo.MetaWriteTime)
                 {
-                    var data = processAssetCallback(assetType, filePath);
+                    var data = processAssetCallback(assetType, meta, filePath);
 
                     var assetRelPath = Paths.GetRelativeAssetPath(filePath);
                     if (data != null)
@@ -53,15 +58,25 @@ namespace GameCooker
                             assetInfo = _database.Assets[meta.GUID];
 
                             assetInfo.LastWriteTime = latestWriteTime;
+                            assetInfo.MetaWriteTime = metaLatestWriteTime;
                             assetInfo.Path = assetRelPath;
                         }
                         else
                         {
                             Console.WriteLine("Importing asset file: " + filePath);
-                            var guid = meta != null ? meta.GUID : Guid.NewGuid();
-                            _database.Assets.Add(guid, new AssetInfo() { LastWriteTime = latestWriteTime, Type = assetType, Path = assetRelPath, IsEncrypted = false, IsCompressed = false });
+
                             // Write meta
-                            File.WriteAllText(filePath + Paths.ASSET_META_EXT_NAME, JsonConvert.SerializeObject(meta, Formatting.Indented));
+                            File.WriteAllText(metaPath, JsonConvert.SerializeObject(meta, Formatting.Indented));
+
+                            _database.Assets.Add(meta.GUID, new AssetInfo()
+                            {
+                                Type = assetType,
+                                Path = assetRelPath,
+                                IsEncrypted = false,
+                                IsCompressed = false,
+                                LastWriteTime = latestWriteTime,
+                                MetaWriteTime = File.GetLastWriteTime(metaPath)
+                            });
                         }
 
                         // Write asset to library

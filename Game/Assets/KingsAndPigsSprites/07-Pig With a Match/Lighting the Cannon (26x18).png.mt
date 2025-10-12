@@ -3,5 +3,5 @@
     "IsNearest": false,
     "IsAtlas": false
   },
-  "GUID": "86d26d9e-af0f-44e0-bb7a-f8ec2e68bb2f"
+  "GUID": "5b60b115-20da-49bf-8fdd-8ef9fba35209"
 }

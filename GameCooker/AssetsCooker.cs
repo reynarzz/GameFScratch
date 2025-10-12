@@ -92,11 +92,11 @@ namespace GameCooker
             return CookAllAsync(options).GetAwaiter().GetResult();
         }
 
-        private byte[] ProcessAsset(AssetType type, string path)
+        private byte[] ProcessAsset(AssetType type, AssetMetaFileBase meta,  string path)
         {
             if (_assetsProcessors.TryGetValue(type, out var processor))
             {
-                return processor.Process(path);
+                return processor.Process(path, meta);
             }
 
             return [];

@@ -13,6 +13,7 @@ namespace SharedTypes
         public string Path { get; set; }
         public bool IsCompressed { get; set; }
         public bool IsEncrypted { get; set; }
+        public DateTime MetaWriteTime { get; set; }
     }
 
 }

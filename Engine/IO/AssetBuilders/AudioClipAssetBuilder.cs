@@ -1,8 +1,10 @@
 ﻿using SharedTypes;
+using SoundFlow.Abstracts;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Components;
 using SoundFlow.Enums;
 using SoundFlow.Interfaces;
+using SoundFlow.Modifiers;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 using System;
@@ -61,55 +63,53 @@ namespace Engine.IO
                 Format = (SampleFormat)sampleFormat
             };
 
-
             var device = engine.InitializePlaybackDevice(defaultDevice, format);
 
-            
-            // Create SoundPlayer and attach to mixer
-            using var provider = new FloatArrayProvider(RawData);
+
+            var provider = new RawDataProvider(RawData);
             var player = new SoundPlayer(engine, format, provider);
-            device.MasterMixer.AddComponent(player);
+
+            var mixer = new Mixer(engine, format);
+            mixer.AddComponent(player);
+            
+            device.MasterMixer.AddComponent(mixer);
+
 
             // Start device and play
             device.Start();
-            player.Play();
+            //player.PlaybackSpeed = 1;
 
+            player.Play();
+            player.Seek(4);
+
+            player.IsLooping = true;
+            //player.PlaybackSpeed = 2;
+            //player.Pan = 0.7f;
+            var pitchModifier = new AlgorithmicReverbModifier(format);
+            pitchModifier.Wet = 0.7f;
+            pitchModifier.Width = 1.0f;
+            pitchModifier.Mix = 1.0f;
+            pitchModifier.PreDelay = 30;
+            pitchModifier.RoomSize = 1.0f;
+            player.AddModifier(pitchModifier);
+
+            // Effects:
+            // AlgorithmicReverbModifier
+            // ChorusModifier
+            // DelayModifier 
+            // ParametricEqualizer 
+            // CompressorModifier 
+            // 
+            // 
+            // 
+
+
+
+
+            //player.Volume = 0.5f;
             //// Stop and cleanup
             //player.Stop();
             //device.Stop();
         }
-
-
-        internal class FloatArrayProvider : ISoundDataProvider
-        {
-            private readonly float[] _samples;
-            private int _position;
-
-            internal FloatArrayProvider(float[] samples)
-            {
-                _samples = samples;
-                _position = 0;
-            }
-
-            public int ReadBytes(Span<float> buffer)
-            {
-                int count = Math.Min(buffer.Length, _samples.Length - _position);
-                _samples.AsSpan(_position, count).CopyTo(buffer);
-                _position += count;
-                return count;
-            }
-
-            public void Seek(int offset) => _position = Math.Clamp(offset, 0, _samples.Length);
-            public int Position => _position;
-            public int Length => _samples.Length;
-            public bool CanSeek => true;
-            public SampleFormat SampleFormat => SampleFormat.F32;
-            public int SampleRate => 48000;
-            public bool IsDisposed => false;
-            public event EventHandler<EventArgs> EndOfStreamReached;
-            public event EventHandler<PositionChangedEventArgs> PositionChanged;
-            public void Dispose() { }
-        }
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace GameCooker
 {
     internal interface IAssetProcessor
     {
-        byte[] Process(string path);
+        byte[] Process(string path, AssetMetaFileBase meta);
     }
 }

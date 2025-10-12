@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,7 +10,7 @@ namespace GameCooker
 {
     internal class TextAssetProcessor : IAssetProcessor
     {
-        byte[] IAssetProcessor.Process(string path)
+        byte[] IAssetProcessor.Process(string path, AssetMetaFileBase meta)
         {
             using var reader = new StreamReader(path, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
 
