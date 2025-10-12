@@ -22,9 +22,8 @@ namespace Engine.Layers
 #if DEBUG
             disk = new DevModeDisk();
 #else
-            disk = new ReleaseModeDisk(AppContext.BaseDirectory);
+            disk = new ReleaseModeDisk(Paths.GetReleaseDataFolder());
 #endif
-
             disk.Initialize();
 
             _assetDatabase.Initialize(disk);

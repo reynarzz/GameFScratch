@@ -18,7 +18,8 @@ namespace SharedTypes
         public const string ASSET_DATABASE_BINARY_EXT_NAME = ".bin";
         public const string ASSET_META_EXT_NAME = ".mt";
         public const string ASSET_BUILD_DATA_EXT_NAME = ".gfs"; // "Game from scratch"
-        public const string ASSET_BUILD_DATA_FILE_NAME = "data"; // "Game from scratch"
+        public const string ASSET_BUILD_DATA_FILE_NAME = "GameData"; // "Game from scratch"
+        public const string RELEASE_BUILD_DATA_FOLDER_NAME = "Data";
 
         private static string _projectRootFolder;
         public static string ProjectRootFolder
@@ -40,6 +41,10 @@ namespace SharedTypes
             return ASSET_BUILD_DATA_FILE_NAME + ASSET_BUILD_DATA_EXT_NAME;
         }
 
+        public static string GetReleaseDataFolder(bool isRelativePath = false)
+        {
+            return Path.Join(AppContext.BaseDirectory, RELEASE_BUILD_DATA_FOLDER_NAME);
+        }
 
         public static string GetAssetDatabaseFolder(bool isRelativePath = false)
         {

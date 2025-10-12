@@ -25,7 +25,7 @@ namespace Box2D.NET
         // Normally this is 0.5cm.
         // @warning modifying this can have a significant impact on stability
         //public static float B2_LINEAR_SLOP => (0.005f * b2_lengthUnitsPerMeter);
-        public static float B2_LINEAR_SLOP => (0.02f * b2_lengthUnitsPerMeter);
+        public static float B2_LINEAR_SLOP => (0.04f * b2_lengthUnitsPerMeter);
 
         // Maximum number of simultaneous worlds that can be allocated
         public const int B2_MAX_WORLDS = 128;
