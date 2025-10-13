@@ -81,5 +81,7 @@ namespace Engine
             Debug.Info($"Mem Destroy: ({GetType().Name}), name: {Name}");
         }
 #endif
+
+        public virtual void OnDestroy() { }
     }
 }

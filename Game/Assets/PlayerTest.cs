@@ -58,6 +58,10 @@ namespace Game
             //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
             _animation = GetComponent<SpriteAnimation2D>();
             _audioSource = GetComponent<AudioSource>();
+            _audioSource.Mixer = new AudioMixer();
+            _audioSource.Mixer.Mute = true;
+            //var reverb = _audioSource.Mixer.AddAudioFX<ReverbAudioFX>();
+            //reverb.RoomSize = 30;
 
             _fallSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Hit_4.wav");
             _jumpSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Jump_3.wav");

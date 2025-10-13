@@ -13,7 +13,9 @@ namespace Engine
         private AudioClip _audioClip;
         private SoundPlayer _soundPlayer;
         private RawDataProvider _provider;
+        private AudioMixer _mixer;
 
+        internal SoundPlayer SoundPlayer => _soundPlayer;
         public AudioClip Clip
         {
             get => _audioClip;
@@ -29,7 +31,7 @@ namespace Engine
                 if (_audioClip)
                 {
                     _provider = new RawDataProvider(_audioClip.RawAudioData);
-                    _soundPlayer = AudioLayer.GetSoundPlayer(GetFormatFromClip(_audioClip), _provider);
+                    _soundPlayer = AudioLayer.CreateSoundPlayer(GetFormatFromClip(_audioClip), _provider);
                 }
                 else if (_soundPlayer != null)
                 {
@@ -37,6 +39,27 @@ namespace Engine
                     _soundPlayer.Dispose();
                     _soundPlayer = null;
                     _provider.Dispose();
+                }
+            }
+        }
+
+        public AudioMixer Mixer
+        {
+            get => _mixer;
+            set
+            {
+                if (_mixer == value)
+                    return;
+
+                _mixer = value;
+
+                if (_mixer != null)
+                {
+                    _mixer.AddSource(this);
+                }
+                else
+                {
+                    AudioLayer.GetMasterAudioMixer().AddSource(this);
                 }
             }
         }
@@ -130,8 +153,8 @@ namespace Engine
         public void PlayOneShot(AudioClip clip, float volume = 1f)
         {
             var provider = new RawDataProvider(clip.RawAudioData);
-            var sound = AudioLayer.GetSoundPlayer(GetFormatFromClip(clip), provider);
-            
+            var sound = AudioLayer.CreateSoundPlayer(GetFormatFromClip(clip), provider);
+
             void OnEnded(object sender, EventArgs e)
             {
                 sound.PlaybackEnded -= OnEnded;
@@ -142,6 +165,7 @@ namespace Engine
 
             sound.PlaybackEnded += OnEnded;
             sound.Volume = volume;
+            Mixer.AddPlayer(sound);
             sound.Play();
         }
 
@@ -169,6 +193,16 @@ namespace Engine
         public override void OnDestroy()
         {
             base.OnDestroy();
+
+            if (Mixer)
+            {
+                Mixer.RemoveSource(this);
+            }
+            else
+            {
+                AudioLayer.GetMasterAudioMixer().RemoveSource(this);
+            }
+
             _soundPlayer.Dispose();
             _provider.Dispose();
         }

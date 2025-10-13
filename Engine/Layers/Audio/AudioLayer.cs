@@ -18,13 +18,9 @@ namespace Engine.Layers
     {
         private static MiniAudioEngine _engine;
         private static AudioPlaybackDevice _currentDevice;
+        private static AudioMixer _masterMixer;
 
-        private readonly AudioFormat DefaultFormat = new AudioFormat()
-        {
-            Channels = 2,
-            SampleRate = 48000,
-            Format = SampleFormat.F32
-        };
+        private static readonly AudioFormat DefaultFormat = AudioFormat.DvdHq;
 
         public override void Initialize()
         {
@@ -37,26 +33,13 @@ namespace Engine.Layers
             _currentDevice = _engine.InitializePlaybackDevice(defaultDevice, DefaultFormat);
             _currentDevice.Start();
 
-            //var pitchModifier = new AlgorithmicReverbModifier(format);
-            //pitchModifier.Wet = 0.7f;
-            //pitchModifier.Width = 1.0f;
-            //pitchModifier.Mix = 1.0f;
-            //pitchModifier.PreDelay = 30;
-            //pitchModifier.RoomSize = 1.0f;
-            //player.AddModifier(pitchModifier);
+            _masterMixer = new AudioMixer(_currentDevice.MasterMixer);
 
             // Effects:
-            // AlgorithmicReverbModifier
-            // ChorusModifier
-            // DelayModifier 
             // ParametricEqualizer 
-            // CompressorModifier 
-            // 
-            // 
-            // 
         }
 
-        public static SoundPlayer GetSoundPlayer(AudioFormat format, RawDataProvider provider)
+        internal static SoundPlayer CreateSoundPlayer(AudioFormat format, RawDataProvider provider)
         {
             var player = new SoundPlayer(_engine, format, provider);
             _currentDevice.MasterMixer.AddComponent(player);
@@ -66,6 +49,24 @@ namespace Engine.Layers
         public override void Close()
         {
             _engine.Dispose();
+        }
+
+        internal static AudioPlaybackDevice GetDevice()
+        {
+            return _currentDevice;
+        }
+
+        internal static Mixer CreateMixer()
+        {
+            var mixer = new Mixer(_engine, DefaultFormat);
+            _currentDevice.MasterMixer.AddComponent(mixer);
+
+            return mixer;
+        }
+
+        internal static AudioMixer GetMasterAudioMixer()
+        {
+            return _masterMixer;
         }
     }
 }
