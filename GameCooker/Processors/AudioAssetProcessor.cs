@@ -35,7 +35,7 @@ namespace GameCooker
 
             float[] buffer = new float[provider.Length];
 
-            int framesRead = provider.ReadBytes(buffer);
+            int samplesData = provider.ReadBytes(buffer);
            
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);
@@ -43,7 +43,7 @@ namespace GameCooker
             bw.Write(format.SampleRate);
             bw.Write(format.Channels);
             bw.Write((int)format.Format);
-            bw.Write(framesRead);
+            bw.Write(samplesData);
 
             // Write all float samples
             foreach (var sample in buffer)

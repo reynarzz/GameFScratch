@@ -21,9 +21,9 @@ namespace Engine.IO
             var sampleRate = reader.ReadInt32();
             var channels = reader.ReadInt32();
             var sampleFormat = reader.ReadInt32();
-            var framesRead = reader.ReadInt32();
+            var samplesLength = reader.ReadInt32();
 
-            var data = new float[framesRead];
+            var data = new float[samplesLength];
 
             for (int i = 0; i < data.Length; i++)
             {
@@ -32,7 +32,7 @@ namespace Engine.IO
 
             return new AudioClip(Path.GetFileNameWithoutExtension(info.Path), 
                                  guid, data, sampleRate, 
-                                 framesRead, channels, sampleFormat);
+                                 samplesLength, channels, sampleFormat);
         }
     }
 }
