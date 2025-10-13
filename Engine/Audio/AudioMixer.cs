@@ -18,23 +18,26 @@ namespace Engine
         public float Volume { get => _internalMixer.Volume; set => _internalMixer.Volume = value; }
         public bool Solo { get => _internalMixer.Solo; set => _internalMixer.Solo = value; }
         public bool Mute { get => _internalMixer.Mute; set => _internalMixer.Mute = value; }
+        public override string Name { get => _internalMixer?.Name ?? base.Name; set => _internalMixer.Name = base.Name = value; }
+        public bool IsMaster => _internalMixer.IsMasterMixer;
 
-        public AudioMixer() : this(AudioLayer.CreateMixer())
+        public static AudioMixer Master => AudioLayer.GetMasterAudioMixer();
+
+        public AudioMixer(string name) : this(name, AudioLayer.CreateMixer())
         {
         }
 
-        internal AudioMixer(Mixer mixer) : base("Mixer")
+        internal AudioMixer(string name, Mixer mixer)
         {
-            _internalMixer = mixer; 
-        }
-        
-        public void AddSource(AudioSource source)
-        {
-            AddPlayer(source.SoundPlayer);
+            _internalMixer = mixer;
+            Name = name;
         }
 
         internal void AddPlayer(SoundPlayer sound)
         {
+            if (sound == null)
+                return;
+
             if(_internalMixer == sound.Parent)
             {
                 return;
@@ -44,7 +47,7 @@ namespace Engine
             _internalMixer.AddComponent(sound);
         }
 
-        public void RemoveSource(AudioSource source)
+        internal void RemoveSource(AudioSource source)
         {
             _internalMixer.RemoveComponent(source.SoundPlayer);
         }
@@ -65,7 +68,7 @@ namespace Engine
         {
             if (_internalMixer == null)
                 return;
-
+            Debug.Log("Destroy mixer: " + Name);
             _internalMixer.Parent.RemoveComponent(_internalMixer);
             _internalMixer.Dispose();
             _internalMixer = null;

@@ -58,8 +58,12 @@ namespace Game
             //act2.Transform.LocalPosition = new vec3(-1, 1, 0);
             _animation = GetComponent<SpriteAnimation2D>();
             _audioSource = GetComponent<AudioSource>();
-            _audioSource.Mixer = new AudioMixer();
-            _audioSource.Mixer.Mute = true;
+            _audioSource.Mixer = new AudioMixer("Player mixer");
+            // _audioSource.Mixer.Mute = true;
+
+            Debug.Log("Mixer: " + AudioMixer.Master.Name + ", is master: " + AudioMixer.Master.IsMaster);
+            Debug.Log("Mixer: " + _audioSource.Mixer.Name + ", is master: "+ _audioSource.Mixer.IsMaster);
+
             //var reverb = _audioSource.Mixer.AddAudioFX<ReverbAudioFX>();
             //reverb.RoomSize = 30;
 

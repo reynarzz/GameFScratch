@@ -31,7 +31,7 @@ namespace Engine
                 if (_audioClip)
                 {
                     _provider = new RawDataProvider(_audioClip.RawAudioData);
-                    _soundPlayer = AudioLayer.CreateSoundPlayer(GetFormatFromClip(_audioClip), _provider);
+                    _soundPlayer = AudioLayer.CreateSoundPlayer(GetFormatFromClip(_audioClip), Mixer, _provider);
                 }
                 else if (_soundPlayer != null)
                 {
@@ -55,11 +55,11 @@ namespace Engine
 
                 if (_mixer != null)
                 {
-                    _mixer.AddSource(this);
+                    _mixer.AddPlayer(_soundPlayer);
                 }
                 else
                 {
-                    AudioLayer.GetMasterAudioMixer().AddSource(this);
+                    AudioLayer.GetMasterAudioMixer().AddPlayer(_soundPlayer);
                 }
             }
         }
@@ -153,7 +153,7 @@ namespace Engine
         public void PlayOneShot(AudioClip clip, float volume = 1f)
         {
             var provider = new RawDataProvider(clip.RawAudioData);
-            var sound = AudioLayer.CreateSoundPlayer(GetFormatFromClip(clip), provider);
+            var sound = AudioLayer.CreateSoundPlayer(GetFormatFromClip(clip), Mixer, provider);
 
             void OnEnded(object sender, EventArgs e)
             {
@@ -165,7 +165,6 @@ namespace Engine
 
             sound.PlaybackEnded += OnEnded;
             sound.Volume = volume;
-            Mixer.AddPlayer(sound);
             sound.Play();
         }
 
@@ -203,6 +202,7 @@ namespace Engine
                 AudioLayer.GetMasterAudioMixer().RemoveSource(this);
             }
 
+            _soundPlayer.Stop();
             _soundPlayer.Dispose();
             _provider.Dispose();
         }

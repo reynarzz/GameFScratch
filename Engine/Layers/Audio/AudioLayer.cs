@@ -33,16 +33,25 @@ namespace Engine.Layers
             _currentDevice = _engine.InitializePlaybackDevice(defaultDevice, DefaultFormat);
             _currentDevice.Start();
 
-            _masterMixer = new AudioMixer(_currentDevice.MasterMixer);
+            _masterMixer = new AudioMixer("Master", _currentDevice.MasterMixer);
 
             // Effects:
             // ParametricEqualizer 
         }
 
-        internal static SoundPlayer CreateSoundPlayer(AudioFormat format, RawDataProvider provider)
+        internal static SoundPlayer CreateSoundPlayer(AudioFormat format, AudioMixer mixer, RawDataProvider provider)
         {
             var player = new SoundPlayer(_engine, format, provider);
-            _currentDevice.MasterMixer.AddComponent(player);
+
+            if(mixer != null)
+            {
+                mixer.AddPlayer(player);
+            }
+            else
+            {
+                _currentDevice.MasterMixer.AddComponent(player);
+            }
+
             return player;
         }
 
@@ -60,7 +69,6 @@ namespace Engine.Layers
         {
             var mixer = new Mixer(_engine, DefaultFormat);
             _currentDevice.MasterMixer.AddComponent(mixer);
-
             return mixer;
         }
 
