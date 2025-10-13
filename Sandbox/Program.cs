@@ -45,11 +45,13 @@ namespace Sandbox
                 }
             });
 #endif
-            new Engine.Engine().Initialize("The King", typeof(TimeLayer),
+            new Engine.Engine().Initialize("The King", 
+                                           typeof(TimeLayer),
                                            typeof(Input),
                                            typeof(GameApplication),
                                            typeof(MainThreadDispatcher),
                                            typeof(SceneLayer),
+                                           typeof(AudioLayer),
                                            typeof(PhysicsLayer),
                                            typeof(RenderingLayer),
                                            typeof(IOLayer))

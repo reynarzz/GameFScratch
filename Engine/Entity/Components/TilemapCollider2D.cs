@@ -79,11 +79,6 @@ namespace Engine
             }
         }
 
-        public void SetTilemap()
-        {
-
-        }
-
         private List<Box> MergeTiles(IReadOnlyList<vec2> tilePositions)
         {
             if (tilePositions == null || tilePositions.Count == 0)

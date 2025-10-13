@@ -113,7 +113,7 @@ namespace Game
                 _currentAttackTime = _attackTime;
                 _animation.Loop = false;
                 _animation.PushFrames(_attackSprites);
-                _audioSource.PlayOneShot(_attackSfx, 0.7f);
+                _audioSource.PlayOneShot(_attackSfx, 0.4f);
             }
             if (_currentAttackTime > 0)
             {
@@ -129,7 +129,7 @@ namespace Game
 
             if ((_isOnGround /*|| _extraJumpAvailable*/) && Input.GetKeyDown(KeyCode.Space))
             {
-                _audioSource.PlayOneShot(_jumpSfx, 0.5f);
+                _audioSource.PlayOneShot(_jumpSfx, 0.3f);
                 _extraJumpAvailable = false;
                 _jumped = true;
                 _rigid.GravityScale = _gravityScale;
@@ -274,7 +274,7 @@ namespace Game
                 }
                 if (!_isOnGround)
                 {
-                    _audioSource.PlayOneShot(_fallSfx, 0.7f);
+                    _audioSource.PlayOneShot(_fallSfx, 0.3f);
 
 
                 }
