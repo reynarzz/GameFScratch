@@ -35,13 +35,8 @@ namespace Engine
 
         internal void AddPlayer(SoundPlayer sound)
         {
-            if (sound == null)
+            if (sound == null || _internalMixer == sound.Parent)
                 return;
-
-            if(_internalMixer == sound.Parent)
-            {
-                return;
-            }
 
             sound.Parent?.RemoveComponent(sound);
             _internalMixer.AddComponent(sound);

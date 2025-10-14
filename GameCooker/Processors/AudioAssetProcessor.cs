@@ -22,14 +22,7 @@ namespace GameCooker
         {
             using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-            var audioMeta = (meta as AudioMetaFile);
-
-            var format = new AudioFormat()
-            {
-                Channels = audioMeta.Config.Channels,
-                SampleRate = audioMeta.Config.SampleRate,
-                Format = (SampleFormat)audioMeta.Config.SampleFormat
-            };
+            var format = AudioFormat.DvdHq;
 
             using var provider = new StreamDataProvider(_engine, format, fs);
 

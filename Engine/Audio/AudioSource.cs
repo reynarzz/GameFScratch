@@ -150,7 +150,7 @@ namespace Engine
             PlayOneShot(clip, 1.0f);
         }
 
-        public void PlayOneShot(AudioClip clip, float volume = 1f)
+        public void PlayOneShot(AudioClip clip, float volume)
         {
             var provider = new RawDataProvider(clip.RawAudioData);
             var sound = AudioLayer.CreateSoundPlayer(GetFormatFromClip(clip), Mixer, provider);

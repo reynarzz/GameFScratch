@@ -1,8 +1,4 @@
 {
-  "Config": {
-    "SampleRate": 48000,
-    "Channels": 2,
-    "SampleFormat": 5
-  },
-  "GUID": "e25ca4cd-64ab-44e1-87bc-a7886581a3af"
+  "Config": {},
+  "GUID": "6ce93e44-3e72-4641-8c00-0c27dcd0bb09"
 }

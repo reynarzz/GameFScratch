@@ -20,7 +20,7 @@ namespace Engine.Layers
         private static AudioPlaybackDevice _currentDevice;
         private static AudioMixer _masterMixer;
 
-        private static readonly AudioFormat DefaultFormat = AudioFormat.DvdHq;
+        private static readonly AudioFormat _defaultFormat = AudioFormat.DvdHq;
 
         public override void Initialize()
         {
@@ -30,10 +30,11 @@ namespace Engine.Layers
             {
                 throw new Exception("No default playback device found.");
             }
-            _currentDevice = _engine.InitializePlaybackDevice(defaultDevice, DefaultFormat);
+            _currentDevice = _engine.InitializePlaybackDevice(defaultDevice, _defaultFormat);
             _currentDevice.Start();
 
-            _masterMixer = new AudioMixer("Master", _currentDevice.MasterMixer);
+            var mixer = new Mixer(_engine, _defaultFormat, true);
+            _masterMixer = new AudioMixer("Master", mixer);
 
             // Effects:
             // ParametricEqualizer 
@@ -55,11 +56,6 @@ namespace Engine.Layers
             return player;
         }
 
-        public override void Close()
-        {
-            _engine.Dispose();
-        }
-
         internal static AudioPlaybackDevice GetDevice()
         {
             return _currentDevice;
@@ -67,7 +63,8 @@ namespace Engine.Layers
 
         internal static Mixer CreateMixer()
         {
-            var mixer = new Mixer(_engine, DefaultFormat);
+            var mixer = new Mixer(_engine, _defaultFormat);
+            
             _currentDevice.MasterMixer.AddComponent(mixer);
             return mixer;
         }
@@ -75,6 +72,11 @@ namespace Engine.Layers
         internal static AudioMixer GetMasterAudioMixer()
         {
             return _masterMixer;
+        }
+
+        public override void Close()
+        {
+            _engine.Dispose();
         }
     }
 }
