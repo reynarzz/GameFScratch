@@ -20,13 +20,13 @@ namespace Engine
         public RenderPass MainPass { get; }
         private List<RenderPass> _passes;
         public IReadOnlyCollection<RenderPass> Passes => _passes;
-        private List<Texture> _tex;
-
+        private List<Texture> _textures;
+        public List<Texture> Textures => _textures;
         public Material(Shader shader)
         {
             MainPass = new RenderPass() { Order = 0, Shader = shader };
 
-            _tex = new List<Texture>();
+            _textures = new List<Texture>();
             _passes = new List<RenderPass>()
             {
                 MainPass
@@ -46,11 +46,6 @@ namespace Engine
         public void RemovePass(int index)
         {
             _passes.RemoveAt(index);
-        }
-
-        public Texture GetTexture(int index)
-        {
-            return _tex[index];
         }
     }
 }

@@ -120,7 +120,14 @@ namespace Engine.Layers
 
                     if (tex == null)
                         break;
+
                     _drawCallData.Textures[boundTex] = tex.NativeResource;
+                }
+
+                // Set material's texture
+                foreach (var texture in batch.Material.Textures)
+                {
+                    _drawCallData.Textures[++boundTex] = texture.NativeResource;
                 }
 
                 int screenGrabIndex = boundTex;
@@ -146,6 +153,7 @@ namespace Engine.Layers
                 _drawCallData.Uniforms[Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
                 _drawCallData.Uniforms[Consts.Graphics.SCREEN_FRAME_BUFFER_GRAB_INDEX].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, screenGrabIndex);
                 _drawCallData.Uniforms[Consts.Graphics.SCREEN_SIZE_INDEX].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(Window.Width, Window.Height));
+                _drawCallData.Uniforms[Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.TimeCurrent * 3));
 
                 // Draw
                 GfxDeviceManager.Current.Draw(_drawCallData);

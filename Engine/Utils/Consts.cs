@@ -13,6 +13,7 @@ namespace Engine.Utils
         internal const string TEX_ARRAY_UNIFORM_NAME = "uTextures";
         internal const string SCREEN_GRAB_TEX_UNIFORM_NAME = "uScreenGrabTex";
         internal const string SCREEN_SIZE_UNIFORM_NAME = "uScreenSize";
+        internal const string TIME_UNIFORM_NAME = "uTime";
 
         internal class Graphics
         {
@@ -24,6 +25,7 @@ namespace Engine.Utils
             internal const int MODEL_MATRIX_UNIFORM_INDEX = 2;
             internal const int SCREEN_FRAME_BUFFER_GRAB_INDEX = 3;
             internal const int SCREEN_SIZE_INDEX = 4;
+            internal const int APP_TIME_INDEX = 5;
         }
     }
 }
