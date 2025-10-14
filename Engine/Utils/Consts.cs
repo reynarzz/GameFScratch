@@ -11,6 +11,8 @@ namespace Engine.Utils
         internal const string VIEW_PROJ_UNIFORM_NAME = "uVP";
         internal const string MODEL_UNIFORM_NAME = "uModel";
         internal const string TEX_ARRAY_UNIFORM_NAME = "uTextures";
+        internal const string SCREEN_GRAB_TEX_UNIFORM_NAME = "uScreenGrabTex";
+        internal const string SCREEN_SIZE_UNIFORM_NAME = "uScreenSize";
 
         internal class Graphics
         {
@@ -20,6 +22,8 @@ namespace Engine.Utils
             internal const int VP_MATRIX_UNIFORM_INDEX = 0;
             internal const int TEXTURES_ARRAY_UNIFORM_INDEX = 1;
             internal const int MODEL_MATRIX_UNIFORM_INDEX = 2;
+            internal const int SCREEN_FRAME_BUFFER_GRAB_INDEX = 3;
+            internal const int SCREEN_SIZE_INDEX = 4;
         }
     }
 }

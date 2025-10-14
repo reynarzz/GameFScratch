@@ -13,7 +13,7 @@ namespace Engine.Graphics
     {
         private bool _disposed = false;
         public bool IsInitialized { get; protected set; } = false;
-
+        internal protected virtual GfxResource[] SubResources { get; protected set; }
         public void Dispose()
         {
             if (_disposed)

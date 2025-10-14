@@ -5,14 +5,17 @@ using static OpenGL.GL;
 
 namespace Engine.Graphics
 {
+
+
     internal class GLFrameBuffer : GLGfxResource<RenderTargetDescriptor>
     {
-        private uint ColorTexture;
+        public GLTexture ColorTexture { get; private set; }
         private uint DepthStencilRBO;
         private int _width;
         private int _height;
         public int Width => _width;
         public int Height => _height;
+        protected internal override GfxResource[] SubResources { get; protected set; }
 
         public GLFrameBuffer() : base(glGenFramebuffer,
                                     glDeleteFramebuffer,
@@ -53,12 +56,23 @@ namespace Engine.Graphics
 
             Bind();
             // Create color texture (nearest-neighbor filtering)
-            ColorTexture = glGenTexture();
-            glBindTexture(GL_TEXTURE_2D, ColorTexture);
-            glTexImage2D(GL_TEXTURE_2D, 0, (int)GL_RGBA8, descriptor.Width, descriptor.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, IntPtr.Zero);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)GL_NEAREST); // MIN_FILTER
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_NEAREST); // MAG_FILTER
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ColorTexture, 0);
+
+            ColorTexture = new GLTexture();
+            ColorTexture.Create(new TextureDescriptor()
+            {
+                Buffer = null,
+                Width = descriptor.Width,
+                Height = descriptor.Height,
+                Channels = 4
+            });
+
+            ColorTexture.Bind();
+            SubResources =
+            [
+                ColorTexture
+            ];
+
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ColorTexture.Handle, 0);
 
             // Depth + stencil
             DepthStencilRBO = glGenRenderbuffer();
@@ -78,7 +92,7 @@ namespace Engine.Graphics
 
         internal override void UpdateResource(RenderTargetDescriptor descriptor)
         {
-            glDeleteTexture(ColorTexture);
+            ColorTexture.Dispose();
             glDeleteRenderbuffer(DepthStencilRBO);
 
             CreateResource(descriptor);

@@ -4,6 +4,7 @@ using Engine.Layers;
 using Engine.Utils;
 using GlmNet;
 using ldtk;
+using System.Linq;
 
 namespace Game
 {
@@ -70,7 +71,7 @@ namespace Game
                         //Debug.Log("Entity: " + entity.Identifier);
                         if (entity.Identifier.Equals("Player"))
                         {
-                            _playerStartPosTest = ConvertToWorld(entity.Px, level, layer) / tilemapTexture.PixelPerUnit;
+                            //  _playerStartPosTest = ConvertToWorld(entity.Px, level, layer) / tilemapTexture.PixelPerUnit;
                         }
 
                         foreach (var field in entity.FieldInstances)
@@ -214,6 +215,17 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
+
+            var screenGrabTest = new Actor<SpriteRenderer>();
+            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
+            renderer.SortOrder = 15;
+
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/ScreenGrabFrag.frag").Text);
+            renderer.Material = new Material(screenShader);
+            RenderPass pass = renderer.Material.Passes.ElementAt(0);
+            pass.IsScreenGrabPass = true;
+            screenGrabTest.Transform.LocalPosition = new vec3(-9, 10);
+            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height) / 64;
             Debug.Success("Game Layer");
         }
 
