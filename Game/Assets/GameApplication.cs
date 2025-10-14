@@ -173,11 +173,9 @@ namespace Game
             var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2023-11-29.wav");
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
-            source.Mixer = new AudioMixer("Music");
-            source.Mixer.Mute = true;
             source.Loop = true;
-
             source.Play();
+
             // var handle = System.Runtime.InteropServices.GCHandle.Alloc(source.Mixer, System.Runtime.InteropServices.GCHandleType.Normal);
             // var reverb = source.Mixer.AddAudioFX<ReverbAudioFX>();
             // reverb.RoomSize = 100;
