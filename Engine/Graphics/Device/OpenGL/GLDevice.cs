@@ -221,11 +221,23 @@ namespace Engine.Graphics.OpenGL
             if (features.Blending.Enabled)
             {
                 glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glBlendFunc(GLHelpers.MapBlendFactor(features.Blending.SrcFactor), GLHelpers.MapBlendFactor(features.Blending.DstFactor));
+                glBlendEquation(GLHelpers.MapBlendEquation(features.Blending.Equation));
             }
             else
             {
                 glDisable(GL_BLEND);
+            }
+
+            if(features.Stencil.Enabled)
+            {
+                glEnable(GL_STENCIL_TEST);
+                glStencilFunc(GLHelpers.MapFunc(features.Stencil.Func), features.Stencil.Ref, features.Stencil.Mask);
+                glStencilOp(GLHelpers.MapOp(features.Stencil.FailOp), GLHelpers.MapOp(features.Stencil.ZFailOp), GLHelpers.MapOp(features.Stencil.ZPassOp));
+            }
+            else
+            {
+                glDisable(GL_STENCIL_TEST);
             }
         }
 

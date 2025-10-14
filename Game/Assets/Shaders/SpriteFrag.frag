@@ -7,8 +7,6 @@ in vec4 vColor;
 flat in int fragTexIndex;
 out vec4 fragColor;
 
-uniform sampler2D uScreenGrabTex;
-
 void main()
 {
     fragColor = texture(uTextures[fragTexIndex], fragUV) * vColor;

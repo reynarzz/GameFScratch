@@ -8,11 +8,17 @@ namespace Engine
 {
     public class RenderPass
     {
-        public int Order { get; set; }
         public bool IsScreenGrabPass { get; set; }
         public Shader Shader { get; set; }
-        public Graphics.Blending Blending { get; set; } = new Graphics.Blending() { Enabled = true };
-        public Graphics.Stencil Stencil { get; set; }
+        public Blending Blending { get; } = new Blending()
+        {
+            Enabled = true,
+            SrcFactor = BlendFactor.SrcAlpha,
+            DstFactor = BlendFactor.OneMinusSrcAlpha,
+            Equation = BlendEquation.FuncAdd
+        };
+
+        public Stencil Stencil { get; } = new Stencil();
     }
 
     public class Material : EObject
@@ -24,7 +30,7 @@ namespace Engine
         public List<Texture> Textures => _textures;
         public Material(Shader shader)
         {
-            MainPass = new RenderPass() { Order = 0, Shader = shader };
+            MainPass = new RenderPass() { Shader = shader };
 
             _textures = new List<Texture>();
             _passes = new List<RenderPass>()

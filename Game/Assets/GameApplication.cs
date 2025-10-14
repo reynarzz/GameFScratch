@@ -71,7 +71,7 @@ namespace Game
                         //Debug.Log("Entity: " + entity.Identifier);
                         if (entity.Identifier.Equals("Player"))
                         {
-                            //  _playerStartPosTest = ConvertToWorld(entity.Px, level, layer) / tilemapTexture.PixelPerUnit;
+                            _playerStartPosTest = ConvertToWorld(entity.Px, level, layer) / tilemapTexture.PixelPerUnit;
                         }
 
                         foreach (var field in entity.FieldInstances)
@@ -170,6 +170,10 @@ namespace Game
             playerActor.Layer = LayerMask.NameToLayer("Player");
             playerActor.GetComponent<SpriteRenderer>().Material = mat1;
             playerActor.GetComponent<SpriteRenderer>().SortOrder = 4;
+            var PlayerMatPass = mat1.Passes.ElementAt(0);
+            PlayerMatPass.Stencil.Enabled = true;
+            PlayerMatPass.Stencil.Func = StencilFunc.Always;
+            PlayerMatPass.Stencil.Ref = 3;
 
             var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2023-11-29.wav");
             var source = playerActor.AddComponent<AudioSource>();
@@ -215,18 +219,47 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
+            // ScreenGrabTest();
+            WaterTest();
 
-            var screenGrabTest = new Actor<SpriteRenderer>();
+            Debug.Success("Game Layer");
+        }
+
+        private void ScreenGrabTest()
+        {
+            var screenGrabTest = new Actor<SpriteRenderer, GrayScaleBig>();
             var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
             renderer.SortOrder = 15;
 
             var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/ScreenGrabFrag.frag").Text);
             renderer.Material = new Material(screenShader);
-            RenderPass pass = renderer.Material.Passes.ElementAt(0);
+
+            var pass = renderer.Material.Passes.ElementAt(0);
             pass.IsScreenGrabPass = true;
-            screenGrabTest.Transform.LocalPosition = new vec3(-9, 10);
             screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height) / 64;
-            Debug.Success("Game Layer");
+            screenGrabTest.Transform.LocalPosition = new vec3(-9, -5);
+
+        }
+
+
+        private void WaterTest()
+        {
+            var waterActor = new Actor<SpriteRenderer>();
+            var renderer = waterActor.GetComponent<SpriteRenderer>();
+            renderer.SortOrder = 15;
+
+            var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
+
+            renderer.Material = new Material(mainShader);
+
+            var pass = renderer.Material.Passes.ElementAt(0);
+            pass.Stencil.Enabled = true;
+            pass.Stencil.Func = StencilFunc.NotEqual;
+            pass.Stencil.Ref = 3;
+            pass.Stencil.ZFailOp = StencilOp.Keep;
+
+            waterActor.Transform.LocalScale = new vec3(10, 5, 1);
+            waterActor.Transform.LocalPosition = new vec3(-19, -5, 1);
         }
 
         public override void Close()
