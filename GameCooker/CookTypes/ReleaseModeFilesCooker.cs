@@ -20,14 +20,14 @@ namespace GameCooker
                 - creation date (int64)
             ]
             
-            Location table
+            Location table (n assets)
             [
                 - asset block location (int64)
                 - asset data (in block) location (int64)
                 - asset's meta (in block) location (int64)
             }
             
-            Assets block (n times)
+            Assets block (n assets)
             [
                 - asset guid size (int32)
                 - asset guid (byte[])
