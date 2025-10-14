@@ -1,4 +1,3 @@
 {
-  "Config": {},
-  "GUID": "dc7aa20c-9b91-4018-9601-1af98efc4b18"
+  "GUID": "9ae8580a-2c56-437e-b72a-aad4ad7a92c9"
 }

@@ -126,8 +126,6 @@ namespace Engine
                     switch (type)
                     {
                         case "AutoLayer":
-                            PaintTiles(level, layer, layer.AutoLayerTiles);
-                            break;
                         case "IntGrid":
                             PaintTiles(level, layer, layer.AutoLayerTiles);
                             break;

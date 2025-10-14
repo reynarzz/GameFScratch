@@ -4,7 +4,6 @@ using Engine.Layers;
 using Engine.Utils;
 using GlmNet;
 using ldtk;
-using System.Text.Json;
 
 namespace Game
 {
@@ -12,13 +11,12 @@ namespace Game
     {
         // -TODO:
         // Implement physics: raycast, boxcast, circle cast.
-        // Implement audio
-        // Implement a simple file system (compression+encryption) (texture, audio, text)
         /* Fix collision exit being called when the shape is destroyed, which causes the function to have a invalid actor,
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
+
 
         // For game:
         // Implement enemies
@@ -32,14 +30,13 @@ namespace Game
         // Add 'CheckIfValidObject()' to all properties of the engine's components and actor.
         // Investigate why colliders are not freed from memory automatically.
         // Game using both assets, and using stencil buffer to change beteen them sphere.
+        // Investigate why AudioMixer frees from memory automatically
 
         private vec3 _playerStartPosTest;
         private void LoadTilemap(Camera cam)
         {
             var testPathNow = "Tilemap";
-            //var tilemapTexture = Assets.GetTexture(rootPathTest + "\\KingsAndPigsSprites\\14-TileSets\\Terrain (32x32).png");
             var tilemapTexture = Assets.GetTexture(testPathNow + "/SunnyLand_by_Ansimuz-extended.png");
-            //var tilemapTexture = Assets.GetTexture(testPathNow + "\\Inca_front_by_Kronbits-extended.png");
 
             TextureAtlasUtils.SliceTiles(tilemapTexture.Atlas, 16, 16, tilemapTexture.Width, tilemapTexture.Height);
 
@@ -139,19 +136,6 @@ namespace Game
 
         public override void Initialize()
         {
-            var sprite1 = new Sprite();
-            sprite1.Texture = new Texture2D(1, 1, 4, [0xFF, 0, 0, 0xFF]);
-            sprite1.Texture.PixelPerUnit = 1;
-
-            var sprite2 = new Sprite();
-            sprite2.Texture = new Texture2D(1, 1, 4, [0, 0xFF, 0, 0xFF]);
-            sprite2.Texture.PixelPerUnit = 1;
-
-            var sprite3 = new Sprite();
-            sprite3.Texture = new Texture2D(1, 1, 4, [0, 0, 0xFF, 0xFF]);
-            sprite3.Texture.PixelPerUnit = 1;
-
-
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);
@@ -189,8 +173,16 @@ namespace Game
             var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2023-11-29.wav");
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
+            source.Mixer = new AudioMixer("Music");
+            source.Mixer.Mute = true;
             source.Loop = true;
+
             source.Play();
+            // var handle = System.Runtime.InteropServices.GCHandle.Alloc(source.Mixer, System.Runtime.InteropServices.GCHandleType.Normal);
+            // var reverb = source.Mixer.AddAudioFX<ReverbAudioFX>();
+            // reverb.RoomSize = 100;
+
+            Debug.Log("Duration: " + audioClip.Duration);
             //source.PlayOneShot(audioClip);
 
             // source.Volume = 0.3f;
@@ -223,7 +215,6 @@ namespace Game
             var platform = new Actor<Platform, SpriteRenderer>("Platform");
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
-
 
             Debug.Success("Game Layer");
         }
