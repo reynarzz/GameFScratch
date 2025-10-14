@@ -174,6 +174,7 @@ namespace Game
             PlayerMatPass.Stencil.Enabled = true;
             PlayerMatPass.Stencil.Func = StencilFunc.Always;
             PlayerMatPass.Stencil.Ref = 3;
+            PlayerMatPass.Stencil.ZPassOp = StencilOp.Replace;
 
             var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2023-11-29.wav");
             var source = playerActor.AddComponent<AudioSource>();

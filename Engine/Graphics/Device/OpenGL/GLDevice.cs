@@ -48,7 +48,8 @@ namespace Engine.Graphics.OpenGL
                 target.Bind();
             }
             glClearColor(config.Color.R, config.Color.G, config.Color.B, config.Color.A);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClearStencil(0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             if (target != null)
                 glViewport(0, 0, target.Width, target.Height);
@@ -232,6 +233,7 @@ namespace Engine.Graphics.OpenGL
             if(features.Stencil.Enabled)
             {
                 glEnable(GL_STENCIL_TEST);
+                glStencilMask(0xFF);
                 glStencilFunc(GLHelpers.MapFunc(features.Stencil.Func), features.Stencil.Ref, features.Stencil.Mask);
                 glStencilOp(GLHelpers.MapOp(features.Stencil.FailOp), GLHelpers.MapOp(features.Stencil.ZFailOp), GLHelpers.MapOp(features.Stencil.ZPassOp));
             }
