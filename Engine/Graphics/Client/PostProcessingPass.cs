@@ -8,8 +8,13 @@ namespace Engine.Graphics
 {
     public abstract class PostProcessingPass : IDisposable
     {
-        public abstract void Dispose();
-        public abstract RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture> draw);
+        public struct PassUniform
+        {
+            public string UniformName { get; set; }
+            public RenderTexture RenderTexture { get; set; }
+        }
+
+        public abstract RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture, PassUniform[]> draw);
 
         public void SetProperty(Shader shader, string name, UniformValue value)
         {
@@ -17,5 +22,7 @@ namespace Engine.Graphics
 
 
         }
+
+        public abstract void Dispose();
     }
 }

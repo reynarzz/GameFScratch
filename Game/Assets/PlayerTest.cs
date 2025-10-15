@@ -280,7 +280,7 @@ namespace Game
                 {
                     _rigid.Velocity = new GlmNet.vec2(0, _rigid.Velocity.y);
                 }
-                if (!_isOnGround)
+                if (!_isOnGround && _rigid.Velocity.y <= 0)
                 {
                     _audioSource.PlayOneShot(_fallSfx, 0.3f);
 

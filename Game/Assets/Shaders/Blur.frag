@@ -1,6 +1,5 @@
 ﻿#version 330 core
 
-in vec2 fragUV;
 in vec2 screenUV;
 in vec4 vColor;
 

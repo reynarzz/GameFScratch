@@ -22,9 +22,9 @@ namespace Engine.Graphics
             _renderTextureOut.UpdateTarget(width, height);
         }
 
-        public override RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture> draw)
+        public override RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture, PassUniform[]> draw)
         {
-            draw(_shader, inRenderTexture, _renderTextureOut);
+            draw(_shader, inRenderTexture, _renderTextureOut, null);
             return _renderTextureOut;
         }
 

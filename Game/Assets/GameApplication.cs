@@ -221,6 +221,7 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
+            PostProcessingStack.Push(new BloomPostProcessing());
 
             ScreenGrabTest();
             // ScreenGrabTest2();
@@ -265,6 +266,7 @@ namespace Game
 
             var screenShader2 = new Shader(vertex, Assets.GetText("Shaders/ChromaticAberration.frag").Text);
             PostProcessingStack.Push(new PostProcessingSinglePass(screenShader2));
+
         }
 
         private void ScreenGrabTest4()
