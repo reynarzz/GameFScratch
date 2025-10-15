@@ -223,8 +223,8 @@ namespace Game
 
             ScreenGrabTest();
             // ScreenGrabTest2();
-            //ScreenGrabTest3();
-            //ScreenGrabTest4();
+             ScreenGrabTest3();
+            // ScreenGrabTest4();
             // ScreenGrabTest5();
             WaterTest();
 
@@ -264,19 +264,22 @@ namespace Game
 
             PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
         }
+
         private void ScreenGrabTest3()
         {
-            var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
-            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
-            renderer.SortOrder = 14;
+            //var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
+            //var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
+            //renderer.SortOrder = 14;
 
-            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/Wobble.frag").Text);
-            renderer.Material = new Material(screenShader);
+            var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/Wobble.frag").Text);
+            //renderer.Material = new Material(screenShader);
 
-            var pass = renderer.Material.Passes.ElementAt(0);
-            pass.IsScreenGrabPass = true;
-            screenGrabTest.Transform.LocalScale = new vec3(10, 10);
-            screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
+            //var pass = renderer.Material.Passes.ElementAt(0);
+            //pass.IsScreenGrabPass = true;
+            //screenGrabTest.Transform.LocalScale = new vec3(10, 10);
+            //screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
+
+            PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
 
         }
 

@@ -263,7 +263,7 @@ namespace Engine.Graphics.OpenGL
             {
                 renderTarget.Bind();
             }
-
+            SetViewport(drawCallData.Viewport);
             SetUniforms(shader, drawCallData.Uniforms);
             SetPipelineFeatures(drawCallData.Features);
 

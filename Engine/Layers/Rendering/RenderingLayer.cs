@@ -13,7 +13,7 @@ namespace Engine.Layers
         private DrawCallData _screenQuadDrawCallData;
         private PipelineFeatures _pipelineFeatures;
         private PipelineFeatures _screenPipelineFeatures;
-        private GfxResource _screenGrabTarget;
+        private RenderTexture _screenGrabTarget;
         private GfxResource _screenGeometry;
         private RenderTexture _defaultSceneRenderTexture;
         private Shader _screenShader;
@@ -37,11 +37,11 @@ namespace Engine.Layers
                 Uniforms = new UniformValue[Consts.Graphics.MAX_UNIFORMS_PER_DRAWCALL],
             };
 
-            _screenGrabTarget = GfxDeviceManager.Current.CreateRenderTarget(new RenderTargetDescriptor()
+            _screenGrabTarget = new RenderTexture(GfxDeviceManager.Current.CreateRenderTarget(new RenderTargetDescriptor()
             {
                 Width = Window.Width,
                 Height = Window.Height,
-            });
+            }), Window.Width, Window.Height);
 
             _defaultSceneRenderTexture = new RenderTexture(GfxDeviceManager.Current.CreateRenderTarget(new RenderTargetDescriptor()
             {
@@ -60,17 +60,8 @@ namespace Engine.Layers
             var w = _mainCamera.RenderTexture?.Width ?? width;
             var h = _mainCamera.RenderTexture?.Height ?? height;
 
-            GfxDeviceManager.Current.UpdateResouce(_screenGrabTarget, new RenderTargetDescriptor()
-            {
-                Width = w,
-                Height = h
-            });
-
-            GfxDeviceManager.Current.UpdateResouce(_defaultSceneRenderTexture.NativeResource, new RenderTargetDescriptor()
-            {
-                Width = w,
-                Height = h,
-            });
+            _screenGrabTarget.UpdateTarget(w, h);
+            _defaultSceneRenderTexture.UpdateTarget(w, h);
         }
 
         internal override void UpdateLayer()
@@ -88,12 +79,13 @@ namespace Engine.Layers
             if (!_mainCamera || !_mainCamera.IsEnabled)
             {
                 Debug.Error("No cameras found in scene.");
+                GfxDeviceManager.Current.SetViewport(new vec4(0, 0, Window.Width, Window.Height));
                 GfxDeviceManager.Current.Clear(new ClearDeviceConfig() { Color = new Color(1, 0, 1, 1) });
                 return;
             }
 
             var sceneRenderTarget = _mainCamera.RenderTexture ?? _defaultSceneRenderTexture;
-            GfxDeviceManager.Current.SetViewport(_mainCamera.Viewport);
+            GfxDeviceManager.Current.SetViewport(new vec4(0, 0, sceneRenderTarget.Width, sceneRenderTarget.Height));
 
             // Clear screen
             GfxDeviceManager.Current.Clear(new ClearDeviceConfig()
@@ -121,7 +113,7 @@ namespace Engine.Layers
                     GfxDeviceManager.Current.Clear(new ClearDeviceConfig()
                     {
                         Color = _mainCamera.BackgroundColor,
-                        RenderTarget = _screenGrabTarget
+                        RenderTarget = _screenGrabTarget.NativeResource
                     });
 
                     foreach (var batchGrab in batches)
@@ -134,31 +126,27 @@ namespace Engine.Layers
                     }
                 }
 
-                RenderPass(batch, ref VP, sceneRenderTarget.NativeResource, _screenGrabTarget);
+                RenderPass(batch, ref VP, sceneRenderTarget, _screenGrabTarget);
             }
 
             Debug.DrawGeometries(VP, sceneRenderTarget.NativeResource);
 
             foreach (var pass in PostProcessingStack.Passes)
             {
-                void PostProcessRenderPass(Shader shader, RenderTexture inTex, RenderTexture outTex)
+                void PostProcessDraw(Shader shader, RenderTexture inTex, RenderTexture outTex)
                 {
-                    DrawScreenQuad(shader, VP, inTex.NativeResource, outTex.NativeResource);
+                    DrawScreenQuad(shader, VP, inTex, outTex);
                 }
 
-                sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessRenderPass);
+                sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessDraw);
             }
 
-            if (PostProcessingStack.Passes.Count == 0)
-            {
-                DrawScreenQuad(_screenShader, VP, sceneRenderTarget.NativeResource, null);
-            }
+            DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null);
 
             GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
-
         }
 
-        private void RenderPass(Batch2D batch, ref mat4 VP, GfxResource renderTarget, GfxResource screenGrabTarget)
+        private void RenderPass(Batch2D batch, ref mat4 VP, RenderTexture renderTarget, RenderTexture screenGrabTarget)
         {
             foreach (var pass in batch.Material.Passes)
             {
@@ -182,7 +170,7 @@ namespace Engine.Layers
                 int screenGrabIndex = boundTex;
 
                 // Grab the color texture
-                _drawCallData.Textures[screenGrabIndex] = pass.IsScreenGrabPass ? screenGrabTarget.SubResources[0] : null;
+                _drawCallData.Textures[screenGrabIndex] = pass.IsScreenGrabPass ? screenGrabTarget.NativeResource.SubResources[0] : null;
 
                 // Pipeline
                 _pipelineFeatures.Blending = pass.Blending;
@@ -194,8 +182,8 @@ namespace Engine.Layers
                 _drawCallData.Shader = pass.Shader.NativeShader;
                 _drawCallData.Geometry = batch.Geometry;
                 _drawCallData.Features = _pipelineFeatures;
-                _drawCallData.RenderTarget = renderTarget;
-
+                _drawCallData.RenderTarget = renderTarget.NativeResource;
+                _drawCallData.Viewport = new vec4(0, 0, renderTarget.Width, renderTarget.Height);
                 // Iniforms
                 _drawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
                 _drawCallData.Uniforms[Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
@@ -209,9 +197,9 @@ namespace Engine.Layers
             }
         }
 
-        private void DrawScreenQuad(Shader shader, mat4 VP, GfxResource sceneRenderTarget, GfxResource renderTarget)
+        private void DrawScreenQuad(Shader shader, mat4 VP, RenderTexture sceneRenderTarget, RenderTexture renderTarget)
         {
-            _screenQuadDrawCallData.Textures[0] = sceneRenderTarget.SubResources[0];
+            _screenQuadDrawCallData.Textures[0] = sceneRenderTarget.NativeResource.SubResources[0];
 
             // Pipeline
             _screenQuadDrawCallData.DrawType = DrawType.Indexed;
@@ -220,8 +208,8 @@ namespace Engine.Layers
             _screenQuadDrawCallData.Shader = shader.NativeShader;
             _screenQuadDrawCallData.Geometry = _screenGeometry;
             _screenQuadDrawCallData.Features = _screenPipelineFeatures;
-            _screenQuadDrawCallData.RenderTarget = renderTarget;
-
+            _screenQuadDrawCallData.RenderTarget = renderTarget?.NativeResource;
+            _screenQuadDrawCallData.Viewport = new vec4(0, 0, renderTarget?.Width ?? Window.Width, renderTarget?.Height ?? Window.Height);
             // Iniforms
             _screenQuadDrawCallData.Uniforms[0].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
             _screenQuadDrawCallData.Uniforms[1].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(Window.Width, Window.Height));

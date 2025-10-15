@@ -163,7 +163,7 @@ namespace Engine
             {
                 Width = _startWidth;
                 Height = _startHeight;
-                OnWindowChanged?.Invoke(_startWidth, _startHeight);
+                OnWindowChanged?.Invoke(Width, Height);
 
                 // Switch back to windowed mode
                 Glfw.SetWindowMonitor(

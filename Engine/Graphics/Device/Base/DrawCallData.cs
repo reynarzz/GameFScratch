@@ -28,6 +28,7 @@ namespace Engine.Graphics
         internal GfxResource RenderTarget { get; set; }
         internal GfxResource[] Textures { get; set; }
         internal UniformValue[] Uniforms { get; set; }
+        internal vec4 Viewport { get; set; }
 
         internal IndexedDrawType IndexedDraw;
         internal ArraysDrawType ArraysDraw;

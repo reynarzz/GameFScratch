@@ -14,11 +14,10 @@ namespace Engine.Graphics
         {
             _shader = shader;
             _renderTexture = new RenderTexture(Window.Width, Window.Height);
-
-            Window.OnWindowChanged += Window_OnWindowChanged;
+            Window.OnWindowChanged += UpdateRenderTargetSize;
         }
 
-        private void Window_OnWindowChanged(int width, int height)
+        public void UpdateRenderTargetSize(int width, int height)
         {
             _renderTexture.UpdateTarget(width, height);
         }
@@ -32,7 +31,7 @@ namespace Engine.Graphics
 
         public override void Dispose()
         {
-            Window.OnWindowChanged -= Window_OnWindowChanged;
+            Window.OnWindowChanged -= UpdateRenderTargetSize;
             _renderTexture.OnDestroy();
         }
     }

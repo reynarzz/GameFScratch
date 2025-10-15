@@ -21,6 +21,8 @@ namespace Engine
 
         public void UpdateTarget(int width, int height)
         {
+            Width = width;
+            Height = height;
             GfxDeviceManager.Current.UpdateResouce(NativeResource, new RenderTargetDescriptor() { Width = width, Height = height });
         }
 

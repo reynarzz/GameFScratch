@@ -9,8 +9,8 @@ namespace Engine
 {
     public abstract class Texture : EObject
     {
-        public int Width { get; }
-        public int Height { get; }
+        public int Width { get; protected set; }
+        public int Height { get; protected set; }
         public int Channels { get; }
         internal byte[] Data { get; }
 
