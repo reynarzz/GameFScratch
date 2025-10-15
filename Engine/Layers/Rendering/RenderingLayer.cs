@@ -97,7 +97,7 @@ namespace Engine.Layers
                             break;
 
                         batchGrab.Flush();
-                        RenderPass(batchGrab, ref VP, _screenGrabTarget, null);
+                        RenderPass(batchGrab, ref VP, _screenGrabTarget, _screenGrabTarget);
                     }
                 }
 

@@ -8,6 +8,7 @@ using Engine.Graphics;
 using Engine.Graphics.OpenGL;
 using Engine.Utils;
 using GlmNet;
+using OpenGL;
 
 namespace Engine
 {
@@ -300,6 +301,8 @@ namespace Engine
                 // TODO: Needs refactoring, dirty drawing. 
                 var shader = (_shader.NativeShader as GLShader);
                 var renderTexture = texture as GLFrameBuffer;
+                GL.glDisable(GL.GL_STENCIL_TEST);
+
                 shader.Bind();
                 shader.SetUniform(Consts.VIEW_PROJ_UNIFORM_NAME, ViewProj);
 

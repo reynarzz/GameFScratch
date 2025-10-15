@@ -33,11 +33,31 @@ namespace Engine
     public class Stencil
     {
         public bool Enabled;
-        public StencilFunc Func;    // Comparison function
-        public int Ref;             // Reference value
+
+        /// <summary>
+        /// Comparison function.
+        /// </summary>
+        public StencilFunc Func;    
+
+        /// <summary>
+        /// Reference value.
+        /// </summary>
+        public int Ref;             
         public uint Mask = 0xFF;    // Bitmask for comparison
-        public StencilOp FailOp;    // What happens if stencil test fails
-        public StencilOp ZFailOp;   // What happens if stencil passes but depth fails
-        public StencilOp ZPassOp;   // What happens if both stencil and depth pass
+
+        /// <summary>
+        /// WWhen stencil test fails.
+        /// </summary>
+        public StencilOp FailOp;    
+
+        /// <summary>
+        /// When stencil passes but depth fails.
+        /// </summary>
+        public StencilOp ZFailOp;   
+
+        /// <summary>
+        /// When both stencil and depth pass.
+        /// </summary>
+        public StencilOp ZPassOp;    
     }
 }

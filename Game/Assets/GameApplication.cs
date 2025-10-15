@@ -17,7 +17,7 @@ namespace Game
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
-
+        // Implement post-proccesing system
 
         // For game:
         // Implement enemies
@@ -49,7 +49,7 @@ namespace Game
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
 
             var filepath = testPathNow + "/WorldTilemap.ldtk";
-            //var filepath = testPathNow + "\\Tilemap3.ldtk";
+            // var filepath = testPathNow + "/Test.ldtk";
             string json = Assets.GetText(filepath).Text;
 
             var mat1 = new Material(new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text));
@@ -220,7 +220,10 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
-            // ScreenGrabTest();
+            ScreenGrabTest();
+            ScreenGrabTest2();
+            ScreenGrabTest3();
+            ScreenGrabTest4();
             WaterTest();
 
             Debug.Success("Game Layer");
@@ -228,26 +231,71 @@ namespace Game
 
         private void ScreenGrabTest()
         {
-            var screenGrabTest = new Actor<SpriteRenderer, GrayScaleBig>();
+            var screenGrabTest = new Actor<SpriteRenderer>();
             var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
             renderer.SortOrder = 15;
 
-            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/ScreenGrabFrag.frag").Text);
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/CTRTv.frag").Text);
             renderer.Material = new Material(screenShader);
 
             var pass = renderer.Material.Passes.ElementAt(0);
             pass.IsScreenGrabPass = true;
-            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height) / 64;
+            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height)/* / 34*/;
             screenGrabTest.Transform.LocalPosition = new vec3(-9, -5);
 
         }
 
+        private void ScreenGrabTest2()
+        {
+            var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
+            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
+            renderer.SortOrder = 14;
 
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/GrayScale.frag").Text);
+            renderer.Material = new Material(screenShader);
+
+            var pass = renderer.Material.Passes.ElementAt(0);
+            pass.IsScreenGrabPass = true;
+            screenGrabTest.Transform.LocalScale = new vec3(10, 10);
+            screenGrabTest.Transform.LocalPosition = new vec3(-9, -5);
+
+        }
+        private void ScreenGrabTest3()
+        {
+            var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
+            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
+            renderer.SortOrder = 14;
+
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/Wobble.frag").Text);
+            renderer.Material = new Material(screenShader);
+
+            var pass = renderer.Material.Passes.ElementAt(0);
+            pass.IsScreenGrabPass = true;
+            screenGrabTest.Transform.LocalScale = new vec3(10, 10);
+            screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
+
+        }
+
+        private void ScreenGrabTest4()
+        {
+            var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
+            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
+            renderer.SortOrder = 14;
+
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/ChromaticAberration.frag").Text);
+            renderer.Material = new Material(screenShader);
+
+            var pass = renderer.Material.Passes.ElementAt(0);
+            pass.IsScreenGrabPass = true;
+            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height);
+            screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
+
+        }
         private void WaterTest()
         {
             var waterActor = new Actor<SpriteRenderer>();
             var renderer = waterActor.GetComponent<SpriteRenderer>();
-            renderer.SortOrder = 15;
+            renderer.SortOrder = 9;
 
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
@@ -255,16 +303,14 @@ namespace Game
 
             var pass = renderer.Material.Passes.ElementAt(0);
             pass.Stencil.Enabled = true;
-            pass.Stencil.Func = StencilFunc.NotEqual;
+            pass.Stencil.Func = StencilFunc.Equal;
             pass.Stencil.Ref = 3;
             pass.Stencil.ZFailOp = StencilOp.Keep;
 
             waterActor.Transform.LocalScale = new vec3(10, 5, 1);
-            waterActor.Transform.LocalPosition = new vec3(-19, -5, 1);
+            waterActor.Transform.LocalPosition = new vec3(2.5f, -12, 1);
         }
 
-        public override void Close()
-        {
-        }
+        public override void Close() { }
     }
 }

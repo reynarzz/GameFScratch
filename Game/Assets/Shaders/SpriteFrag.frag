@@ -10,4 +10,9 @@ out vec4 fragColor;
 void main()
 {
     fragColor = texture(uTextures[fragTexIndex], fragUV) * vColor;
+
+    if(fragColor.a <= 0.00001)
+    {
+        discard;
+    }
 }
