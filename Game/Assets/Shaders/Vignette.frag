@@ -12,7 +12,7 @@ uniform vec3 uTime;
 
 // Vignette controls
 uniform float uVignetteStrength = 0.7; // 0 = no vignette, 1 = full dark edges
-uniform float uVignetteStart = 0.3;    // distance from center where vignette starts
+uniform float uVignetteStart = 0.4;    // distance from center where vignette starts
 uniform float uVignetteEnd = 0.8;      // distance from center where vignette reaches full effect
 
 void main()

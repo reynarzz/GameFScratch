@@ -85,5 +85,43 @@ namespace Engine.Graphics.OpenGL
             }
             return GL_FUNC_ADD;
         }
+
+        internal static void SetUniforms(GfxResource shaderRes, UniformValue[] uniforms)
+        {
+            var shader = shaderRes as GLShader;
+            foreach (var uniform in uniforms)
+            {
+                if (string.IsNullOrEmpty(uniform.Name))
+                    break;
+
+                switch (uniform.Type)
+                {
+                    case UniformType.Int:
+                        shader.SetUniform(uniform.Name, uniform.IntValue);
+                        break;
+                    case UniformType.Float:
+                        shader.SetUniformF(uniform.Name, uniform.FloatValue);
+                        break;
+                    case UniformType.Uint:
+                        shader.SetUniform(uniform.Name, uniform.UIntValue);
+                        break;
+                    case UniformType.Mat4:
+                        shader.SetUniform(uniform.Name, uniform.Mat4Value);
+                        break;
+                    case UniformType.Vec2:
+                        shader.SetUniform(uniform.Name, uniform.Vec2Value);
+                        break;
+                    case UniformType.Vec3:
+                        shader.SetUniform(uniform.Name, uniform.Vec3Value);
+                        break;
+                    case UniformType.IntArr:
+                        shader.SetUniform(uniform.Name, uniform.IntArrValue);
+                        break;
+                    default:
+                        Debug.Error($"uniform type: '{uniform.Type}' is not implemented.");
+                        break;
+                }
+            }
+        }
     }
 }

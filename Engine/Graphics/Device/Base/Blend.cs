@@ -41,5 +41,8 @@ namespace Engine
         public BlendFactor SrcFactor;
         public BlendFactor DstFactor;
         public BlendEquation Equation;
+
+        public static Blending Transparent => new Blending() { Enabled = true, SrcFactor = BlendFactor.SrcAlpha, DstFactor = BlendFactor.OneMinusSrcAlpha };
+        public static Blending Additive => new Blending() { Enabled = true, SrcFactor = BlendFactor.One, DstFactor = BlendFactor.One };
     }
 }

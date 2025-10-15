@@ -141,7 +141,10 @@ namespace Engine.Layers
                 sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessDraw);
             }
 
-            DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null);
+            if(PostProcessingStack.Passes.Count == 0)
+            {
+                DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null);
+            }
 
             GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
         }
@@ -215,6 +218,7 @@ namespace Engine.Layers
             _screenQuadDrawCallData.Uniforms[1].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(Window.Width, Window.Height));
             _screenQuadDrawCallData.Uniforms[2].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.TimeCurrent * 3));
             _screenQuadDrawCallData.Uniforms[3].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, 0);
+            _screenQuadDrawCallData.Uniforms[4].SetFloat(Consts.FRAME_SEED_UNIFORM_NAME, Random.Shared.NextSingle());
 
             // Draw
             GfxDeviceManager.Current.Draw(_screenQuadDrawCallData);

@@ -8,29 +8,30 @@ out vec4 fragColor;
 
 uniform sampler2D uScreenGrabTex;
 uniform vec2 uScreenSize;
-uniform vec3 uTime;
+uniform float uFrameSeed;       
+uniform float uNoiseStrength = 0.3;
 
-// Controls
-uniform float uNoiseStrength = 0.3; // intensity of grain
-
-// Better pseudo-random hash
-float rand(vec2 co)
+// Integer-style hash (no repeating patterns)
+float random(vec2 uv, float seed)
 {
-    return fract(sin(dot(co ,vec2(12.9898,78.233))) * 43758.5453);
+    // Convert pixel position to integer grid
+    ivec2 i = ivec2(floor(uv * uScreenSize));
+    uint n = uint(i.x * 1973 + i.y * 9277) ^ uint(seed * 1e6);
+    n = n * 1597334677u ^ (n >> 13);
+    return float(n & 0x00FFFFFFu) / float(0x01000000u);
 }
 
 void main()
 {
     vec3 color = texture(uScreenGrabTex, screenUV).rgb;
 
-    // Fully random noise per pixel, using UV and time
-    float nR = rand(screenUV * uTime.x * 1000.0);
-    float nG = rand((screenUV + vec2(1.0,0.0)) * uTime.x * 1000.0);
-    float nB = rand((screenUV + vec2(0.0,1.0)) * uTime.x * 1000.0);
+    // Generate fully decorrelated random per pixel and frame
+    float nR = random(screenUV, uFrameSeed + 1.0);
+    float nG = random(screenUV + vec2(1.0, 0.0), uFrameSeed + 2.0);
+    float nB = random(screenUV + vec2(0.0, 1.0), uFrameSeed + 3.0);
 
-    color.r += (nR - 0.5) * uNoiseStrength;
-    color.g += (nG - 0.5) * uNoiseStrength;
-    color.b += (nB - 0.5) * uNoiseStrength;
+    vec3 noise = vec3(nR, nG, nB) - 0.5;
+    color += noise * uNoiseStrength;
 
     fragColor = vec4(color, 1.0) * vColor;
 }

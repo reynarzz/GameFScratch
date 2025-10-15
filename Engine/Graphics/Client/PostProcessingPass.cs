@@ -10,5 +10,12 @@ namespace Engine.Graphics
     {
         public abstract void Dispose();
         public abstract RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture> draw);
+
+        public void SetProperty(Shader shader, string name, UniformValue value)
+        {
+            // TODO: set property here
+
+
+        }
     }
 }

@@ -9,30 +9,29 @@ namespace Engine.Graphics
     public class PostProcessingSinglePass : PostProcessingPass
     {
         private readonly Shader _shader;
-        private RenderTexture _renderTexture;
+        private readonly RenderTexture _renderTextureOut;
         public PostProcessingSinglePass(Shader shader)
         {
             _shader = shader;
-            _renderTexture = new RenderTexture(Window.Width, Window.Height);
+            _renderTextureOut = new RenderTexture(Window.Width, Window.Height);
             Window.OnWindowChanged += UpdateRenderTargetSize;
         }
 
         public void UpdateRenderTargetSize(int width, int height)
         {
-            _renderTexture.UpdateTarget(width, height);
+            _renderTextureOut.UpdateTarget(width, height);
         }
 
         public override RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture> draw)
         {
-            draw(_shader, inRenderTexture, _renderTexture);
-
-            return _renderTexture;
+            draw(_shader, inRenderTexture, _renderTextureOut);
+            return _renderTextureOut;
         }
 
         public override void Dispose()
         {
             Window.OnWindowChanged -= UpdateRenderTargetSize;
-            _renderTexture.OnDestroy();
+            _renderTextureOut.OnDestroy();
         }
     }
 }

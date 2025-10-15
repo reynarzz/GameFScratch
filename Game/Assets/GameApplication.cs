@@ -146,8 +146,8 @@ namespace Game
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 512.0f / 2.0f / 16.0f;
             // camera.OrthoMatch = CameraOrthoMatch.Width;
-           // camera.RenderTexture = new RenderTexture(512, 288);
-            
+            // camera.RenderTexture = new RenderTexture(512, 288);
+
             LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
@@ -221,12 +221,15 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
+
             ScreenGrabTest();
             // ScreenGrabTest2();
-             ScreenGrabTest3();
-            // ScreenGrabTest4();
+
+            ScreenGrabTest3();
+            ScreenGrabTest4();
             // ScreenGrabTest5();
-            WaterTest();
+
+            // WaterTest();
 
             Debug.Success("Game Layer");
         }
@@ -250,37 +253,18 @@ namespace Game
 
         private void ScreenGrabTest2()
         {
-            //var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
-            //var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
-            //renderer.SortOrder = 14;
-
             var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/GrayScale.frag").Text);
-            //renderer.Material = new Material(screenShader);
-
-            //var pass = renderer.Material.Passes.ElementAt(0);
-            //pass.IsScreenGrabPass = true;
-            //screenGrabTest.Transform.LocalScale = new vec3(10, 10);
-            //screenGrabTest.Transform.LocalPosition = new vec3(-9, -5);
-
             PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
         }
 
         private void ScreenGrabTest3()
         {
-            //var screenGrabTest = new Actor<SpriteRenderer, Rotate>();
-            //var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
-            //renderer.SortOrder = 14;
-
-            var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/Wobble.frag").Text);
-            //renderer.Material = new Material(screenShader);
-
-            //var pass = renderer.Material.Passes.ElementAt(0);
-            //pass.IsScreenGrabPass = true;
-            //screenGrabTest.Transform.LocalScale = new vec3(10, 10);
-            //screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
-
+            var vertex = Assets.GetText("Shaders/ScreenVert.vert").Text;
+            var screenShader = new Shader(vertex, Assets.GetText("Shaders/Ripple.frag").Text);
             PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
 
+            var screenShader2 = new Shader(vertex, Assets.GetText("Shaders/ChromaticAberration.frag").Text);
+            PostProcessingStack.Push(new PostProcessingSinglePass(screenShader2));
         }
 
         private void ScreenGrabTest4()
@@ -289,30 +273,25 @@ namespace Game
             var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
             renderer.SortOrder = 14;
 
-            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/ChromaticAberration.frag").Text);
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/Wobble.frag").Text);
+            var screenShader2 = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/GrayScale.frag").Text);
             renderer.Material = new Material(screenShader);
 
             var pass = renderer.Material.Passes.ElementAt(0);
             pass.IsScreenGrabPass = true;
-            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height);
-            screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
 
+            // renderer.Material.AddPass(new RenderPass() { Shader = screenShader2, Blending = Blending.Transparent });
+            screenGrabTest.Transform.LocalScale = new vec3(6, 6);
+            screenGrabTest.Transform.LocalPosition = new vec3(-9, -7);
         }
+
         private void ScreenGrabTest5()
         {
-            var screenGrabTest = new Actor<SpriteRenderer>();
-            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
-            renderer.SortOrder = 13;
-
-            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/Vignette.frag").Text);
-            renderer.Material = new Material(screenShader);
-
-            var pass = renderer.Material.Passes.ElementAt(0);
-            pass.IsScreenGrabPass = true;
-            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height);
-            screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
-
+            var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/FilmGrain.frag").Text);
+            
+            PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
         }
+
         private void WaterTest()
         {
             var waterActor = new Actor<SpriteRenderer>();

@@ -2,6 +2,7 @@
 
 in vec2 fragUV;
 in vec2 screenUV;
+in vec4 vColor;
 
 flat in int fragTexIndex;
 out vec4 fragColor;
