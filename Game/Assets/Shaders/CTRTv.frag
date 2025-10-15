@@ -12,7 +12,7 @@ uniform vec3 uTime;
 
 // CRT TV Controls
 uniform vec3 uBackgroundColor = vec3(0.07);     // background color (edges)
-uniform float uDistortionStrength = 0.08;       // barrel distortion
+uniform float uDistortionStrength = 0.00;       // barrel distortion
 uniform float uEdgeSoftness = 0.001;            // smooth edges
 uniform float uScanlineIntensity = 0.45;        // darkness of scanlines
 uniform float uScanlineSpacing = 4.0;           // spacing between scanlines
@@ -20,7 +20,7 @@ uniform float uPhosphorGlow = 0.4;              // glow on neighboring lines
 uniform float uRGBOffset = 1.0;                 // horizontal RGB offset
 uniform float uBrightness = 1.0;                // overall brightness
 uniform float uContrast = 1.0;                  // overall contrast
-uniform vec3 uRGBBalance = vec3(1.0, 0.8, 0.6);// scale of R,G,B channels
+uniform vec3 uRGBBalance = vec3(1.0, 0.8, 0.8);// scale of R,G,B channels
 
 void main()
 {

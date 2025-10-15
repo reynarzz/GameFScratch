@@ -1,25 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>false</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <BaseIntermediateOutputPath>Library\Build\obj\</BaseIntermediateOutputPath>
-    <BaseOutputPath>Library\Build\bin\</BaseOutputPath>
-	<DefineConstants>$(DefineConstants);PROJECT_PATH="$(MSBuildProjectFullPath)"</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>false</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<BaseIntermediateOutputPath>Library\Build\obj\</BaseIntermediateOutputPath>
+		<BaseOutputPath>Library\Build\bin\</BaseOutputPath>
+		<DefineConstants>$(DefineConstants);PROJECT_PATH="$(MSBuildProjectFullPath)"</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Characters\**" />
-    <Compile Remove="Library\**" />
-    <EmbeddedResource Remove="Characters\**" />
-    <EmbeddedResource Remove="Library\**" />
-    <None Remove="Characters\**" />
-    <None Remove="Library\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Characters\**" />
+		<Compile Remove="Library\**" />
+		<EmbeddedResource Remove="Characters\**" />
+		<EmbeddedResource Remove="Library\**" />
+		<None Remove="Characters\**" />
+		<None Remove="Library\**" />
+		<None Remove="**\*.mt" />
+		<None Remove="**\*.png" />
+		<None Remove="**\*.wav" />
+		<None Remove="**\*.mp3" />
+		<None Remove="**\*.jpg" />
+		<None Remove="**\*.zip" />
+		<None Remove="**\*.ldtk" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Engine\Engine.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Engine\Engine.csproj" />
+	</ItemGroup>
 
 </Project>

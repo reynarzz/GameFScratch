@@ -224,6 +224,7 @@ namespace Game
             ScreenGrabTest2();
             ScreenGrabTest3();
             ScreenGrabTest4();
+            // ScreenGrabTest5();
             WaterTest();
 
             Debug.Success("Game Layer");
@@ -283,6 +284,21 @@ namespace Game
             renderer.SortOrder = 14;
 
             var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/ChromaticAberration.frag").Text);
+            renderer.Material = new Material(screenShader);
+
+            var pass = renderer.Material.Passes.ElementAt(0);
+            pass.IsScreenGrabPass = true;
+            screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height);
+            screenGrabTest.Transform.LocalPosition = new vec3(3, -8);
+
+        }
+        private void ScreenGrabTest5()
+        {
+            var screenGrabTest = new Actor<SpriteRenderer>();
+            var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
+            renderer.SortOrder = 13;
+
+            var screenShader = new Shader(Assets.GetText("Shaders/VertScreenGrab.vert").Text, Assets.GetText("Shaders/Vignette.frag").Text);
             renderer.Material = new Material(screenShader);
 
             var pass = renderer.Material.Passes.ElementAt(0);

@@ -10,7 +10,7 @@ namespace Engine
     {
         public bool IsScreenGrabPass { get; set; }
         public Shader Shader { get; set; }
-        public Blending Blending { get; } = new Blending()
+        public Blending Blending { get; } = new()
         {
             Enabled = true,
             SrcFactor = BlendFactor.SrcAlpha,
@@ -18,7 +18,7 @@ namespace Engine
             Equation = BlendEquation.FuncAdd
         };
 
-        public Stencil Stencil { get; } = new Stencil();
+        public Stencil Stencil { get; } = new();
     }
 
     public class Material : EObject

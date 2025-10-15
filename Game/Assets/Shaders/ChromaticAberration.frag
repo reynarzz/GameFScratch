@@ -12,7 +12,7 @@ uniform vec2 uScreenSize;
 uniform vec3 uTime;
 
 // Optional: strength multiplier for aberration
-uniform float uAberrationStrength = 0.008;
+uniform float uAberrationStrength = 0.012;
 
 void main()
 {

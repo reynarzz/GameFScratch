@@ -10,7 +10,10 @@ uniform sampler2D uScreenGrabTex;
 uniform vec2 uScreenSize;
 uniform vec3 uTime;
 
-uniform float uVignetteStrength = 0.5; // 0 = no vignette, 1 = full dark edges
+// Vignette controls
+uniform float uVignetteStrength = 0.7; // 0 = no vignette, 1 = full dark edges
+uniform float uVignetteStart = 0.3;    // distance from center where vignette starts
+uniform float uVignetteEnd = 0.8;      // distance from center where vignette reaches full effect
 
 void main()
 {
@@ -20,9 +23,9 @@ void main()
     vec2 center = vec2(0.5, 0.5);
     float dist = distance(screenUV, center);
 
-    // Smooth radial vignette
-    float vignette = 1.0 - smoothstep(0.0, 0.5, dist); 
-    vignette = mix(1.0, vignette, uVignetteStrength);
+    // Smooth radial vignette between start and end
+    float vignette = smoothstep(uVignetteStart, uVignetteEnd, dist);
+    vignette = mix(1.0, 1.0 - vignette, uVignetteStrength);
 
     color *= vignette;
 
