@@ -219,28 +219,28 @@ namespace Engine.Graphics.OpenGL
 
         private void SetPipelineFeatures(PipelineFeatures features)
         {
-            //if (features.Blending.Enabled)
-            //{
-            //    glEnable(GL_BLEND);
-            //    glBlendFunc(GLHelpers.MapBlendFactor(features.Blending.SrcFactor), GLHelpers.MapBlendFactor(features.Blending.DstFactor));
-            //    glBlendEquation(GLHelpers.MapBlendEquation(features.Blending.Equation));
-            //}
-            //else
-            //{
-            //    glDisable(GL_BLEND);
-            //}
+            if (features.Blending.Enabled)
+            {
+                glEnable(GL_BLEND);
+                glBlendFunc(GLHelpers.MapBlendFactor(features.Blending.SrcFactor), GLHelpers.MapBlendFactor(features.Blending.DstFactor));
+                glBlendEquation(GLHelpers.MapBlendEquation(features.Blending.Equation));
+            }
+            else
+            {
+                glDisable(GL_BLEND);
+            }
 
-            //if(features.Stencil.Enabled)
-            //{
-            //    glEnable(GL_STENCIL_TEST);
-            //    glStencilMask(0xFF);
-            //    glStencilFunc(GLHelpers.MapFunc(features.Stencil.Func), features.Stencil.Ref, features.Stencil.Mask);
-            //    glStencilOp(GLHelpers.MapOp(features.Stencil.FailOp), GLHelpers.MapOp(features.Stencil.ZFailOp), GLHelpers.MapOp(features.Stencil.ZPassOp));
-            //}
-            //else
-            //{
-            //    glDisable(GL_STENCIL_TEST);
-            //}
+            if(features.Stencil.Enabled)
+            {
+                glEnable(GL_STENCIL_TEST);
+                glStencilMask(0xFF);
+                glStencilFunc(GLHelpers.MapFunc(features.Stencil.Func), features.Stencil.Ref, features.Stencil.Mask);
+                glStencilOp(GLHelpers.MapOp(features.Stencil.FailOp), GLHelpers.MapOp(features.Stencil.ZFailOp), GLHelpers.MapOp(features.Stencil.ZPassOp));
+            }
+            else
+            {
+                glDisable(GL_STENCIL_TEST);
+            }
         }
 
         internal override void Draw(DrawCallData drawCallData)
