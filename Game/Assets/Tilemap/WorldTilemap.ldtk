@@ -895,7 +895,7 @@
 					"name": "Water",
 					"color": "#0099DB",
 					"icon": { "tilesetUid": 6, "x": 320, "y": 160, "w": 16, "h": 16 },
-					"active": true,
+					"active": false,
 					"isOptional": false,
 					"rules": [
 						{

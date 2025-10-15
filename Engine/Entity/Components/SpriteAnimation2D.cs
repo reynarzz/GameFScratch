@@ -14,6 +14,7 @@ namespace Engine
         public int FPS { get; set; } = 12;
         private float _accumulator = 0.0f;
         private int _currentFrame;
+        public int CurrentFrame => _currentFrame;
         public bool Loop { get; set; } = true;
         public bool StartOnAwake { get; set; } = true;
         private bool _isPlaying = false;

@@ -18,7 +18,6 @@ namespace Game
         // Fix transform interpolation not happening because of renderer.IsDirty in batcher2d
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
-        // Implement post-proccesing system
 
         // For game:
         // Implement enemies
@@ -49,9 +48,10 @@ namespace Game
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
 
-            var filepath = testPathNow + "/WorldTilemap.ldtk";
-            // var filepath = testPathNow + "/Test.ldtk";
+             var filepath = testPathNow + "/WorldTilemap.ldtk";
+            //var filepath = testPathNow + "/Test.ldtk";
             string json = Assets.GetText(filepath).Text;
+            string json2 = Assets.GetText(testPathNow + "/Test_Grass.ldtk").Text;
 
             var mat1 = new Material(new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text));
 
@@ -120,12 +120,12 @@ namespace Game
                 WorldDepth = 0
             });
 
-            //tilemap3.SetTilemapLDtk(project2, new LDtkOptions()
+            //tilemap3.SetTilemapLDtk(json2, new LDtkOptions()
             //{
             //    RenderIntGridLayer = true,
             //    RenderTilesLayer = true,
             //    RenderAutoLayer = true,
-            //    LayersToLoadMask = 1 << 0,
+            //    LayersToLoadMask = 1 << 2,
             //    WorldDepth = 0
             //});
 
@@ -170,14 +170,14 @@ namespace Game
             var playerActor = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             playerActor.Layer = LayerMask.NameToLayer("Player");
             playerActor.GetComponent<SpriteRenderer>().Material = mat1;
-            playerActor.GetComponent<SpriteRenderer>().SortOrder = 4;
+            playerActor.GetComponent<SpriteRenderer>().SortOrder = 2;
             var PlayerMatPass = mat1.Passes.ElementAt(0);
             PlayerMatPass.Stencil.Enabled = true;
             PlayerMatPass.Stencil.Func = StencilFunc.Always;
             PlayerMatPass.Stencil.Ref = 3;
             PlayerMatPass.Stencil.ZPassOp = StencilOp.Replace;
 
-            var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2023-11-29.wav");
+            var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2024-02-14_L01.wav");
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
             source.Loop = true;
@@ -221,34 +221,24 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
-            PostProcessingStack.Push(new BloomPostProcessing());
 
             ScreenGrabTest();
+
             // ScreenGrabTest2();
 
             ScreenGrabTest3();
             ScreenGrabTest4();
-            // ScreenGrabTest5();
+            ScreenGrabTest5();
+            PostProcessingStack.Push(new BloomPostProcessing());
 
-            // WaterTest();
+            WaterTest();
 
             Debug.Success("Game Layer");
         }
 
         private void ScreenGrabTest()
         {
-            //var screenGrabTest = new Actor<SpriteRenderer>();
-            //var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
-            //renderer.SortOrder = 15;
-
             var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/CTRTv.frag").Text);
-            //renderer.Material = new Material(screenShader);
-
-            //var pass = renderer.Material.Passes.ElementAt(0);
-            //pass.IsScreenGrabPass = true;
-            //screenGrabTest.Transform.LocalScale = new vec3(Window.Width, Window.Height)/* / 34*/;
-            //screenGrabTest.Transform.LocalPosition = new vec3(-9, -5);
-
             PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
         }
 
@@ -290,7 +280,6 @@ namespace Game
         private void ScreenGrabTest5()
         {
             var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/FilmGrain.frag").Text);
-            
             PostProcessingStack.Push(new PostProcessingSinglePass(screenShader));
         }
 

@@ -9,13 +9,14 @@ out vec4 fragColor;
 uniform sampler2D uScreenGrabTex;
 uniform vec2 uScreenSize;
 uniform float uFrameSeed;       
-uniform float uNoiseStrength = 0.3;
+uniform float uNoiseStrength = 0.2;
+uniform float uNoiseSize = 2.0;
 
 // Integer-style hash (no repeating patterns)
 float random(vec2 uv, float seed)
 {
     // Convert pixel position to integer grid
-    ivec2 i = ivec2(floor(uv * uScreenSize));
+    ivec2 i = ivec2(floor(uv * uScreenSize / uNoiseSize));
     uint n = uint(i.x * 1973 + i.y * 9277) ^ uint(seed * 1e6);
     n = n * 1597334677u ^ (n >> 13);
     return float(n & 0x00FFFFFFu) / float(0x01000000u);

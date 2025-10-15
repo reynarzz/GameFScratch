@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Game
 {
+    // Note: this is a test class with tons of bad practices, not to be used in a real game.
     internal class PlayerTest : ScriptBehavior
     {
         private bool _extraJumpAvailable = false;
@@ -36,6 +37,8 @@ namespace Game
         private AudioClip _fallSfx;
         private AudioClip _jumpSfx;
         private AudioClip _attackSfx;
+        private AudioClip[] _walkFx;
+        private bool _waklFxSound = false;
 
         public override async void OnAwake()
         {
@@ -70,7 +73,9 @@ namespace Game
             _fallSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Hit_4.wav");
             _jumpSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Jump_3.wav");
             _attackSfx = Assets.GetAudioClip("Audio/HALFTONE/Gameplay/Slash_1.wav");
-            
+            _walkFx = [Assets.GetAudioClip("Audio/HALFTONE/UI/2. Clicks/Click_4.wav"),
+                Assets.GetAudioClip("Audio/HALFTONE/UI/2. Clicks/Click_5.wav"), 
+                Assets.GetAudioClip("Audio/HALFTONE/UI/2. Clicks/Click_10.wav")];
             
             var basePath = "KingsAndPigsSprites/01-King Human/";
             var pTexture = Assets.GetTexture(basePath + "Run (78x58).png");
@@ -115,6 +120,7 @@ namespace Game
 #if DEBUG
             Window.Name = $"Game (FPS: {Time.FPS})";
 #endif
+
             if (!_attacking && Input.GetKeyDown(KeyCode.F))
             {
                 _attacking = true;
@@ -160,7 +166,20 @@ namespace Game
                 {
                     _animation.Loop = true;
                     _animation.PushFrames(_runSprites);
+
+                    var isFootDownFrame = (_animation.CurrentFrame == 0 || _animation.CurrentFrame == 4);
+                    if (isFootDownFrame && !_waklFxSound)
+                    {
+                        _audioSource.PlayOneShot(_walkFx[0], 0.3f);
+                        _waklFxSound = true;
+                    }
+                    else if (!isFootDownFrame)
+                    {
+                        _waklFxSound = false;
+                    }
                 }
+
+               
             }
             else if (!_attacking && Input.GetKey(KeyCode.D))
             {
@@ -173,6 +192,17 @@ namespace Game
                 {
                     _animation.Loop = true;
                     _animation.PushFrames(_runSprites);
+
+                    var isFootDownFrame = (_animation.CurrentFrame == 0 || _animation.CurrentFrame == 4);
+                    if (isFootDownFrame && !_waklFxSound)
+                    {
+                        _audioSource.PlayOneShot(_walkFx[0], 0.3f);
+                        _waklFxSound = true;
+                    }
+                    else if(!isFootDownFrame)
+                    {
+                        _waklFxSound = false;
+                    }
                 }
 
             }
