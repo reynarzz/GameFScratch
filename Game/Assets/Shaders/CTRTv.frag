@@ -1,9 +1,7 @@
 ﻿#version 330 core
 
-in vec2 fragUV;
 in vec2 screenUV;
 in vec4 vColor;
-flat in int fragTexIndex;
 out vec4 fragColor;
 
 uniform sampler2D uScreenGrabTex;
@@ -12,7 +10,7 @@ uniform vec3 uTime;
 
 // CRT TV Controls
 uniform vec3 uBackgroundColor = vec3(0.07);     // background color (edges)
-uniform float uDistortionStrength = 0.00;       // barrel distortion
+uniform float uDistortionStrength = 0.08;       // barrel distortion
 uniform float uEdgeSoftness = 0.001;            // smooth edges
 uniform float uScanlineIntensity = 0.45;        // darkness of scanlines
 uniform float uScanlineSpacing = 4.0;           // spacing between scanlines

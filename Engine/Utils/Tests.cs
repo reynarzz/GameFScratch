@@ -10,22 +10,9 @@ namespace Engine.Utils
 {
     internal class Tests
     {
-        private static string Vertex = @"
-          #version 330 core
+       
 
-        layout(location = 0) in vec3 position;
-        layout(location = 1) in vec2 uv;
-
-        out vec2 fragUV;
-
-        void main() 
-        {
-            fragUV = uv;
-            gl_Position = vec4(position, 1.0);
-        }
-        ";
-
-        private static string VertexShaderPink = @"
+        internal readonly static string VertexShaderPink = @"
           #version 330 core
 
         layout(location = 0) in vec3 position;
@@ -40,6 +27,33 @@ namespace Engine.Utils
             gl_Position = uVP * vec4(position, 1.0);
         }
         ";
+
+        internal readonly static string QuadVertexShader = @"
+          #version 330 core
+
+        layout(location = 0) in vec3 position;
+        layout(location = 1) in vec2 uv;
+
+        out vec2 fragUV;
+
+        void main() 
+        {
+            fragUV = uv;
+            gl_Position = vec4(position, 1.0);
+        }
+        ";
+
+        internal readonly static string QuadFragmentShader = @"
+           #version 330 core
+            in vec2 fragUV;
+            out vec4 color;
+
+            uniform sampler2D uTexture; // uniform for the texture
+
+            void main()
+            {
+                color = texture(uTexture, fragUV);
+            }";
 
         private static string fragment = @"
        #version 330 core
@@ -61,18 +75,7 @@ namespace Engine.Utils
             color = vec4(1.0, 0.0, 1.0, 1.0); 
         }";
 
-        private static string fragmentTex = @"
-           #version 330 core
-            in vec2 fragUV;
-            out vec4 color;
-
-            uniform sampler2D uTexture; // uniform for the texture
-
-            void main()
-            {
-                color = texture(uTexture, fragUV);
-            }";
-
+       
         internal static Shader GetShaderPink()
         {
             return new Shader(VertexShaderPink, fragmentPink);
@@ -82,8 +85,8 @@ namespace Engine.Utils
         internal static ShaderDescriptor GetTestShaderDescriptor()
         {
             var shaderDescriptor = new ShaderDescriptor();
-            shaderDescriptor.VertexSource = Encoding.UTF8.GetBytes(Vertex);
-            shaderDescriptor.FragmentSource = Encoding.UTF8.GetBytes(fragmentTex);
+            shaderDescriptor.VertexSource = Encoding.UTF8.GetBytes(QuadVertexShader);
+            shaderDescriptor.FragmentSource = Encoding.UTF8.GetBytes(QuadFragmentShader);
             return shaderDescriptor;
         }
 

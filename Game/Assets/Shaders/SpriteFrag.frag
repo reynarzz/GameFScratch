@@ -11,7 +11,7 @@ void main()
 {
     fragColor = texture(uTextures[fragTexIndex], fragUV) * vColor;
 
-    if(fragColor.a <= 0.00001)
+    if(fragColor.a <= 0.000001)
     {
         discard;
     }
