@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    public abstract class PostProcessingPass
+    public abstract class PostProcessingPass : IDisposable
     {
+        public abstract void Dispose();
         public abstract RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture> draw);
     }
 }

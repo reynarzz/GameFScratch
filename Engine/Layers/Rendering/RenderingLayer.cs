@@ -137,6 +137,7 @@ namespace Engine.Layers
                 RenderPass(batch, ref VP, sceneRenderTarget.NativeResource, _screenGrabTarget);
             }
 
+            Debug.DrawGeometries(VP, sceneRenderTarget.NativeResource);
 
             foreach (var pass in PostProcessingStack.Passes)
             {
@@ -148,11 +149,12 @@ namespace Engine.Layers
                 sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessRenderPass);
             }
 
-            Debug.DrawGeometries(VP, sceneRenderTarget.NativeResource);
+            if (PostProcessingStack.Passes.Count == 0)
+            {
+                DrawScreenQuad(_screenShader, VP, sceneRenderTarget.NativeResource, null);
+            }
 
-            DrawScreenQuad(_screenShader, VP, sceneRenderTarget.NativeResource, null);
-
-            GfxDeviceManager.Current.Present();
+            GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
 
         }
 
@@ -221,10 +223,10 @@ namespace Engine.Layers
             _screenQuadDrawCallData.RenderTarget = renderTarget;
 
             // Iniforms
-            _screenQuadDrawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
-            _screenQuadDrawCallData.Uniforms[Consts.Graphics.SCREEN_SIZE_INDEX].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(Window.Width, Window.Height));
-            _screenQuadDrawCallData.Uniforms[Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.TimeCurrent * 3));
-            _screenQuadDrawCallData.Uniforms[Consts.Graphics.SCREEN_FRAME_BUFFER_GRAB_INDEX].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, 0);
+            _screenQuadDrawCallData.Uniforms[0].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
+            _screenQuadDrawCallData.Uniforms[1].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(Window.Width, Window.Height));
+            _screenQuadDrawCallData.Uniforms[2].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.TimeCurrent * 3));
+            _screenQuadDrawCallData.Uniforms[3].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, 0);
 
             // Draw
             GfxDeviceManager.Current.Draw(_screenQuadDrawCallData);

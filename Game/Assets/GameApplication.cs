@@ -237,7 +237,7 @@ namespace Game
             //var renderer = screenGrabTest.GetComponent<SpriteRenderer>();
             //renderer.SortOrder = 15;
 
-            var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/TvDistortion.frag").Text);
+            var screenShader = new Shader(Assets.GetText("Shaders/ScreenVert.vert").Text, Assets.GetText("Shaders/CTRTv.frag").Text);
             //renderer.Material = new Material(screenShader);
 
             //var pass = renderer.Material.Passes.ElementAt(0);
