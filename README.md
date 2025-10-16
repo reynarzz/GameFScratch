@@ -21,4 +21,3 @@ GFS is a video game and game engine built entirely from scratch using **C#**.
 - [x] Tilemap optimized auto collider.
 - [ ] Implement particle system.
 - [ ] Optimize rendering, and expand it to support complex geometries.
-- [ ] 
