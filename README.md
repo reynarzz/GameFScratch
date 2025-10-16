@@ -19,5 +19,20 @@ GFS is a video game and game engine built entirely from scratch using **C#**.
 - [x] Implement Audio system.
 - [x] File system.
 - [x] Tilemap optimized auto collider.
+- [ ] Windows deploy.
 - [ ] Implement particle system.
 - [ ] Optimize rendering, and expand it to support complex geometries.
+- [ ] Make the demo game (Proper architecture).
+- [ ] MacOs, Android, and IOS platforms deploy.
+
+## Getting Started
+
+### Prerequisites
+
+- Windows
+- .NET 9.0 SDK or later: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+
+Optional
+--------
+- Use an IDE like Visual Studio 2022+, Rider, or VS Code with C# support.
+- Make sure your PATH includes the .NET 9.0 SDK.
