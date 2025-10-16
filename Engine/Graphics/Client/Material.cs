@@ -46,6 +46,11 @@ namespace Engine
             _textures[name] = texture;
         }
 
+        public void SetProperty<T>(string name, T value) where T : unmanaged
+        {
+            _passes[0].SetProperty(name, value);
+        }
+
         public void SetProperty<T>(int pass, string name, T value) where T: unmanaged
         {
             if(GetPassSafe(pass, out var passObj))
