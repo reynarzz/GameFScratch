@@ -301,14 +301,14 @@ namespace Game
             pass.Stencil.Func = StencilFunc.Equal;
             pass.Stencil.Ref = 3;
             pass.Stencil.ZFailOp = StencilOp.Keep;
-            pass.SetProperty("uWaterColor", new vec3(0.6f, 0.2f, 0.0f));
+            renderer.Material.SetProperty("uWaterColor", new vec3(0.6f, 0.2f, 0.0f));
 
-            var pass2 = new RenderPass(mainShader);
+            var pass2 = renderer.Material.PushPass(mainShader);
+            pass2.IsScreenGrabPass = true;
             pass2.Stencil.Enabled = true;
             pass2.Stencil.Func = StencilFunc.NotEqual;
             pass2.Stencil.Ref = 3;
             pass2.Stencil.ZFailOp = StencilOp.Keep;
-            renderer.Material.AddPass(pass2);
 
             renderer.Material.SetProperty(1, "uWaterColor", new vec3(1.0f, 0.2f, 0.0f));
 

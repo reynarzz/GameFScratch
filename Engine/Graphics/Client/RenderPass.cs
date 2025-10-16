@@ -26,14 +26,14 @@ namespace Engine
 
         public Stencil Stencil { get; } = new();
 
-        public RenderPass(Shader shader)
+        internal RenderPass(Shader shader)
         {
             Shader = shader;
             _uniforms = new Dictionary<string, UniformValue>();
         }
 
         // Generic SetProperty uses precomputed Setter
-        public void SetProperty<T>(string name, T value) where T : unmanaged
+        internal void SetProperty<T>(string name, T value) where T : unmanaged
         {
             UniformSetter<T>.Setter(this, name, value);
         }

@@ -26,9 +26,19 @@ namespace Engine
             };
         }
 
-        public void AddPass(RenderPass pass)
+        public RenderPass PushPass(Shader shader)
         {
+            var pass = new RenderPass(shader);
             _passes.Add(pass);
+
+            return pass;
+        }
+
+        public RenderPass GetPass(int index)
+        {
+            GetPassSafe(index, out var renderPass);
+
+            return renderPass;
         }
 
         public void RemovePass(RenderPass pass)

@@ -122,11 +122,11 @@ namespace Engine.Layers
                             break;
 
                         batchGrab.Flush();
-                        RenderPass(batchGrab, ref VP, _screenGrabTarget, _screenGrabTarget);
+                        RenderPass(batchGrab, ref VP, _screenGrabTarget, _screenGrabTarget, _mainCamera);
                     }
                 }
 
-                RenderPass(batch, ref VP, sceneRenderTarget, _screenGrabTarget);
+                RenderPass(batch, ref VP, sceneRenderTarget, _screenGrabTarget, _mainCamera);
             }
 
             Debug.DrawGeometries(VP, sceneRenderTarget.NativeResource);
@@ -135,7 +135,7 @@ namespace Engine.Layers
             {
                 void PostProcessDraw(Shader shader, RenderTexture inTex, RenderTexture outTex, PostProcessingPass.PassUniform[] uniforms)
                 {
-                    DrawScreenQuad(shader, VP, inTex, outTex, uniforms);
+                    DrawScreenQuad(shader, VP, inTex, outTex, uniforms, _mainCamera);
                 }
 
                 sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessDraw);
@@ -143,13 +143,13 @@ namespace Engine.Layers
 
             if (PostProcessingStack.Passes.Count == 0)
             {
-                DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null, null);
+                DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null, null, _mainCamera);
             }
 
             GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
         }
 
-        private void RenderPass(Batch2D batch, ref mat4 VP, RenderTexture renderTarget, RenderTexture screenGrabTarget)
+        private void RenderPass(Batch2D batch, ref mat4 VP, RenderTexture renderTarget, RenderTexture screenGrabTarget, Camera camera)
         {
             foreach (var pass in batch.Material.Passes)
             {
@@ -195,13 +195,15 @@ namespace Engine.Layers
                     uniformOffset++;
                 }
 
+                
                 // Iniforms
-                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
-                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
-                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
-                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.SCREEN_FRAME_BUFFER_GRAB_INDEX].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, screenGrabIndex);
-                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.SCREEN_SIZE_INDEX].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(renderTarget.Width, renderTarget.Height));
-                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.VP_MATRIX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.VIEW_MATRIX].SetMat4(Consts.VIEW_UNIFORM_NAME, camera.ViewMatrix);
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.TEXTURES_ARRAY].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.MODEL_MATRIX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.SCREEN_RENDER_TARGET_GRAB].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, screenGrabIndex);
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.SCREEN_SIZE].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(renderTarget.Width, renderTarget.Height));
+                _drawCallData.Uniforms[uniformOffset + (int)Consts.Graphics.Uniforms.APP_TIME].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
 
                 // Draw
                 GfxDeviceManager.Current.Draw(_drawCallData);
@@ -209,7 +211,7 @@ namespace Engine.Layers
         }
 
         private void DrawScreenQuad(Shader shader, mat4 VP, RenderTexture sceneRenderTarget, RenderTexture renderTarget,
-                                    PostProcessingPass.PassUniform[] uniforms)
+                                    PostProcessingPass.PassUniform[] uniforms, Camera camera)
         {
             _screenQuadDrawCallData.Textures[0] = sceneRenderTarget.NativeResource.SubResources[0];
 
@@ -240,7 +242,7 @@ namespace Engine.Layers
             _screenQuadDrawCallData.Uniforms[uniformIndex + 2].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
             _screenQuadDrawCallData.Uniforms[uniformIndex + 3].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, 0);
             _screenQuadDrawCallData.Uniforms[uniformIndex + 4].SetFloat(Consts.FRAME_SEED_UNIFORM_NAME, Random.Shared.NextSingle());
-
+            _screenQuadDrawCallData.Uniforms[uniformIndex + 5].SetMat4(Consts.VIEW_UNIFORM_NAME, camera.ViewMatrix);
 
             // Draw
             GfxDeviceManager.Current.Draw(_screenQuadDrawCallData);
