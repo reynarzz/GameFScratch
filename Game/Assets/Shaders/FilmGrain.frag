@@ -1,6 +1,5 @@
 ﻿#version 330 core
 
-in vec2 fragUV;
 in vec2 screenUV;
 in vec4 vColor;
 flat in int fragTexIndex;
@@ -9,8 +8,8 @@ out vec4 fragColor;
 uniform sampler2D uScreenGrabTex;
 uniform vec2 uScreenSize;
 uniform float uFrameSeed;       
-uniform float uNoiseStrength = 0.2;
-uniform float uNoiseSize = 2.0;
+uniform float uNoiseStrength = 0.1;
+uniform float uNoiseSize = 1.0;
 
 // Integer-style hash (no repeating patterns)
 float random(vec2 uv, float seed)
