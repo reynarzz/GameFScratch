@@ -43,7 +43,7 @@ namespace Engine.Graphics.OpenGL
         {
             var target = config.RenderTarget as GLFrameBuffer;
 
-            if(target != null)
+            if (target != null)
             {
                 target.Bind();
             }
@@ -172,14 +172,14 @@ namespace Engine.Graphics.OpenGL
         internal override void Present(GfxResource renderTarget)
         {
             var frameBuffer = renderTarget as GLFrameBuffer;
-            if(frameBuffer != null)
+            if (frameBuffer != null)
             {
                 frameBuffer.BlitToScreen(Window.Width, Window.Height);
             }
 
             Present();
         }
-        
+
 
         private void SetPipelineFeatures(PipelineFeatures features)
         {
@@ -194,7 +194,7 @@ namespace Engine.Graphics.OpenGL
                 glDisable(GL_BLEND);
             }
 
-            if(features.Stencil.Enabled)
+            if (features.Stencil.Enabled)
             {
                 glEnable(GL_STENCIL_TEST);
                 glStencilMask(0xFF);
@@ -213,17 +213,27 @@ namespace Engine.Graphics.OpenGL
             var shader = drawCallData.Shader as GLShader;
             shader.Bind();
 
-            for (int i = 0; i < drawCallData.Textures.Length; i++)
+            int textureIndex = 0;
+            for (; textureIndex < drawCallData.Textures.Length; textureIndex++)
             {
-                var tex = drawCallData.Textures[i];
+                var tex = drawCallData.Textures[textureIndex];
                 if (tex == null)
                     break;
-                (tex as GLTexture).Bind(i);
+                (tex as GLTexture).Bind(textureIndex);
+            }
+
+            foreach (var (uniform, texture) in drawCallData.NamedTextures)
+            {
+                shader.SetUniform(uniform, textureIndex);
+
+                (texture as GLTexture).Bind(textureIndex);
+
+                textureIndex++;
             }
 
             var renderTarget = drawCallData.RenderTarget as GLFrameBuffer;
 
-            if(renderTarget != null)
+            if (renderTarget != null)
             {
                 renderTarget.Bind();
             }
@@ -253,7 +263,7 @@ namespace Engine.Graphics.OpenGL
 
         internal override byte[] ReadRenderTargetColors(GfxResource nativeResource)
         {
-            if(nativeResource is GLFrameBuffer buffer)
+            if (nativeResource is GLFrameBuffer buffer)
             {
                 return buffer.ReadPixels();
             }

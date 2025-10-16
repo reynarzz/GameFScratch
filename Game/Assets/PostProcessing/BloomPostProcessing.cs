@@ -20,6 +20,7 @@ namespace Game
         private RenderTexture _blurRenderTexture;
         private RenderTexture _blurRenderTexture2;
         private PassUniform[] _passUniforms = new PassUniform[1];
+
         public BloomPostProcessing()
         {
             var vertex = Assets.GetText("Shaders/ScreenVert.vert").Text;

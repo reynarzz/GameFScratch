@@ -181,7 +181,10 @@ namespace Engine.Graphics.OpenGL
             }
             int location = glGetUniformLocation(Handle, name);
 
-            _uniformLocations.Add(name, location);
+            if(location >= 0)
+            {
+                _uniformLocations.Add(name, location);
+            }
 
             return location;
         }

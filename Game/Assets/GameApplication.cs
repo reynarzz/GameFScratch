@@ -17,6 +17,7 @@ namespace Game
              This collisionsExit/TriggerExit should not be called with invalid actors/components*/
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
+        // Avoid batch to take more texture slots that the system is supported, take into account materials texture count.
 
         // For game:
         // Implement enemies
@@ -47,7 +48,7 @@ namespace Game
 
             //var filepath = rootPathTest + "\\Tilemap\\World.ldtk";
 
-             var filepath = testPathNow + "/WorldTilemap.ldtk";
+            var filepath = testPathNow + "/WorldTilemap.ldtk";
             //var filepath = testPathNow + "/Test.ldtk";
             string json = Assets.GetText(filepath).Text;
             string json2 = Assets.GetText(testPathNow + "/Test_Grass.ldtk").Text;
@@ -145,7 +146,7 @@ namespace Game
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 512.0f / 2.0f / 16.0f;
             // camera.OrthoMatch = CameraOrthoMatch.Width;
-            // camera.RenderTexture = new RenderTexture(512, 288);
+            camera.RenderTexture = new RenderTexture(512, 288);
 
             LoadTilemap(camera);
 
@@ -220,6 +221,7 @@ namespace Game
             platform.GetComponent<SpriteRenderer>().Material = mat1;
             platform.Layer = LayerMask.NameToLayer("Platform");
 
+            PostProcessingStack.Push(new BloomPostProcessing());
 
             ScreenGrabTest();
 
@@ -231,9 +233,8 @@ namespace Game
             Portal().Transform.LocalPosition = new vec3(43, -1);
 
             ScreenGrabTest5();
-            PostProcessingStack.Push(new BloomPostProcessing());
 
-            // WaterTest();
+            WaterTest();
 
             Debug.Success("Game Layer");
         }
@@ -291,7 +292,7 @@ namespace Game
             var renderer = waterActor.GetComponent<SpriteRenderer>();
             renderer.SortOrder = 9;
 
-            var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
+            var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/WaterFrag.frag").Text);
 
             renderer.Material = new Material(mainShader);
 
@@ -300,9 +301,25 @@ namespace Game
             pass.Stencil.Func = StencilFunc.Equal;
             pass.Stencil.Ref = 3;
             pass.Stencil.ZFailOp = StencilOp.Keep;
+            pass.SetProperty("uWaterColor", new vec3(0.2f, 0.2f, 0.5f));
 
-            waterActor.Transform.LocalScale = new vec3(10, 5, 1);
-            waterActor.Transform.LocalPosition = new vec3(2.5f, -12, 1);
+            var pass2 = new RenderPass(mainShader);
+            pass2.Stencil.Enabled = true;
+            pass2.Stencil.Func = StencilFunc.NotEqual;
+            pass2.Stencil.Ref = 3;
+            pass2.Stencil.ZFailOp = StencilOp.Keep;
+            renderer.Material.AddPass(pass2);
+
+            renderer.Material.SetProperty(1, "uWaterColor", new vec3(1.2f, 0.2f, 0.0f));
+
+            //var tilemapTexture = Assets.GetTexture("Tilemap/SunnyLand_by_Ansimuz-extended.png");
+
+            //renderer.Material.AddTexture("done", tilemapTexture);
+
+
+
+            waterActor.Transform.LocalScale = new vec3(10, 3, 1);
+            waterActor.Transform.LocalPosition = new vec3(2.5f, -11, 1);
         }
 
         public override void Close() { }

@@ -27,6 +27,7 @@ namespace Engine.Graphics
         internal GfxResource Geometry { get; set; }
         internal GfxResource RenderTarget { get; set; }
         internal GfxResource[] Textures { get; set; }
+        internal Dictionary<string, GfxResource> NamedTextures { get; } = new();
         internal UniformValue[] Uniforms { get; set; }
         internal vec4 Viewport { get; set; }
 

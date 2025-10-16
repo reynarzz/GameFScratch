@@ -165,9 +165,9 @@ namespace Engine.Layers
                 }
 
                 // Set material's texture
-                foreach (var texture in batch.Material.Textures)
+                foreach (var (uniformName, texture) in batch.Material.Textures)
                 {
-                    _drawCallData.Textures[++boundTex] = texture.NativeResource;
+                    _drawCallData.NamedTextures[uniformName] = texture.NativeResource;
                 }
 
                 int screenGrabIndex = boundTex;
@@ -187,13 +187,21 @@ namespace Engine.Layers
                 _drawCallData.Features = _pipelineFeatures;
                 _drawCallData.RenderTarget = renderTarget.NativeResource;
                 _drawCallData.Viewport = new vec4(0, 0, renderTarget.Width, renderTarget.Height);
+
+                int uniformOffset = 0;
+                foreach (var (name, uniform) in pass.Uniforms)
+                {
+                    _drawCallData.Uniforms[uniformOffset] = uniform;
+                    uniformOffset++;
+                }
+
                 // Iniforms
-                _drawCallData.Uniforms[Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
-                _drawCallData.Uniforms[Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
-                _drawCallData.Uniforms[Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
-                _drawCallData.Uniforms[Consts.Graphics.SCREEN_FRAME_BUFFER_GRAB_INDEX].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, screenGrabIndex);
-                _drawCallData.Uniforms[Consts.Graphics.SCREEN_SIZE_INDEX].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(renderTarget.Width, renderTarget.Height));
-                _drawCallData.Uniforms[Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
+                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.VP_MATRIX_UNIFORM_INDEX].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
+                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.TEXTURES_ARRAY_UNIFORM_INDEX].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
+                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.SCREEN_FRAME_BUFFER_GRAB_INDEX].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, screenGrabIndex);
+                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.SCREEN_SIZE_INDEX].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(renderTarget.Width, renderTarget.Height));
+                _drawCallData.Uniforms[uniformOffset + Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
 
                 // Draw
                 GfxDeviceManager.Current.Draw(_drawCallData);

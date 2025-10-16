@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    public enum UniformType
+    internal enum UniformType
     {
         Int,
         Float,

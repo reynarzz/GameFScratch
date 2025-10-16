@@ -1,41 +1,28 @@
-﻿using System;
+﻿using Engine.Graphics;
+using GlmNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class RenderPass
-    {
-        public bool IsScreenGrabPass { get; set; }
-        public Shader Shader { get; set; }
-        public Blending Blending { get; } = new()
-        {
-            Enabled = true,
-            SrcFactor = BlendFactor.SrcAlpha,
-            DstFactor = BlendFactor.OneMinusSrcAlpha,
-            Equation = BlendEquation.FuncAdd
-        };
-
-        public Stencil Stencil { get; } = new();
-    }
-
     public class Material : EObject
     {
-        public RenderPass MainPass { get; }
         private List<RenderPass> _passes;
         public IReadOnlyCollection<RenderPass> Passes => _passes;
-        private List<Texture> _textures;
-        public List<Texture> Textures => _textures;
+        private Dictionary<string, Texture> _textures;
+        internal IReadOnlyDictionary<string, Texture> Textures => _textures;
+
         public Material(Shader shader)
         {
-            MainPass = new RenderPass() { Shader = shader };
-
-            _textures = new List<Texture>();
+            _textures = new Dictionary<string, Texture>();
             _passes = new List<RenderPass>()
             {
-                MainPass
+                new RenderPass(shader)
             };
         }
 
@@ -52,6 +39,34 @@ namespace Engine
         public void RemovePass(int index)
         {
             _passes.RemoveAt(index);
+        }
+
+        public void AddTexture(string name, Texture texture)
+        {
+            _textures[name] = texture;
+        }
+
+        public void SetProperty<T>(int pass, string name, T value) where T: unmanaged
+        {
+            if(GetPassSafe(pass, out var passObj))
+            {
+                passObj.SetProperty(name, value);
+            }
+        }
+
+        private bool GetPassSafe(int index, out RenderPass pass)
+        {
+            pass = null;
+
+            if (_passes.Count > index)
+            {
+                pass = _passes[index];
+                return true;
+            }
+
+            Debug.Error($"Render pass index is out of range: {index}");
+
+            return false;
         }
     }
 }
