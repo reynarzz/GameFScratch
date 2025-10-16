@@ -301,7 +301,7 @@ namespace Game
             pass.Stencil.Func = StencilFunc.Equal;
             pass.Stencil.Ref = 3;
             pass.Stencil.ZFailOp = StencilOp.Keep;
-            pass.SetProperty("uWaterColor", new vec3(0.2f, 0.2f, 0.5f));
+            pass.SetProperty("uWaterColor", new vec3(0.6f, 0.2f, 0.0f));
 
             var pass2 = new RenderPass(mainShader);
             pass2.Stencil.Enabled = true;
@@ -310,13 +310,13 @@ namespace Game
             pass2.Stencil.ZFailOp = StencilOp.Keep;
             renderer.Material.AddPass(pass2);
 
-            renderer.Material.SetProperty(1, "uWaterColor", new vec3(1.2f, 0.2f, 0.0f));
+            renderer.Material.SetProperty(1, "uWaterColor", new vec3(1.0f, 0.2f, 0.0f));
 
             //var tilemapTexture = Assets.GetTexture("Tilemap/SunnyLand_by_Ansimuz-extended.png");
 
             //renderer.Material.AddTexture("done", tilemapTexture);
 
-
+             
 
             waterActor.Transform.LocalScale = new vec3(10, 3, 1);
             waterActor.Transform.LocalPosition = new vec3(2.5f, -11, 1);
