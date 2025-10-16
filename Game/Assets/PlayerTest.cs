@@ -127,7 +127,7 @@ namespace Game
                 _currentAttackTime = _attackTime;
                 _animation.Loop = false;
                 _animation.PushFrames(_attackSprites);
-                _audioSource.PlayOneShot(_attackSfx, 0.4f);
+                _audioSource.PlayOneShot(_attackSfx, 0.2f);
             }
             if (_currentAttackTime > 0)
             {
@@ -143,7 +143,7 @@ namespace Game
 
             if ((_isOnGround /*|| _extraJumpAvailable*/) && Input.GetKeyDown(KeyCode.Space))
             {
-                _audioSource.PlayOneShot(_jumpSfx, 0.3f);
+                _audioSource.PlayOneShot(_jumpSfx, 0.2f);
                 _extraJumpAvailable = false;
                 _jumped = true;
                 _rigid.GravityScale = _gravityScale;
@@ -170,7 +170,7 @@ namespace Game
                     var isFootDownFrame = (_animation.CurrentFrame == 0 || _animation.CurrentFrame == 4);
                     if (isFootDownFrame && !_waklFxSound)
                     {
-                        _audioSource.PlayOneShot(_walkFx[0], 0.3f);
+                        _audioSource.PlayOneShot(_walkFx[0], 0.23f);
                         _waklFxSound = true;
                     }
                     else if (!isFootDownFrame)
@@ -196,7 +196,7 @@ namespace Game
                     var isFootDownFrame = (_animation.CurrentFrame == 0 || _animation.CurrentFrame == 4);
                     if (isFootDownFrame && !_waklFxSound)
                     {
-                        _audioSource.PlayOneShot(_walkFx[0], 0.3f);
+                        _audioSource.PlayOneShot(_walkFx[0], 0.23f);
                         _waklFxSound = true;
                     }
                     else if(!isFootDownFrame)
@@ -248,12 +248,12 @@ namespace Game
                 Window.MouseVisible = !Window.IsFullScreen;
             }
 
+#if DEBUG
             if (Input.GetKeyDown(KeyCode.I))
             {
                 _rigid.Interpolate = !_rigid.Interpolate;
             }
-
-
+#endif
         }
 
         public override void OnFixedUpdate()
@@ -312,7 +312,7 @@ namespace Game
                 }
                 if (!_isOnGround && _rigid.Velocity.y <= 0)
                 {
-                    _audioSource.PlayOneShot(_fallSfx, 0.3f);
+                    _audioSource.PlayOneShot(_fallSfx, 0.2f);
 
 
                 }
