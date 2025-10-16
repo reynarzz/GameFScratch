@@ -43,10 +43,10 @@ namespace GameCooker
             ]
          */
 
-        private long metaLocSize = sizeof(long);
-        private long assetBlockLocSize = sizeof(long);
-        private long assetDataLocSize = sizeof(long);
-        private long fieldIfOffset => assetBlockLocSize + assetDataLocSize + metaLocSize;
+        private const long metaLocSize = sizeof(long);
+        private const long assetBlockLocSize = sizeof(long);
+        private const long assetDataLocSize = sizeof(long);
+        private const long fieldIfOffset = assetBlockLocSize + assetDataLocSize + metaLocSize;
 
         private const int TEMP_BUFFER_SIZE = 81920;
        
