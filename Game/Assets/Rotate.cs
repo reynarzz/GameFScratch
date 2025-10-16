@@ -9,10 +9,16 @@ namespace Game
 {
     public class Rotate : ScriptBehavior
     {
-        private bool _show = false;
+        private float _zOffset;
+        public override void OnStart()
+        {
+            _zOffset = new Random().NextSingle() * 360;
+        }
         public override void OnUpdate()
         {
-            Transform.WorldEulerAngles += new GlmNet.vec3(0, 0, Time.DeltaTime * 50);
+            _zOffset += Time.DeltaTime * 50;
+
+            Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, _zOffset);
         }
     }
 }

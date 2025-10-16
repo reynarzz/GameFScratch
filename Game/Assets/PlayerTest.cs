@@ -242,7 +242,7 @@ namespace Game
                 Physics2D.DrawColliders = !Physics2D.DrawColliders;
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Enter))
             {
                 Window.FullScreen(!Window.IsFullScreen);
                 Window.MouseVisible = !Window.IsFullScreen;
