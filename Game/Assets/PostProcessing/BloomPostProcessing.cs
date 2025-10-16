@@ -34,7 +34,7 @@ namespace Game
             _blurRenderTexture2 = new RenderTexture(_brightRenderTexture.Width, _brightRenderTexture.Height);
             _combineRenderTexture = new RenderTexture(Window.Width, Window.Height);
 
-            _passUniforms = [new PassUniform() { UniformName = "uBlurTex", RenderTexture = _blurRenderTexture2 }];
+            _passUniforms = [new PassUniform() { Name = "uBlurTex", RenderTexture = _blurRenderTexture2 }];
             Window.OnWindowChanged += Window_OnWindowChanged;
         }
 
@@ -46,18 +46,19 @@ namespace Game
             _blurRenderTexture2.UpdateTarget(_brightRenderTexture.Width, _brightRenderTexture.Height);
         }
 
-        public override RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture, PassUniform[]> draw)
+        protected override RenderTexture Render(RenderTexture inRenderTexture)
         {
-            draw(_brightPassShader, inRenderTexture, _brightRenderTexture, null);
-            draw(_blurPassShader, _brightRenderTexture, _blurRenderTexture, null);
-            draw(_blurPassShader2, _blurRenderTexture, _blurRenderTexture2, null);
-            draw(_combinePassShader, inRenderTexture, _combineRenderTexture, _passUniforms);
+            Draw(_brightPassShader, inRenderTexture, _brightRenderTexture);
+            Draw(_blurPassShader, _brightRenderTexture, _blurRenderTexture);
+            Draw(_blurPassShader2, _blurRenderTexture, _blurRenderTexture2);
+            Draw(_combinePassShader, inRenderTexture, _combineRenderTexture, _passUniforms);
 
             return _combineRenderTexture;
         }
 
         public override void Dispose()
         {
+            base.Dispose();
             _brightPassShader.OnDestroy();
         }
     }

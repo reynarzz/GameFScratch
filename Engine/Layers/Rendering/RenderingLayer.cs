@@ -211,7 +211,7 @@ namespace Engine.Layers
                 for (; uniformIndex < uniforms.Length; uniformIndex++)
                 {
                     _screenQuadDrawCallData.Textures[uniformIndex + 1] = uniforms[uniformIndex].RenderTexture.NativeResource.SubResources[0];
-                    _screenQuadDrawCallData.Uniforms[uniformIndex].SetInt(uniforms[uniformIndex].UniformName, uniformIndex + 1);
+                    _screenQuadDrawCallData.Uniforms[uniformIndex].SetInt(uniforms[uniformIndex].Name, uniformIndex + 1);
                 }
             }
 
