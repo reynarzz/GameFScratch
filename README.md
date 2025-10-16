@@ -1,8 +1,8 @@
 # GFS (Game From Scratch)
-
+GFS is a video game and game engine built entirely from scratch using **C#**.
 ![Gameplay](Intro.gif)
 
-GFS is a video game and game engine built entirely from scratch using **C#**.
+
 
 ## Features
 
