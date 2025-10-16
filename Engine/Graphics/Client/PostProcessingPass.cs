@@ -10,19 +10,28 @@ namespace Engine.Graphics
     {
         public struct PassUniform
         {
-            public string UniformName { get; set; }
+            public string Name { get; set; }
             public RenderTexture RenderTexture { get; set; }
         }
 
-        public abstract RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture, PassUniform[]> draw);
+        private Action<Shader, RenderTexture, RenderTexture, PassUniform[]> _drawCallback;
 
-        public void SetProperty(Shader shader, string name, UniformValue value)
+        public RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture, PassUniform[]> draw)
         {
-            // TODO: set property here
-
-
+            _drawCallback = draw;
+            return Render(inRenderTexture);
         }
 
-        public abstract void Dispose();
+        protected abstract RenderTexture Render(RenderTexture inRenderTexture);
+
+        protected void Draw(Shader shader, RenderTexture readFrom, RenderTexture applyTo, params PassUniform[] uniforms)
+        {
+            _drawCallback(shader, readFrom, applyTo, uniforms);
+        }
+
+        public virtual void Dispose()
+        {
+            _drawCallback = null;
+        }
     }
 }

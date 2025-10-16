@@ -193,7 +193,7 @@ namespace Engine.Layers
                 _drawCallData.Uniforms[Consts.Graphics.MODEL_MATRIX_UNIFORM_INDEX].SetMat4(Consts.MODEL_UNIFORM_NAME, batch.WorldMatrix);
                 _drawCallData.Uniforms[Consts.Graphics.SCREEN_FRAME_BUFFER_GRAB_INDEX].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, screenGrabIndex);
                 _drawCallData.Uniforms[Consts.Graphics.SCREEN_SIZE_INDEX].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(renderTarget.Width, renderTarget.Height));
-                _drawCallData.Uniforms[Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.TimeCurrent * 3));
+                _drawCallData.Uniforms[Consts.Graphics.APP_TIME_INDEX].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
 
                 // Draw
                 GfxDeviceManager.Current.Draw(_drawCallData);
@@ -211,7 +211,7 @@ namespace Engine.Layers
                 for (; uniformIndex < uniforms.Length; uniformIndex++)
                 {
                     _screenQuadDrawCallData.Textures[uniformIndex + 1] = uniforms[uniformIndex].RenderTexture.NativeResource.SubResources[0];
-                    _screenQuadDrawCallData.Uniforms[uniformIndex].SetInt(uniforms[uniformIndex].UniformName, uniformIndex + 1);
+                    _screenQuadDrawCallData.Uniforms[uniformIndex].SetInt(uniforms[uniformIndex].Name, uniformIndex + 1);
                 }
             }
 
@@ -229,7 +229,7 @@ namespace Engine.Layers
             // Uniforms
             _screenQuadDrawCallData.Uniforms[uniformIndex + 0].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, VP);
             _screenQuadDrawCallData.Uniforms[uniformIndex + 1].SetVec2(Consts.SCREEN_SIZE_UNIFORM_NAME, new vec2(_screenQuadDrawCallData.Viewport.z, _screenQuadDrawCallData.Viewport.w));
-            _screenQuadDrawCallData.Uniforms[uniformIndex + 2].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.TimeCurrent * 3));
+            _screenQuadDrawCallData.Uniforms[uniformIndex + 2].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
             _screenQuadDrawCallData.Uniforms[uniformIndex + 3].SetInt(Consts.SCREEN_GRAB_TEX_UNIFORM_NAME, 0);
             _screenQuadDrawCallData.Uniforms[uniformIndex + 4].SetFloat(Consts.FRAME_SEED_UNIFORM_NAME, Random.Shared.NextSingle());
 

@@ -22,14 +22,16 @@ namespace Engine.Graphics
             _renderTextureOut.UpdateTarget(width, height);
         }
 
-        public override RenderTexture Render(RenderTexture inRenderTexture, Action<Shader, RenderTexture, RenderTexture, PassUniform[]> draw)
+        protected override RenderTexture Render(RenderTexture inRenderTexture)
         {
-            draw(_shader, inRenderTexture, _renderTextureOut, null);
+            Draw(_shader, inRenderTexture, _renderTextureOut);
+
             return _renderTextureOut;
         }
 
         public override void Dispose()
         {
+            base.Dispose();
             Window.OnWindowChanged -= UpdateRenderTargetSize;
             _renderTextureOut.OnDestroy();
         }
