@@ -1,4 +1,5 @@
-﻿using Engine.Layers;
+﻿using Engine.Graphics;
+using Engine.Layers;
 using SharedTypes;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Engine.IO
 {
     internal class TextureAssetBuilder : AssetBuilderBase
     {
-        internal override AssetResourceBase BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
+        internal override AssetResourceBase BuildAsset(AssetInfo info, AssetMetaFileBase meta, Guid guid, BinaryReader reader)
         {
             var width = reader.ReadInt32();
             var height = reader.ReadInt32();
@@ -20,8 +21,9 @@ namespace Engine.IO
             var imageData = new byte[imageSize];
 
             reader.BaseStream.ReadExactly(imageData);
+            var texMeta = meta as TextureMetaFile;
 
-            return new Texture2D(info.Path, guid, width, height, comp, imageData);
+            return new Texture2D(info.Path, guid, (TextureMode)texMeta.Config.Mode, width, height, comp, imageData);
         }
     }
 }

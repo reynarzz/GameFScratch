@@ -4,5 +4,5 @@
     "IsAtlas": false,
     "Mode": 0
   },
-  "GUID": "e7b4b14b-a9fe-4068-859b-99d82e454bb1"
+  "GUID": "6e472bfe-9985-4e47-8f6b-45fb9fc086fe"
 }

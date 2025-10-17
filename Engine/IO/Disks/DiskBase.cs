@@ -1,4 +1,5 @@
-﻿using SharedTypes;
+﻿using Newtonsoft.Json;
+using SharedTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,35 @@ namespace Engine.IO
             }
 
             return default;
+        }
+
+        public AssetMetaFileBase GetAssetMeta(Guid guid)
+        {
+            if (AssetDatabaseInfo.Assets.TryGetValue(guid, out var info))
+            {
+                var bytes = LoadMetaFromDisk(guid);
+                var json = Encoding.UTF8.GetString(bytes);
+
+                switch (info.Type)
+                {
+                    case AssetType.Invalid:
+                        break;
+                    case AssetType.Texture:
+                        return JsonConvert.DeserializeObject<TextureMetaFile>(json);
+                    case AssetType.Audio:
+                        return JsonConvert.DeserializeObject<AudioMetaFile>(json);
+                    case AssetType.Text:
+                        return JsonConvert.DeserializeObject<DefaultMetaFile>(json);
+                    case AssetType.Shader:
+                        return JsonConvert.DeserializeObject<DefaultMetaFile>(json);
+                    case AssetType.Font:
+                        return JsonConvert.DeserializeObject<DefaultMetaFile>(json);
+                    default:
+                        throw new NotImplementedException($"Asset type for meta is not implemented: {info.Type}");
+                }
+            }
+
+            return null;
         }
 
         protected abstract Task<byte[]> LoadAssetFromDiskAsync(Guid guid);

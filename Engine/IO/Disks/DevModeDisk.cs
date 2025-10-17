@@ -31,7 +31,7 @@ namespace Engine.IO
         {
             if(AssetDatabaseInfo.Assets.TryGetValue(guid, out var assetInfo))
             {
-                return File.ReadAllBytes(Paths.GetAbsoluteAssetPath(assetInfo.Path));
+                return File.ReadAllBytes(Paths.GetAbsoluteAssetPath(assetInfo.Path + Paths.ASSET_META_EXT_NAME));
             }
             return null;
         }

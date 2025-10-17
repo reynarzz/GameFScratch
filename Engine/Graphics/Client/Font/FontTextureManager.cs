@@ -18,7 +18,7 @@ namespace Engine.Graphics
 
         public object CreateTexture(int width, int height)
         {
-            return new Texture2D(width, height, 4, null);
+            return new Texture2D(TextureMode.Clamp, width, height, 4, null);
         }
 
         public Point GetTextureSize(object texture)

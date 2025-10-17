@@ -65,14 +65,17 @@ namespace Engine.IO
         private async Task<T> GetAssetAsync<T>(Guid guid) where T : AssetResourceBase
         {
             var assetContent = await Disk.GetAssetAsync(guid);
+            var assetMeta =  Disk.GetAssetMeta(guid);
 
-            return BuildAsset(assetContent.Info, guid, assetContent.RawData) as T;
+            return BuildAsset(assetContent.Info, assetMeta, guid, assetContent.RawData) as T;
         }
 
         private T GetAsset<T>(Guid guid) where T : AssetResourceBase
         {
             var assetContent = Disk.GetAssetAsync(guid).GetAwaiter().GetResult();
-            var rawAsset = BuildAsset(assetContent.Info, guid, assetContent.RawData);
+            var assetMeta = Disk.GetAssetMeta(guid);
+
+            var rawAsset = BuildAsset(assetContent.Info, assetMeta, guid, assetContent.RawData);
 
             if (rawAsset == null)
             {
@@ -89,7 +92,7 @@ namespace Engine.IO
             return asset;
         }
 
-        private AssetResourceBase BuildAsset(AssetInfo info, Guid guid, byte[] rawData)
+        private AssetResourceBase BuildAsset(AssetInfo info, AssetMetaFileBase meta, Guid guid, byte[] rawData)
         {
             var encoding = Encoding.Default;
 
@@ -125,7 +128,7 @@ namespace Engine.IO
                     reader = new BinaryReader(AssetCompressor.DecompressStream(reader.BaseStream));
                 }
 
-                var asset = builder.BuildAsset(info, guid, reader);
+                var asset = builder.BuildAsset(info, meta, guid, reader);
 
                 reader.Dispose();
                 return asset;

@@ -167,7 +167,7 @@ namespace Engine.Graphics
 
                 var pivot = new System.Numerics.Vector2();
 
-                float rotation = textRenderer.Transform.WorldEulerAngles.z;
+                float rotation = glm.radians(textRenderer.Transform.WorldEulerAngles.z);
 
                 var scale = new System.Numerics.Vector2(textRenderer.Transform.WorldScale.x, 
                                                         textRenderer.Transform.WorldScale.y);

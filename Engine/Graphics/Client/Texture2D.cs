@@ -12,13 +12,13 @@ namespace Engine
         public TextureAtlasData Atlas { get; } = new();
         public int PixelPerUnit { get; set; } = 32;
 
-        public Texture2D(string path, Guid guid, int width, int height, int channels, byte[] data) : 
-                base(path, guid, width, height, channels, data)
+        public Texture2D(string path, Guid guid, TextureMode mode, int width, int height, int channels, byte[] data) : 
+                base(path, guid, mode, width, height, channels, data)
         {
         }
 
-        public Texture2D(int width, int height, int channels, byte[] data) :
-                base(string.Empty, Guid.NewGuid(), width, height, channels, data)
+        public Texture2D(TextureMode mode, int width, int height, int channels, byte[] data) : this(string.Empty, Guid.NewGuid(),
+            mode, width, height, channels, data) 
         {
         }
 
@@ -29,7 +29,8 @@ namespace Engine
                 Width = Width,
                 Height = Height,
                 Channels = Channels,
-                Buffer = Data
+                Buffer = Data,
+                Mode = Mode
             });
         }
     }
