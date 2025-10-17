@@ -2,6 +2,7 @@
 using Engine.Utils;
 using FontStashSharp;
 using FontStashSharp.Interfaces;
+using GLFW;
 using GlmNet;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,16 @@ namespace Engine.Graphics
         private FontTextureManager _textureManager;
         ITexture2DManager IFontStashRenderer2.TextureManager => _textureManager;
 
-        private readonly VertexPositionColorTexture[] _vertexData;
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        internal struct FontVertex
+        {
+            public vec2 Position;
+            public vec2 UV;
+            public uint Color;
+            public int VertexIndex;
+        }
+
+        private readonly FontVertex[] _vertexData;
         private int _vertexIndex = 0;
 
         private readonly List<GfxResource> _fontBatches;
@@ -32,7 +42,7 @@ namespace Engine.Graphics
 
         public FontRenderingSystem()
         {
-            _vertexData = new VertexPositionColorTexture[Consts.Graphics.MAX_FONT_QUADS_PER_BATCH * 4];
+            _vertexData = new FontVertex[Consts.Graphics.MAX_FONT_QUADS_PER_BATCH * 4];
             _fontFamilies = new Dictionary<Guid, FontSystem>();
             _textureManager = new FontTextureManager();
 
@@ -48,7 +58,7 @@ namespace Engine.Graphics
                 Uniforms = new UniformValue[4],
             };
 
-            _testShader = new Shader(Assets.GetText("Shaders/Font/FontVert.vert").Text, 
+            _testShader = new Shader(Assets.GetText("Shaders/Font/FontVert.vert").Text,
                                      Assets.GetText("Shaders/Font/FontFrag.frag").Text);
 
             _drawCallData.Features = new PipelineFeatures();
@@ -64,21 +74,22 @@ namespace Engine.Graphics
         {
             unsafe
             {
-                var stride = sizeof(VertexPositionColorTexture);
+                var stride = sizeof(FontVertex);
                 var attribs = new VertexAtrib[]
                 {
-                     new VertexAtrib() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = 0 }, // Position
-                     new VertexAtrib() { Count = 4, Normalized = true,  Type = GfxValueType.UByte, Stride = stride, Offset = sizeof(float) * 3 }, // Color
-                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = sizeof(float) * 3 + 4 }, // UV
+                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = 0 }, // Position
+                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = sizeof(float) * 2 }, // UV
+                     new VertexAtrib() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = stride, Offset = sizeof(float) * 4 }, // Color
+                     new VertexAtrib() { Count = 1, Normalized = false, Type = GfxValueType.Int, Stride = stride, Offset = sizeof(float) * 5 }, // charIndex
                 };
 
                 return GraphicsHelper.GetEmptyGeometry(_vertexData.Length, 0, ref desc, attribs, _sharedIndexBuffer);
             }
         }
 
-        public void DrawQuad(object texture, ref VertexPositionColorTexture topLeft, 
-                                             ref VertexPositionColorTexture topRight, 
-                                             ref VertexPositionColorTexture bottomLeft, 
+        public void DrawQuad(object texture, ref VertexPositionColorTexture topLeft,
+                                             ref VertexPositionColorTexture topRight,
+                                             ref VertexPositionColorTexture bottomLeft,
                                              ref VertexPositionColorTexture bottomRight)
         {
             var tex = texture as Texture2D;
@@ -87,13 +98,22 @@ namespace Engine.Graphics
 
             if (_vertexData.Length > _vertexIndex + 4)
             {
-                _vertexData[_vertexIndex++] = bottomLeft;
-                _vertexData[_vertexIndex++] = topLeft;
-                _vertexData[_vertexIndex++] = topRight;
-                _vertexData[_vertexIndex++] = bottomRight;
+                SetFontVertex(_vertexData, ref bottomLeft, _vertexIndex + 0);
+                SetFontVertex(_vertexData, ref topLeft, _vertexIndex + 1);
+                SetFontVertex(_vertexData, ref topRight, _vertexIndex + 2);
+                SetFontVertex(_vertexData, ref bottomRight, _vertexIndex + 3);
+
+                _vertexIndex += 4;
             }
         }
 
+        private void SetFontVertex(FontVertex[] fVertex, ref VertexPositionColorTexture vertex, int vertexIndex)
+        {
+            fVertex[vertexIndex].Position = new vec2(vertex.Position.X, vertex.Position.Y);
+            fVertex[vertexIndex].UV = new vec2(vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y);
+            fVertex[vertexIndex].Color = vertex.Color.PackedValue;
+            fVertex[vertexIndex].VertexIndex = vertexIndex;
+        }
 
         public void Flush(mat4 viewProjection, RenderTexture renderTexture)
         {
@@ -107,11 +127,11 @@ namespace Engine.Graphics
             _geometryDescriptor.VertexDesc.BufferDesc.Offset = 0;
             unsafe
             {
-                _geometryDescriptor.VertexDesc.BufferDesc.Count = sizeof(VertexPositionColorTexture) * _vertexIndex;
+                _geometryDescriptor.VertexDesc.BufferDesc.Count = sizeof(FontVertex) * _vertexIndex;
             }
 
             // TODO: improve this, it should not be called every frame.
-            _geometryDescriptor.VertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<VertexPositionColorTexture>(_vertexData).ToArray();
+            _geometryDescriptor.VertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<FontVertex>(_vertexData).ToArray();
 
             GfxDeviceManager.Current.UpdateResouce(geometryTest, _geometryDescriptor);
             int texIndex = 0;
@@ -133,6 +153,7 @@ namespace Engine.Graphics
 
             _drawCallData.Uniforms[0].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, _viewMatrix);
             _drawCallData.Uniforms[1].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+            _drawCallData.Uniforms[2].SetVec3(Consts.TIME_UNIFORM_NAME, new vec3(Time.TimeCurrent, Time.TimeCurrent * 2, Time.DeltaTime));
 
             GfxDeviceManager.Current.Draw(_drawCallData);
             _vertexIndex = 0;
@@ -169,22 +190,22 @@ namespace Engine.Graphics
 
                 float rotation = glm.radians(textRenderer.Transform.WorldEulerAngles.z);
 
-                var scale = new System.Numerics.Vector2(textRenderer.Transform.WorldScale.x, 
+                var scale = new System.Numerics.Vector2(textRenderer.Transform.WorldScale.x,
                                                         textRenderer.Transform.WorldScale.y);
 
                 var size = font.MeasureString(textRenderer.Text, scale);
                 var origin = new System.Numerics.Vector2(size.X / 2.0f, size.Y / 2.0f);
 
-                var worldPos = new System.Numerics.Vector2(textRenderer.Transform.WorldPosition.x, 
+                var worldPos = new System.Numerics.Vector2(textRenderer.Transform.WorldPosition.x,
                                                            textRenderer.Transform.WorldPosition.y);
-                var color = new FSColor(textRenderer.Color.R, 
-                                        textRenderer.Color.G, 
-                                        textRenderer.Color.B, 
+                var color = new FSColor(textRenderer.Color.R,
+                                        textRenderer.Color.G,
+                                        textRenderer.Color.B,
                                         textRenderer.Color.A);
                 var effect = textRenderer.OutlineSize > 0 ? FontSystemEffect.Stroked : FontSystemEffect.None;
 
-                font.DrawText(this, textRenderer.Text, worldPos, color, rotation, pivot, scale,0, 
-                              textRenderer.CharacterSpacing, textRenderer.LineSpacing, TextStyle.None, 
+                font.DrawText(this, textRenderer.Text, worldPos, color, rotation, pivot, scale, 0,
+                              textRenderer.CharacterSpacing, textRenderer.LineSpacing, TextStyle.None,
                               effect, Math.Clamp(textRenderer.OutlineSize, 0, textRenderer.OutlineSize + 1));
             }
 

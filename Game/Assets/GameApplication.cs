@@ -225,7 +225,7 @@ namespace Game
 
             ScreenGrabTest();
             TextRendering();
-            // ScreenGrabTest2();
+            //ScreenGrabTest2();
 
             ScreenGrabTest3();
             Portal();
@@ -322,12 +322,6 @@ namespace Game
             pass2.Stencil.ZFailOp = StencilOp.Keep;
 
             renderer.Material.SetProperty(1, "uWaterColor", new vec3(1.0f, 0.2f, 0.0f));
-
-            //var tilemapTexture = Assets.GetTexture("Tilemap/SunnyLand_by_Ansimuz-extended.png");
-
-            //renderer.Material.AddTexture("done", tilemapTexture);
-
-             
 
             waterActor.Transform.LocalScale = new vec3(10, 3, 1);
             waterActor.Transform.LocalPosition = new vec3(2.5f, -11, 1);
