@@ -13,7 +13,7 @@ namespace Game
         public Transform Target { get; set; }
         public float FollowSpeed { get; set; } = 5f;
 
-        private vec2 deadZoneSize = new vec2(1f, 3f);
+        private vec2 deadZoneSize = new vec2(0f, 4f);
         private float smoothTime = 0.3f;
         private vec3 velocity;
 

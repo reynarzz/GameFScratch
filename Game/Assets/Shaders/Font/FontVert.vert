@@ -23,7 +23,7 @@ vec2 animateCharacter(vec2 pos, int vertIndex, float time)
 {
     int charIndex = vertIndex / 4;
 
-    float amplitude = 2.0;   
+    float amplitude = 1.0;   
     float frequency = 4.0;   
     float charOffset = 0.6;  
 

@@ -246,7 +246,9 @@ namespace Game
             var renderer = actor.AddComponent<TextRenderer>();
             test.Text = "This is a text written line by line!\nand this, is being written just below!!!\nspecial characters: !@#$%^&*()_+ ñ";
             test.DelayToWrite = 0.03f;
-            test.Transform.WorldPosition = new vec3(0, -200);
+            test.Transform.WorldPosition = new vec3(0, 150);
+            renderer.Color = Color.White;
+            renderer.OutlineSize = 1;
 
             //var actor2 = new Actor<TextWritterTest>("Text2");
             //var test2 = actor2.GetComponent<TextWritterTest>();

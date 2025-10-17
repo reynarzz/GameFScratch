@@ -192,9 +192,9 @@ namespace Engine.Graphics
 
                 var font = fontSystem.GetFont(textRenderer.FontSize);
 
-
+                // TODO: remove this, used for recentering
                 var split = textRenderer.Text.ToString().Split('\n');
-                
+
                 for (int i = 0; i < split.Length; i++)
                 {
                     SendTextToDraw(split[i], font, textRenderer, font.LineHeight * i);
@@ -206,7 +206,7 @@ namespace Engine.Graphics
 
         private void SendTextToDraw(string text, DynamicSpriteFont font, TextRenderer textRenderer, int lineHeight)
         {
-            var pivot = new System.Numerics.Vector2(1.0f, 0.5f);
+            var pivot = new System.Numerics.Vector2(0.5f, 0.5f);
 
             float rotation = glm.radians(textRenderer.Transform.WorldEulerAngles.z);
 
