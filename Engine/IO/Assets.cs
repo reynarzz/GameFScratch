@@ -25,14 +25,24 @@ namespace Engine
             return IOLayer.GetDatabase().GetAsset<TextAsset>(path);
         }
 
+        public static FontAsset GetFont(string path)
+        {
+            return Get<FontAsset>(path);
+        }
+
         public static Texture2D GetTexture(string path)
         {
-            return IOLayer.GetDatabase().GetAsset<Texture2D>(path);
+            return Get<Texture2D>(path);
         }
 
         public static AudioClip GetAudioClip(string path)
         {
-            return IOLayer.GetDatabase().GetAsset<AudioClip>(path);
+            return Get<AudioClip>(path);
+        }
+
+        public static T Get<T>(string path) where T: AssetResourceBase
+        {
+            return IOLayer.GetDatabase().GetAsset<T>(path);
         }
     }
 }

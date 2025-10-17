@@ -44,6 +44,9 @@ namespace GameCooker
                 { ".vertex", AssetType.Shader },
                 { ".frag", AssetType.Shader },
                 { ".fragment", AssetType.Shader },
+
+                // Font
+                { ".ttf", AssetType.Font }
             };
 
             _assetsProcessors = new Dictionary<AssetType, IAssetProcessor>()
@@ -51,8 +54,8 @@ namespace GameCooker
                 { AssetType.Texture, new TextureAssetProcessor() },
                 { AssetType.Audio, new AudioAssetProcessor() },
                 { AssetType.Text, new TextAssetProcessor() },
-                { AssetType.Shader, new TextAssetProcessor() }
-
+                { AssetType.Shader, new TextAssetProcessor() },
+                { AssetType.Font, new RawBytesAssetProcessor() },
             };
 
             if (File.Exists(Paths.GetAssetDatabaseFilePath()))

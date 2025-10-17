@@ -23,6 +23,7 @@ namespace Engine.IO
                 { AssetType.Text, new TextAssetBuilder() },
                 { AssetType.Shader, new TextAssetBuilder() },
                 { AssetType.Audio, new AudioClipAssetBuilder() },
+                { AssetType.Font, new FontAssetBuilder() },
             };
         }
 
@@ -37,7 +38,7 @@ namespace Engine.IO
             }
         }
 
-        internal async Task<T> GetAssetAsync<T>(string path) where T : EObject
+        internal async Task<T> GetAssetAsync<T>(string path) where T : AssetResourceBase
         {
             if (_guidPathDict.TryGetByValue(path, out var guid))
             {
@@ -49,7 +50,7 @@ namespace Engine.IO
             return default;
         }
 
-        internal T GetAsset<T>(string path) where T : EObject
+        internal T GetAsset<T>(string path) where T : AssetResourceBase
         {
             if (_guidPathDict.TryGetByValue(path, out var guid))
             {
@@ -61,21 +62,34 @@ namespace Engine.IO
             return default;
         }
 
-        private async Task<T> GetAssetAsync<T>(Guid guid) where T : EObject
+        private async Task<T> GetAssetAsync<T>(Guid guid) where T : AssetResourceBase
         {
             var assetContent = await Disk.GetAssetAsync(guid);
 
             return BuildAsset(assetContent.Info, guid, assetContent.RawData) as T;
         }
 
-        private T GetAsset<T>(Guid guid) where T : EObject
+        private T GetAsset<T>(Guid guid) where T : AssetResourceBase
         {
             var assetContent = Disk.GetAssetAsync(guid).GetAwaiter().GetResult();
+            var rawAsset = BuildAsset(assetContent.Info, guid, assetContent.RawData);
 
-            return BuildAsset(assetContent.Info, guid, assetContent.RawData) as T;
+            if (rawAsset == null)
+            {
+                throw new Exception($"Fatal: Asset is null: {guid}");
+            }
+
+            T asset = rawAsset as T;
+
+            if (asset == null)
+            {
+                Debug.Error($"Invalid asset cast to type: {typeof(T).Name}, asset type is: {rawAsset.GetType().Name}");
+            }
+
+            return asset;
         }
 
-        private EObject BuildAsset(AssetInfo info, Guid guid, byte[] rawData)
+        private AssetResourceBase BuildAsset(AssetInfo info, Guid guid, byte[] rawData)
         {
             var encoding = Encoding.Default;
 

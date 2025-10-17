@@ -16,7 +16,7 @@ namespace Engine.IO
 {
     internal class AudioClipAssetBuilder : AssetBuilderBase
     {
-        internal override EObject BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
+        internal override AssetResourceBase BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
         {
             var sampleRate = reader.ReadInt32();
             var channels = reader.ReadInt32();

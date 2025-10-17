@@ -12,6 +12,7 @@ namespace SharedTypes
         Texture,
         Audio,
         Text,
-        Shader
+        Shader,
+        Font
     }
 }

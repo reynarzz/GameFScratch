@@ -62,10 +62,12 @@ namespace Engine.Graphics.OpenGL
 
         internal override unsafe void UpdateResource(TextureDescriptor descriptor) 
         {
-            fixed(void* data = descriptor.Buffer)
+            Bind();
+            fixed (void* data = descriptor.Buffer)
             {
                 glTexSubImage2D(GL_TEXTURE_2D, 0, descriptor.XOffset, descriptor.YOffset, descriptor.Width, descriptor.Height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             }
+            Unbind();
         }
 
         /// <summary>

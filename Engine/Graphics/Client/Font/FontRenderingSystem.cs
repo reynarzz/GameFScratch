@@ -1,4 +1,5 @@
-﻿using Engine.Utils;
+﻿using Engine.Rendering;
+using Engine.Utils;
 using FontStashSharp;
 using FontStashSharp.Interfaces;
 using GlmNet;
@@ -13,7 +14,8 @@ namespace Engine.Graphics
 {
     internal class FontRenderingSystem : IFontStashRenderer2
     {
-        public ITexture2DManager TextureManager => throw new NotImplementedException();
+        private FontTextureManager _textureManager;
+        public ITexture2DManager TextureManager => _textureManager;
         private readonly VertexPositionColorTexture[] _vertexData;
         private int _vertexIndex = 0;
 
@@ -25,11 +27,14 @@ namespace Engine.Graphics
         private readonly DrawCallData _drawCallData;
         private GeometryDescriptor _geometryDescriptor;
         private Shader _testShader;
+        private mat4 _viewMatrix;
+        private Texture2D _testTexture;
 
         public FontRenderingSystem()
         {
             _vertexData = new VertexPositionColorTexture[Consts.Graphics.MAX_FONT_QUADS_PER_BATCH * 4];
             _fontFamilies = new Dictionary<Guid, FontSystem>();
+            _textureManager = new FontTextureManager();
 
             _fontBatches = new List<GfxResource>();
             _textures = new Dictionary<Guid, Texture2D>();
@@ -43,7 +48,17 @@ namespace Engine.Graphics
                 Uniforms = new UniformValue[4],
             };
 
-            _testShader = new Shader(Assets.GetText("Shaders/Font/FontVert.vert").Text, Assets.GetText("Shaders/Font/FontFrag.vert").Text);
+            _testShader = new Shader(Assets.GetText("Shaders/Font/FontVert.vert").Text, Assets.GetText("Shaders/Font/FontFrag.frag").Text);
+
+            _drawCallData.Features = new PipelineFeatures();
+            _drawCallData.Features.Blending.Enabled = true;
+            _drawCallData.Features.Blending.SrcFactor = BlendFactor.SrcAlpha;
+            _drawCallData.Features.Blending.DstFactor = BlendFactor.OneMinusSrcAlpha;
+            _drawCallData.Features.Blending.Equation = BlendEquation.FuncAdd;
+
+            _viewMatrix = MathUtils.Ortho(0, Window.Width, Window.Height, 0, 0, -1);
+
+            _testTexture = new Texture2D(1, 1, 4, [0xFF, 0xFF, 0xFF, 0xFF]);
         }
 
         private GfxResource CreateFontBatchGeometry(ref GeometryDescriptor desc)
@@ -55,7 +70,7 @@ namespace Engine.Graphics
                 {
                      new VertexAtrib() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = 0 }, // Position
                      new VertexAtrib() { Count = 4, Normalized = true,  Type = GfxValueType.UByte, Stride = stride, Offset = sizeof(float) * 3 }, // Color
-                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = sizeof(float) * 3 + 4 }, // UV
+                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = sizeof(float) * 3 + sizeof(byte) * 4 }, // UV
                 };
 
                 return GraphicsHelper.GetEmptyGeometry(_vertexData.Length, 0, ref desc, attribs, _sharedIndexBuffer);
@@ -112,7 +127,12 @@ namespace Engine.Graphics
             _drawCallData.Shader = _testShader.NativeShader;
             _drawCallData.RenderTarget = renderTexture.NativeResource;
             _drawCallData.IndexedDraw.IndexCount = _vertexIndex * 6;
-            _drawCallData.Viewport = new vec4(0,0, renderTexture.Width, renderTexture.Height);
+            _drawCallData.Viewport = new vec4(0, 0, renderTexture.Width, renderTexture.Height);
+
+            _drawCallData.Uniforms[0].SetMat4(Consts.VIEW_PROJ_UNIFORM_NAME, _viewMatrix);
+            _drawCallData.Uniforms[1].SetIntArr(Consts.TEX_ARRAY_UNIFORM_NAME, Batch2D.TextureSlotArray);
+
+            GfxDeviceManager.Current.Draw(_drawCallData);
             _vertexIndex = 0;
         }
 
@@ -152,7 +172,6 @@ namespace Engine.Graphics
                 var size = font.MeasureString(fontRenderer.Text, scale);
                 var origin = new System.Numerics.Vector2(size.X / 2.0f, size.Y / 2.0f);
 
-                // Add all text to render this frame (font components)
                 var worldPos = new System.Numerics.Vector2(fontRenderer.Transform.WorldPosition.x, fontRenderer.Transform.WorldPosition.y);
                 var color = new FSColor(fontRenderer.Color.R, fontRenderer.Color.G, fontRenderer.Color.B, fontRenderer.Color.A);
                 font.DrawText(this, fontRenderer.Text, worldPos, color, rotation, new System.Numerics.Vector2(pivot.x, pivot.y), scale);

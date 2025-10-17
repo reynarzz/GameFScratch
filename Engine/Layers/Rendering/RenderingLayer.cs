@@ -18,6 +18,7 @@ namespace Engine.Layers
         private RenderTexture _defaultSceneRenderTexture;
         private Shader _screenShader;
         private PostProcessingStack _postProcessStack;
+        private FontRenderingSystem _fontRenderingSystem;
 
         public override void Initialize()
         {
@@ -53,6 +54,8 @@ namespace Engine.Layers
             _screenShader = new Shader(Tests.QuadVertexShader, Tests.QuadFragmentShader);
 
             Window.OnWindowChanged += OnUpdateScreenGrabPass;
+
+            _fontRenderingSystem = new FontRenderingSystem();
         }
 
         private void OnUpdateScreenGrabPass(int width, int height)
@@ -145,6 +148,8 @@ namespace Engine.Layers
             {
                 DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null, null, _mainCamera);
             }
+
+            _fontRenderingSystem.Render(VP, sceneRenderTarget);
 
             GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
         }

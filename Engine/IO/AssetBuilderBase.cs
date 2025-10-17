@@ -9,6 +9,6 @@ namespace Engine.IO
 {
     internal abstract class AssetBuilderBase
     {
-        internal abstract EObject BuildAsset(AssetInfo info, Guid guid, BinaryReader reader);
+        internal abstract AssetResourceBase BuildAsset(AssetInfo info, Guid guid, BinaryReader reader);
     }
 }

@@ -9,7 +9,7 @@ namespace Engine.IO
 {
     internal class TextAssetBuilder : AssetBuilderBase
     {
-        internal override EObject BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
+        internal override AssetResourceBase BuildAsset(AssetInfo info, Guid guid, BinaryReader reader)
         {
             var length = reader.BaseStream.Length;
             var data = new byte[length];

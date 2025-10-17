@@ -224,7 +224,7 @@ namespace Game
             PostProcessingStack.Push(new BloomPostProcessing());
 
             ScreenGrabTest();
-
+            TextRendering();
             // ScreenGrabTest2();
 
             ScreenGrabTest3();
@@ -237,6 +237,14 @@ namespace Game
             WaterTest();
 
             Debug.Success("Game Layer");
+        }
+
+        private void TextRendering()
+        {
+            var actor = new Actor<TextRenderer>();
+            var renderer = actor.GetComponent<TextRenderer>();
+            renderer.Text = "Thank you Jesus!";
+            renderer.Font = Assets.Get<FontAsset>("Fonts/Roboto-Regular.ttf");
         }
 
         private void ScreenGrabTest()
