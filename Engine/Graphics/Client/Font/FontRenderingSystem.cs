@@ -186,7 +186,7 @@ namespace Engine.Graphics
 
                 var font = fontSystem.GetFont(textRenderer.FontSize);
 
-                var pivot = new System.Numerics.Vector2();
+                var pivot = new System.Numerics.Vector2(0.5f, 0.5f);
 
                 float rotation = glm.radians(textRenderer.Transform.WorldEulerAngles.z);
 
@@ -198,13 +198,11 @@ namespace Engine.Graphics
 
                 var worldPos = new System.Numerics.Vector2(textRenderer.Transform.WorldPosition.x,
                                                            textRenderer.Transform.WorldPosition.y);
-                var color = new FSColor(textRenderer.Color.R,
-                                        textRenderer.Color.G,
-                                        textRenderer.Color.B,
-                                        textRenderer.Color.A);
+            
                 var effect = textRenderer.OutlineSize > 0 ? FontSystemEffect.Stroked : FontSystemEffect.None;
 
-                font.DrawText(this, textRenderer.Text, worldPos, color, rotation, pivot, scale, 0,
+                // This line calls the DrawQuad function for every character.
+                font.DrawText(this, textRenderer.Text, worldPos, new FSColor(textRenderer.Color), rotation, pivot, scale, 0,
                               textRenderer.CharacterSpacing, textRenderer.LineSpacing, TextStyle.None,
                               effect, Math.Clamp(textRenderer.OutlineSize, 0, textRenderer.OutlineSize + 1));
             }

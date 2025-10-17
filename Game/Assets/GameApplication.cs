@@ -146,7 +146,7 @@ namespace Game
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 512.0f / 2.0f / 16.0f;
             // camera.OrthoMatch = CameraOrthoMatch.Width;
-            camera.RenderTexture = new RenderTexture(512, 288);
+            camera.RenderTexture = new RenderTexture(512*2, 288*2);
 
             LoadTilemap(camera);
 
@@ -181,7 +181,7 @@ namespace Game
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
             source.Loop = true;
-            source.Play();
+            //source.Play();
 
             // var handle = System.Runtime.InteropServices.GCHandle.Alloc(source.Mixer, System.Runtime.InteropServices.GCHandleType.Normal);
             // var reverb = source.Mixer.AddAudioFX<ReverbAudioFX>();

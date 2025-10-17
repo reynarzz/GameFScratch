@@ -28,6 +28,11 @@ namespace Engine
             return (ColorPacketRGBA)(Color32)c;
         }
 
+        public static implicit operator uint(Color c)
+        {
+            return (ColorPacketRGBA)c;
+        }
+
         public static implicit operator Color(uint packet)
         {
             return new ColorPacketRGBA(packet);
