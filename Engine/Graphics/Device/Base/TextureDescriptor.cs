@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal enum TextureMode
+    public enum TextureMode
     {
         Clamp,
         Repeat
@@ -20,6 +20,6 @@ namespace Engine.Graphics
         internal int YOffset { get; set; }
         internal int Channels { get; set; }
         internal byte[] Buffer { get; set; }
-        internal TextureMode Mode { get; set; } = TextureMode.Repeat;
+        internal TextureMode Mode { get; set; } = TextureMode.Clamp;
     }
 }

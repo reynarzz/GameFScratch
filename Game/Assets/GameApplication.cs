@@ -146,7 +146,7 @@ namespace Game
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 512.0f / 2.0f / 16.0f;
             // camera.OrthoMatch = CameraOrthoMatch.Width;
-            camera.RenderTexture = new RenderTexture(512, 288);
+            camera.RenderTexture = new RenderTexture(512*2, 288*2);
 
             LoadTilemap(camera);
 
@@ -181,7 +181,7 @@ namespace Game
             var source = playerActor.AddComponent<AudioSource>();
             source.Clip = audioClip;
             source.Loop = true;
-            source.Play();
+            //source.Play();
 
             // var handle = System.Runtime.InteropServices.GCHandle.Alloc(source.Mixer, System.Runtime.InteropServices.GCHandleType.Normal);
             // var reverb = source.Mixer.AddAudioFX<ReverbAudioFX>();
@@ -225,7 +225,7 @@ namespace Game
 
             ScreenGrabTest();
             TextRendering();
-            // ScreenGrabTest2();
+            //ScreenGrabTest2();
 
             ScreenGrabTest3();
             Portal();
@@ -241,11 +241,20 @@ namespace Game
 
         private void TextRendering()
         {
-            var actor = new Actor<TextWritterTest>();
+            var actor = new Actor<TextWritterTest>("Text1");
             var test = actor.GetComponent<TextWritterTest>();
+            var renderer = actor.AddComponent<TextRenderer>();
             test.Text = "This is a text written line by line!\nand this, is being written just below!!!\nspecial characters: !@#$%^&*()_+ ñ";
             test.DelayToWrite = 0.03f;
-            test.TextSize = 25;
+            test.Transform.WorldPosition = new vec3(0, 150);
+            renderer.Color = Color.White;
+            renderer.OutlineSize = 1;
+
+            //var actor2 = new Actor<TextWritterTest>("Text2");
+            //var test2 = actor2.GetComponent<TextWritterTest>();
+            //test2.Text = "This is a text written line by line!\nand this, is being written just below!!!\nspecial characters: !@#$%^&*()_+ ñ";
+            //test2.DelayToWrite = 0.05f;
+            //test2.Transform.LocalPosition = new vec3(100, 200);
         }
 
         private void ScreenGrabTest()
@@ -322,12 +331,6 @@ namespace Game
             pass2.Stencil.ZFailOp = StencilOp.Keep;
 
             renderer.Material.SetProperty(1, "uWaterColor", new vec3(1.0f, 0.2f, 0.0f));
-
-            //var tilemapTexture = Assets.GetTexture("Tilemap/SunnyLand_by_Ansimuz-extended.png");
-
-            //renderer.Material.AddTexture("done", tilemapTexture);
-
-             
 
             waterActor.Transform.LocalScale = new vec3(10, 3, 1);
             waterActor.Transform.LocalPosition = new vec3(2.5f, -11, 1);

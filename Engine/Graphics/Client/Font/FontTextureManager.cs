@@ -11,14 +11,14 @@ namespace Engine.Graphics
     internal class FontTextureManager : ITexture2DManager
     {
         private TextureDescriptor _sharedDescriptor;
-        public FontTextureManager()
+        internal FontTextureManager()
         {
             _sharedDescriptor = new TextureDescriptor();
         }
 
         public object CreateTexture(int width, int height)
         {
-            return new Texture2D(width, height, 4, null);
+            return new Texture2D(TextureMode.Clamp, width, height, 4, null);
         }
 
         public Point GetTextureSize(object texture)

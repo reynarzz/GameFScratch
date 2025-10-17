@@ -46,7 +46,8 @@ namespace GameCooker
                 { ".fragment", AssetType.Shader },
 
                 // Font
-                { ".ttf", AssetType.Font }
+                { ".ttf", AssetType.Font },
+                { ".otf", AssetType.Font },
             };
 
             _assetsProcessors = new Dictionary<AssetType, IAssetProcessor>()

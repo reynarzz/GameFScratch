@@ -194,6 +194,12 @@ namespace Engine
                 Clamp(v.y, min.y, max.y),
                 Clamp(v.z, min.z, max.z));
 
+        public static float PingPong(float t, float length = 1f)
+        {
+            t = t % (2f * length);       
+            return length - Math.Abs(t - length);
+        }
+
         public static mat4 QuatToMat4(quat q)
         {
             float x = q.x, y = q.y, z = q.z, w = q.w;

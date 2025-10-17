@@ -58,7 +58,7 @@ namespace Engine.Rendering
             _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
 
             _pinkMaterial = new Material(Tests.GetShaderPink());
-            _whiteTexture = new Texture2D(1, 1, 4, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+            _whiteTexture = new Texture2D(TextureMode.Clamp, 1, 1, 4, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
             _whiteTexture.PixelPerUnit = 1;
 
             Initialize();
@@ -111,7 +111,7 @@ namespace Engine.Rendering
                     }
                     else
                     {
-                        renderer.MarkNotDirty(); 
+                        renderer.MarkNotDirty();
                     }
 
                     if (renderer.Mesh == null)
