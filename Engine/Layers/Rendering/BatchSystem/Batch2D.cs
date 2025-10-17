@@ -63,7 +63,7 @@ namespace Engine.Rendering
 
             unsafe
             {
-                vertexDesc.Attribs = new()
+                vertexDesc.Attribs = new VertexAtrib[]
                 {
                     new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = 0 },                 // Position
                     new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 3 }, // UV
@@ -291,7 +291,8 @@ namespace Engine.Rendering
             if (mat != Material)
                 return false;
 
-            for (int i = 0; i < Textures.Length; i++)
+            // Also removes the textures from the material to avoid binding more textures than the plaform supports.
+            for (int i = 0; i < Textures.Length - Material.Textures.Count; i++)
             {
                 if (texture == Textures[i] || Textures[i] == null)
                 {

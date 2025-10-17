@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public abstract class Texture : EObject
+    public abstract class Texture : AssetResourceBase
     {
         public int Width { get; protected set; }
         public int Height { get; protected set; }
@@ -16,7 +16,7 @@ namespace Engine
 
         internal GfxResource NativeResource { get; }
 
-        internal Texture(string name, Guid guid, int width, int height, int channels, byte[] data) : base(name, guid)
+        internal Texture(string path, Guid guid, int width, int height, int channels, byte[] data) : base(path, guid)
         {
             Width = width;
             Height = height;
@@ -26,7 +26,7 @@ namespace Engine
             NativeResource = Create() as GfxResource;
         }
 
-        internal Texture(string name, Guid guid, int width, int height, int channels, GfxResource nativeResource) : base(name, guid)
+        internal Texture(string path, Guid guid, int width, int height, int channels, GfxResource nativeResource) : base(path, guid)
         {
             Width = width;
             Height = height;

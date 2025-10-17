@@ -9,7 +9,8 @@
   flat out int fragTexIndex;            // flat = no interpolation between vertices
   out vec4 vColor;
   uniform mat4 uVP;
-  
+  out vec2 worldUV;
+
   vec4 unpackColor(uint c) 
   {
       float r = float((c >> 24) & 0xFFu) / 255.0;
@@ -22,6 +23,7 @@
   void main() 
   {
       fragUV = uv;
+      worldUV = position.xy * 0.1;
       fragTexIndex = texIndex; 
       vColor = unpackColor(color);
       gl_Position = uVP * vec4(position, 1.0);

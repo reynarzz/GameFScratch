@@ -10,6 +10,7 @@ namespace Engine.Utils
     {
         internal const string VIEW_PROJ_UNIFORM_NAME = "uVP";
         internal const string VIEW_UNIFORM_NAME = "uViewMatrix";
+        internal const string PROJECTION_UNIFORM_NAME = "uProjectionMatrix";
         internal const string MODEL_UNIFORM_NAME = "uModel";
         internal const string TEX_ARRAY_UNIFORM_NAME = "uTextures";
         internal const string SCREEN_GRAB_TEX_UNIFORM_NAME = "uScreenGrabTex";
@@ -21,11 +22,13 @@ namespace Engine.Utils
         {
             internal const int MAX_UNIFORMS_PER_DRAWCALL = 10;
             internal const int MAX_QUADS_PER_BATCH = 5000;
+            internal const int MAX_FONT_QUADS_PER_BATCH = 20000;
 
             internal enum Uniforms
             {
                 VP_MATRIX,
                 VIEW_MATRIX,
+                PROJECTION_MATRIX,
                 TEXTURES_ARRAY,
                 MODEL_MATRIX,
                 SCREEN_RENDER_TARGET_GRAB,

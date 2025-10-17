@@ -30,7 +30,7 @@ namespace Engine.IO
                 data[i] = reader.ReadSingle();
             }
 
-            return new AudioClip(Path.GetFileNameWithoutExtension(info.Path), 
+            return new AudioClip(info.Path, 
                                  guid, data, sampleRate, 
                                  samplesLength, channels, sampleFormat);
         }

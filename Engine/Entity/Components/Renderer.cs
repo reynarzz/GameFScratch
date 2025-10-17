@@ -37,7 +37,7 @@ namespace Engine
             base.OnEnabled();
             Debug.Log("Enabled");
 
-          IsDirty = true;
+            IsDirty = true;
         }
 
         public override void OnDisabled()

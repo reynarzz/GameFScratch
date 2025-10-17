@@ -276,6 +276,7 @@ namespace Game
 
             screenGrabTest.Transform.LocalScale = new vec3(6, 6);
             screenGrabTest.Transform.LocalPosition = new vec3(-9, -7);
+            renderer.Material.AddTexture("uStarsTex", Assets.GetTexture("stars.png"));
 
             return screenGrabTest;
         }
@@ -302,6 +303,7 @@ namespace Game
             pass.Stencil.Ref = 3;
             pass.Stencil.ZFailOp = StencilOp.Keep;
             renderer.Material.SetProperty("uWaterColor", new vec3(0.6f, 0.2f, 0.0f));
+            renderer.Material.AddTexture("uParticles", Assets.GetTexture("particles.png"));
 
             var pass2 = renderer.Material.PushPass(mainShader);
             pass2.IsScreenGrabPass = true;

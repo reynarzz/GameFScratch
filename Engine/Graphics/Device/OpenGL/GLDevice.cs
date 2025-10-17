@@ -147,6 +147,10 @@ namespace Engine.Graphics.OpenGL
             {
                 buffer.UpdateResource(desc as RenderTargetDescriptor);
             }
+            else if(resource is GLTexture texture)
+            {
+                texture.UpdateResource(desc as TextureDescriptor);
+            }
         }
 
         internal override GfxDeviceInfo GetDeviceInfo()

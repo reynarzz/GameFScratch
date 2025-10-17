@@ -3,6 +3,7 @@
 in vec2 fragUV;
 in vec2 screenUV;
 in vec4 vColor;
+in vec2 worldUV;
 
 flat in int fragTexIndex;
 out vec4 fragColor;
@@ -10,6 +11,7 @@ out vec4 fragColor;
 uniform sampler2D uScreenGrabTex;
 uniform vec2 uScreenSize;
 uniform vec3 uTime;
+uniform sampler2D uStarsTex;
 
 // Amount of wobble distortion
 uniform float uDistortionAmount = 0.009;
@@ -92,6 +94,9 @@ void main()
     );
 
     vec3 outline = getQuadEdgeOutline(fragUV);
+    float aspect= uScreenSize.x / uScreenSize.y;
 
-    fragColor = vec4(base + outline, 1.0) * vColor;
+    vec3 stars = vec3(texture(uStarsTex, vec2(worldUV.x, worldUV.y) * 2.5 + vec2(0, uTime.x * 0.2)).a);
+
+    fragColor = vec4(base + stars + outline, 1.0) * vColor;
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine.Graphics
 {
-    internal class VertexAtrib
+    internal struct VertexAtrib
     {
         internal int Count { get; set; }
         internal GfxValueType Type { get; set; }
@@ -18,7 +18,7 @@ namespace Engine.Graphics
     internal class VertexDataDescriptor
     {
         internal BufferDataDescriptor BufferDesc { get; set; }
-        internal List<VertexAtrib> Attribs { get; set; }
+        internal VertexAtrib[] Attribs { get; set; }
     }
 
     internal class GeometryDescriptor : IGfxResourceDescriptor

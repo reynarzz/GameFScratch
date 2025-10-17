@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class AudioClip : EObject
+    public class AudioClip : AssetResourceBase
     {
         public TimeSpan Duration { get; }
         public int SampleRate { get; }
@@ -16,7 +16,7 @@ namespace Engine
         internal int SampleFormat { get; }
         internal float[] RawAudioData { get; }
         
-        public AudioClip(string name, Guid id, float[] rawData, int sampleRate, int totalSamples, int channels, int sampleFormat) : base(name, id)
+        public AudioClip(string path, Guid id, float[] rawData, int sampleRate, int totalSamples, int channels, int sampleFormat) : base(path, id)
         {
             Duration = TimeSpan.FromSeconds((float)totalSamples / (sampleRate * channels));
             SampleRate = sampleRate;

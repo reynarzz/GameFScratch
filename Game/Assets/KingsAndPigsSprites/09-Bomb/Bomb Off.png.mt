@@ -1,7 +1,8 @@
 {
   "Config": {
     "IsNearest": false,
-    "IsAtlas": false
+    "IsAtlas": false,
+    "Mode": 0
   },
-  "GUID": "2f3c194a-6f17-4d3e-9594-6330cc7fdee5"
+  "GUID": "02ef5fd6-53ba-4c77-9ae8-751bad3b3433"
 }

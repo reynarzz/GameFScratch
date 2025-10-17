@@ -47,7 +47,7 @@ namespace Engine.Graphics.OpenGL
 
             _vertBuffer.Bind();
 
-            for (uint i = 0; i < descriptor.VertexDesc.Attribs.Count; i++)
+            for (uint i = 0; i < descriptor.VertexDesc.Attribs.Length; i++)
             {
                 var attrib = descriptor.VertexDesc.Attribs[(int)i];
 

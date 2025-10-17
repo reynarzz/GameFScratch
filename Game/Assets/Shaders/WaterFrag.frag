@@ -1,6 +1,8 @@
 #version 330 core
 
 in vec2 fragUV;
+in vec2 worldUV;
+
 out vec4 fragColor;
 
 uniform vec3  uTime;                     
@@ -13,6 +15,7 @@ uniform vec3  uWaterColor     = vec3(0.2, 0.2, 1.0);
 uniform float uOutlineHeight  = 0.85;     
 uniform vec3  uOutlineColor   = vec3(1.0, 1.0, 1.0);
 uniform float uOutlineThickness = 0.04;  
+uniform sampler2D uParticles;
 
 // Stable hash function — avoids NaN / denormal issues
 float hash(float n) {
@@ -46,5 +49,8 @@ void main()
     float outlineFactor = step(uOutlineThickness, distanceToEdge);
 
     vec3 color = mix(uOutlineColor, uWaterColor, outlineFactor);
+    //float particlesAlpha = texture(uParticles, worldUV * 3 - vec2(0, uTime.x * 0.2)).a;
+    //vec3 pColor = vec3(1,1,0) * particlesAlpha;
+
     fragColor = vec4(color, 1.0);
 }

@@ -38,16 +38,35 @@ namespace Engine.Graphics.OpenGL
             // Set default filtering/wrapping
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            int texMode = 0;
+            switch (descriptor.Mode)
+            {
+                case TextureMode.Clamp:
+                    texMode = GL_CLAMP_TO_EDGE;
+                    break;
+                case TextureMode.Repeat:
+                    texMode = GL_REPEAT;
+                    break;
+                default:
+                    break;
+            }
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texMode);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texMode);
 
             Unbind();
 
             return true;
         }
 
-        // Texture update will not be implemented for this game
-        internal override void UpdateResource(TextureDescriptor descriptor) { }
+        internal override unsafe void UpdateResource(TextureDescriptor descriptor) 
+        {
+            fixed(void* data = descriptor.Buffer)
+            {
+                glTexSubImage2D(GL_TEXTURE_2D, 0, descriptor.XOffset, descriptor.YOffset, descriptor.Width, descriptor.Height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            }
+        }
 
         /// <summary>
         /// Binds texture to first slot (0)

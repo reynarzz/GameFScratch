@@ -21,7 +21,7 @@ namespace Engine.IO
 
             reader.BaseStream.ReadExactly(imageData);
 
-            return new Texture2D(Path.GetFileNameWithoutExtension(info.Path), guid, width, height, comp, imageData);
+            return new Texture2D(info.Path, guid, width, height, comp, imageData);
         }
     }
 }

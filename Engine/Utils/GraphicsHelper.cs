@@ -9,11 +9,14 @@ using GlmNet;
 
 namespace Engine
 {
-    internal class GraphicsHelper
+    internal static class GraphicsHelper
     {
-        internal static GfxResource GetEmptyGeometry<T>(int vertCount, int indexCount, ref GeometryDescriptor geoDesc) where T : struct
+        internal static GfxResource GetEmptyGeometry(int vertCount, int indexCount, ref GeometryDescriptor geoDesc, VertexAtrib[] vertexAttribs, GfxResource indexBuffer = null)
         {
-            geoDesc = new GeometryDescriptor();
+            if(geoDesc == null)
+            {
+                geoDesc = new GeometryDescriptor();
+            }
 
             if (indexCount <= 0)
             {
@@ -26,15 +29,12 @@ namespace Engine
                 geoDesc.IndexDesc.Buffer = new byte[indexCount];
             }
 
+            geoDesc.SharedIndexBuffer = indexBuffer;
+
             geoDesc.VertexDesc = new VertexDataDescriptor();
-            unsafe
-            {
-                geoDesc.VertexDesc.Attribs = new List<VertexAtrib>()
-                {
-                    new VertexAtrib() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(T), Offset = 0 }, // Position
-                    new VertexAtrib() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(T), Offset = sizeof(float) * 3 }, // Color
-                };
-            }
+
+            geoDesc.VertexDesc.Attribs = vertexAttribs;
+
             geoDesc.VertexDesc.BufferDesc = new BufferDataDescriptor();
             geoDesc.VertexDesc.BufferDesc.Buffer = new byte[vertCount];
             geoDesc.VertexDesc.BufferDesc.Usage = BufferUsage.Dynamic;
@@ -54,11 +54,11 @@ namespace Engine
 
             unsafe
             {
-                geoDesc.VertexDesc.Attribs = new List<VertexAtrib>()
-                {
+                geoDesc.VertexDesc.Attribs =
+                [
                     new VertexAtrib() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = 0 }, // Position
                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 3 }, // UV
-                };
+                ];
             }
 
             QuadVertices vertices = default;
@@ -69,6 +69,27 @@ namespace Engine
             geoDesc.VertexDesc.BufferDesc.Usage = BufferUsage.Static;
 
             return GfxDeviceManager.Current.CreateGeometry(geoDesc);
+        }
+
+        internal static GfxResource CreateQuadIndexBuffer(int maxQuads)
+        {
+            var indices = new uint[maxQuads * 6];
+
+            for (uint i = 0; i < maxQuads; i++)
+            {
+                indices[i * 6 + 0] = i * 4 + 0;
+                indices[i * 6 + 1] = i * 4 + 1;
+                indices[i * 6 + 2] = i * 4 + 2;
+                indices[i * 6 + 3] = i * 4 + 2;
+                indices[i * 6 + 4] = i * 4 + 3;
+                indices[i * 6 + 5] = i * 4 + 0;
+            }
+
+            var desc = new BufferDataDescriptor();
+            desc.Usage = BufferUsage.Static;
+            desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
+
+            return GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
         internal static void CreateQuad(ref QuadVertices vertices, QuadUV uvs, float width, float height, vec2 pivot,

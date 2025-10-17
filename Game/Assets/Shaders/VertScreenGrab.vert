@@ -7,10 +7,13 @@
   
   out vec2 fragUV;
   out vec2 screenUV;
+  out vec2 worldUV;
+
   flat out int fragTexIndex;            // flat = no interpolation between vertices
   out vec4 vColor;
   uniform mat4 uVP;
-  
+  uniform mat4 uProjectionMatrix;
+
   vec4 unpackColor(uint c) 
   {
       float r = float((c >> 24) & 0xFFu) / 255.0;
@@ -24,11 +27,11 @@
   {
       fragUV = uv;
       fragTexIndex = texIndex; 
+      worldUV = position.xy * 0.1;
       vColor = unpackColor(color);
 
       // Transform to clip space
       vec4 posEnd = uVP * vec4(position, 1.0);
-
       // Convert clip space NDC (divide by w)
       vec3 ndc = posEnd.xyz / posEnd.w;
 

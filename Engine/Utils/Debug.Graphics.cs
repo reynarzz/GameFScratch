@@ -71,7 +71,18 @@ namespace Engine
             if (!_initializedGraphics)
             {
                 _initializedGraphics = true;
-                _linesGeometry = GraphicsHelper.GetEmptyGeometry<DebugVertex>(LINES_MAX_VERTICES, 0, ref _linesGeoDescriptor);
+
+                unsafe
+                {
+                    var attribs = new VertexAtrib[]
+                    {
+                        new VertexAtrib() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(DebugVertex), Offset = 0 }, // Position
+                        new VertexAtrib() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(DebugVertex), Offset = sizeof(float) * 3 }, // Color
+                    };
+
+
+                    _linesGeometry = GraphicsHelper.GetEmptyGeometry(LINES_MAX_VERTICES, 0, ref _linesGeoDescriptor, attribs);
+                }
 
                 _shader = new Shader(DebugVertexShader, DebugFragmentShader);
                 _linesVertexPositions = new DebugVertex[LINES_MAX_VERTICES];

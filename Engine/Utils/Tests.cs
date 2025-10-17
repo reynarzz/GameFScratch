@@ -119,7 +119,7 @@ namespace Engine.Utils
             vertexDesc.BufferDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<Vertex>(vertices).ToArray();
 
             vertexDesc.BufferDesc.Usage = BufferUsage.Static;
-            vertexDesc.Attribs = new()
+            vertexDesc.Attribs = new VertexAtrib[]
             {
                 new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = 0 },
                 new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 3 },

@@ -66,30 +66,10 @@ namespace Engine.Rendering
 
         internal void Initialize()
         {
-            _sharedIndexBuffer = CreateIndexBuffer(MaxQuadsPerBatch);
+            _sharedIndexBuffer = GraphicsHelper.CreateQuadIndexBuffer(MaxQuadsPerBatch);
             _batchesPool = new BatchesPool(_sharedIndexBuffer);
         }
 
-        private GfxResource CreateIndexBuffer(int maxQuads)
-        {
-            var indices = new uint[maxQuads * IndicesPerQuad];
-
-            for (uint i = 0; i < maxQuads; i++)
-            {
-                indices[i * 6 + 0] = i * 4 + 0;
-                indices[i * 6 + 1] = i * 4 + 1;
-                indices[i * 6 + 2] = i * 4 + 2;
-                indices[i * 6 + 3] = i * 4 + 2;
-                indices[i * 6 + 4] = i * 4 + 3;
-                indices[i * 6 + 5] = i * 4 + 0;
-            }
-
-            var desc = new BufferDataDescriptor();
-            desc.Usage = BufferUsage.Static;
-            desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
-
-            return GfxDeviceManager.Current.CreateIndexBuffer(desc);
-        }
 
         internal IReadOnlyList<Batch2D> GetBatches(List<Renderer2D> renderers)
         {
@@ -165,7 +145,7 @@ namespace Engine.Rendering
 
                         if (!CanPushGeometry(currentBatch, vertexCount, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, CreateIndexBuffer(vertexCount / VerticesPerQuad));
+                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, GraphicsHelper.CreateQuadIndexBuffer(vertexCount / VerticesPerQuad));
                         }
 
                         currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));

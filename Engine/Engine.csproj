@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FontStashSharp.PlatformAgnostic" Version="1.4.1" />
     <PackageReference Include="glfw-net" Version="3.3.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SoundFlow" Version="1.2.1" />
