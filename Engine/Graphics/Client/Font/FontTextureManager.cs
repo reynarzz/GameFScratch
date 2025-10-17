@@ -15,6 +15,7 @@ namespace Engine.Graphics
         {
             _sharedDescriptor = new TextureDescriptor();
         }
+
         public object CreateTexture(int width, int height)
         {
             return new Texture2D(width, height, 4, null);

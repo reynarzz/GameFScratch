@@ -15,7 +15,8 @@ namespace Engine.Graphics
     internal class FontRenderingSystem : IFontStashRenderer2
     {
         private FontTextureManager _textureManager;
-        public ITexture2DManager TextureManager => _textureManager;
+        ITexture2DManager IFontStashRenderer2.TextureManager => _textureManager;
+
         private readonly VertexPositionColorTexture[] _vertexData;
         private int _vertexIndex = 0;
 
@@ -28,7 +29,6 @@ namespace Engine.Graphics
         private GeometryDescriptor _geometryDescriptor;
         private Shader _testShader;
         private mat4 _viewMatrix;
-        private Texture2D _testTexture;
 
         public FontRenderingSystem()
         {
@@ -48,7 +48,8 @@ namespace Engine.Graphics
                 Uniforms = new UniformValue[4],
             };
 
-            _testShader = new Shader(Assets.GetText("Shaders/Font/FontVert.vert").Text, Assets.GetText("Shaders/Font/FontFrag.frag").Text);
+            _testShader = new Shader(Assets.GetText("Shaders/Font/FontVert.vert").Text, 
+                                     Assets.GetText("Shaders/Font/FontFrag.frag").Text);
 
             _drawCallData.Features = new PipelineFeatures();
             _drawCallData.Features.Blending.Enabled = true;
@@ -57,8 +58,6 @@ namespace Engine.Graphics
             _drawCallData.Features.Blending.Equation = BlendEquation.FuncAdd;
 
             _viewMatrix = MathUtils.Ortho(0, Window.Width, Window.Height, 0, 0, -1);
-
-            _testTexture = new Texture2D(1, 1, 4, [0xFF, 0xFF, 0xFF, 0xFF]);
         }
 
         private GfxResource CreateFontBatchGeometry(ref GeometryDescriptor desc)
@@ -70,14 +69,17 @@ namespace Engine.Graphics
                 {
                      new VertexAtrib() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = 0 }, // Position
                      new VertexAtrib() { Count = 4, Normalized = true,  Type = GfxValueType.UByte, Stride = stride, Offset = sizeof(float) * 3 }, // Color
-                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = sizeof(float) * 3 + sizeof(byte) * 4 }, // UV
+                     new VertexAtrib() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = stride, Offset = sizeof(float) * 3 + 4 }, // UV
                 };
 
                 return GraphicsHelper.GetEmptyGeometry(_vertexData.Length, 0, ref desc, attribs, _sharedIndexBuffer);
             }
         }
 
-        public void DrawQuad(object texture, ref VertexPositionColorTexture topLeft, ref VertexPositionColorTexture topRight, ref VertexPositionColorTexture bottomLeft, ref VertexPositionColorTexture bottomRight)
+        public void DrawQuad(object texture, ref VertexPositionColorTexture topLeft, 
+                                             ref VertexPositionColorTexture topRight, 
+                                             ref VertexPositionColorTexture bottomLeft, 
+                                             ref VertexPositionColorTexture bottomRight)
         {
             var tex = texture as Texture2D;
 
@@ -141,40 +143,49 @@ namespace Engine.Graphics
             // TODO: refactor, bad performance.
             var fontRenderers = SceneManager.ActiveScene.FindAll<TextRenderer>(findDisabled: false);
 
-            foreach (var fontRenderer in fontRenderers)
+            foreach (var textRenderer in fontRenderers)
             {
-                if (!fontRenderer.Font)
+                if (!textRenderer.Font)
                     return;
 
-                if (!_fontFamilies.TryGetValue(fontRenderer.Font.GetID(), out var fontSystem))
+                if (!_fontFamilies.TryGetValue(textRenderer.Font.GetID(), out var fontSystem))
                 {
                     var settings = new FontSystemSettings
                     {
-                        FontResolutionFactor = 2,
+                        FontResolutionFactor = 3,
                         KernelWidth = 2,
-                        KernelHeight = 2
+                        KernelHeight = 2,
                     };
 
                     fontSystem = new FontSystem(settings);
-                    fontSystem.AddFont(fontRenderer.Font.Data);
+                    fontSystem.AddFont(textRenderer.Font.Data);
 
-                    _fontFamilies.Add(fontRenderer.Font.GetID(), fontSystem);
+                    _fontFamilies.Add(textRenderer.Font.GetID(), fontSystem);
                 }
 
-                var font = fontSystem.GetFont(fontRenderer.FontSize);
+                var font = fontSystem.GetFont(textRenderer.FontSize);
 
-                vec2 pivot = new vec2(0, 0);
+                var pivot = new System.Numerics.Vector2();
 
-                float rotation = fontRenderer.Transform.WorldEulerAngles.z;
+                float rotation = textRenderer.Transform.WorldEulerAngles.z;
 
-                var scale = new System.Numerics.Vector2(fontRenderer.Transform.WorldScale.x, fontRenderer.Transform.WorldScale.y);
+                var scale = new System.Numerics.Vector2(textRenderer.Transform.WorldScale.x, 
+                                                        textRenderer.Transform.WorldScale.y);
 
-                var size = font.MeasureString(fontRenderer.Text, scale);
+                var size = font.MeasureString(textRenderer.Text, scale);
                 var origin = new System.Numerics.Vector2(size.X / 2.0f, size.Y / 2.0f);
 
-                var worldPos = new System.Numerics.Vector2(fontRenderer.Transform.WorldPosition.x, fontRenderer.Transform.WorldPosition.y);
-                var color = new FSColor(fontRenderer.Color.R, fontRenderer.Color.G, fontRenderer.Color.B, fontRenderer.Color.A);
-                font.DrawText(this, fontRenderer.Text, worldPos, color, rotation, new System.Numerics.Vector2(pivot.x, pivot.y), scale);
+                var worldPos = new System.Numerics.Vector2(textRenderer.Transform.WorldPosition.x, 
+                                                           textRenderer.Transform.WorldPosition.y);
+                var color = new FSColor(textRenderer.Color.R, 
+                                        textRenderer.Color.G, 
+                                        textRenderer.Color.B, 
+                                        textRenderer.Color.A);
+                var effect = textRenderer.OutlineSize > 0 ? FontSystemEffect.Stroked : FontSystemEffect.None;
+
+                font.DrawText(this, textRenderer.Text, worldPos, color, rotation, pivot, scale,0, 
+                              textRenderer.CharacterSpacing, textRenderer.LineSpacing, TextStyle.None, 
+                              effect, Math.Clamp(textRenderer.OutlineSize, 0, textRenderer.OutlineSize + 1));
             }
 
             Flush(viewProjection, renderTexture);

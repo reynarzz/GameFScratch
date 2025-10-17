@@ -241,10 +241,11 @@ namespace Game
 
         private void TextRendering()
         {
-            var actor = new Actor<TextRenderer>();
-            var renderer = actor.GetComponent<TextRenderer>();
-            renderer.Text = "Thank you Jesus!";
-            renderer.Font = Assets.Get<FontAsset>("Fonts/Roboto-Regular.ttf");
+            var actor = new Actor<TextWritterTest>();
+            var test = actor.GetComponent<TextWritterTest>();
+            test.Text = "This is a text written line by line!\nand this, is being written just below!!!\nspecial characters: !@#$%^&*()_+ ñ";
+            test.DelayToWrite = 0.03f;
+            test.TextSize = 25;
         }
 
         private void ScreenGrabTest()

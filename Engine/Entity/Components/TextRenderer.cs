@@ -15,5 +15,8 @@ namespace Engine
         public string Text { get; set; }
         public Color Color { get; set; } = Color.White;
         public float FontSize { get; set; } = 32;
+        public float CharacterSpacing { get; set; }
+        public float LineSpacing { get; set; }
+        public int OutlineSize { get; set; }
     }
 }
