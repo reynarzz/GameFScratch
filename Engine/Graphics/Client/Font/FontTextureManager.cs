@@ -11,7 +11,7 @@ namespace Engine.Graphics
     internal class FontTextureManager : ITexture2DManager
     {
         private TextureDescriptor _sharedDescriptor;
-        public FontTextureManager()
+        internal FontTextureManager()
         {
             _sharedDescriptor = new TextureDescriptor();
         }

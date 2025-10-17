@@ -12,7 +12,7 @@ namespace Engine
     public class TextRenderer : Renderer
     {
         public FontAsset Font { get; set; }
-        public string Text { get; set; }
+        public StringBuilder Text { get; } = new StringBuilder();
         public Color Color { get; set; } = Color.White;
         public float FontSize { get; set; } = 32;
         public float CharacterSpacing { get; set; }

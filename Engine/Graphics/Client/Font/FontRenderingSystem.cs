@@ -39,6 +39,7 @@ namespace Engine.Graphics
         private GeometryDescriptor _geometryDescriptor;
         private Shader _testShader;
         private mat4 _viewMatrix;
+        private vec2 _targetScreenRes;
 
         public FontRenderingSystem()
         {
@@ -62,12 +63,11 @@ namespace Engine.Graphics
                                      Assets.GetText("Shaders/Font/FontFrag.frag").Text);
 
             _drawCallData.Features = new PipelineFeatures();
-            _drawCallData.Features.Blending.Enabled = true;
-            _drawCallData.Features.Blending.SrcFactor = BlendFactor.SrcAlpha;
-            _drawCallData.Features.Blending.DstFactor = BlendFactor.OneMinusSrcAlpha;
-            _drawCallData.Features.Blending.Equation = BlendEquation.FuncAdd;
 
-            _viewMatrix = MathUtils.Ortho(0, Window.Width, Window.Height, 0, 0, -1);
+            //_targetScreenRes = new vec2(Window.Width, Window.Height);
+            _targetScreenRes = new vec2(512 * 2, 288 * 2);
+            //_viewMatrix = MathUtils.Ortho(0, _targetScreenRes.x, _targetScreenRes.y, 0, 0, 1);
+            _viewMatrix = MathUtils.Ortho(-_targetScreenRes.x / 2, _targetScreenRes.x / 2, _targetScreenRes.y / 2, -_targetScreenRes.y / 2, 0, -1);
         }
 
         private GfxResource CreateFontBatchGeometry(ref GeometryDescriptor desc)
@@ -143,6 +143,12 @@ namespace Engine.Graphics
                 texIndex++;
             }
 
+            _drawCallData.Features.Blending.Enabled = true;
+            _drawCallData.Features.Blending.SrcFactor = BlendFactor.SrcAlpha;
+            _drawCallData.Features.Blending.DstFactor = BlendFactor.OneMinusSrcAlpha;
+            _drawCallData.Features.Blending.Equation = BlendEquation.FuncAdd;
+
+
             _drawCallData.DrawMode = DrawMode.Triangles;
             _drawCallData.DrawType = DrawType.Indexed;
             _drawCallData.Geometry = geometryTest;
@@ -186,28 +192,49 @@ namespace Engine.Graphics
 
                 var font = fontSystem.GetFont(textRenderer.FontSize);
 
-                var pivot = new System.Numerics.Vector2(0.5f, 0.5f);
 
-                float rotation = glm.radians(textRenderer.Transform.WorldEulerAngles.z);
-
-                var scale = new System.Numerics.Vector2(textRenderer.Transform.WorldScale.x,
-                                                        textRenderer.Transform.WorldScale.y);
-
-                var size = font.MeasureString(textRenderer.Text, scale);
-                var origin = new System.Numerics.Vector2(size.X / 2.0f, size.Y / 2.0f);
-
-                var worldPos = new System.Numerics.Vector2(textRenderer.Transform.WorldPosition.x,
-                                                           textRenderer.Transform.WorldPosition.y);
-            
-                var effect = textRenderer.OutlineSize > 0 ? FontSystemEffect.Stroked : FontSystemEffect.None;
-
-                // This line calls the DrawQuad function for every character.
-                font.DrawText(this, textRenderer.Text, worldPos, new FSColor(textRenderer.Color), rotation, pivot, scale, 0,
-                              textRenderer.CharacterSpacing, textRenderer.LineSpacing, TextStyle.None,
-                              effect, Math.Clamp(textRenderer.OutlineSize, 0, textRenderer.OutlineSize + 1));
+                var split = textRenderer.Text.ToString().Split('\n');
+                
+                for (int i = 0; i < split.Length; i++)
+                {
+                    SendTextToDraw(split[i], font, textRenderer, font.LineHeight * i);
+                }
             }
 
             Flush(viewProjection, renderTexture);
+        }
+
+        private void SendTextToDraw(string text, DynamicSpriteFont font, TextRenderer textRenderer, int lineHeight)
+        {
+            var pivot = new System.Numerics.Vector2(1.0f, 0.5f);
+
+            float rotation = glm.radians(textRenderer.Transform.WorldEulerAngles.z);
+
+            var scale = new System.Numerics.Vector2(textRenderer.Transform.WorldScale.x,
+                                                    textRenderer.Transform.WorldScale.y);
+
+            var effect = textRenderer.OutlineSize > 0 ? FontSystemEffect.Stroked : FontSystemEffect.None;
+
+            var size = font.MeasureString(text, scale, textRenderer.CharacterSpacing, textRenderer.LineSpacing, effect, textRenderer.OutlineSize);
+            var origin = new System.Numerics.Vector2(size.X, size.Y);
+            origin = default;
+            var position = new System.Numerics.Vector2(textRenderer.Transform.WorldPosition.x,
+                                                       textRenderer.Transform.WorldPosition.y + lineHeight);
+
+            var bounds = font.TextBounds(text, position, scale, textRenderer.CharacterSpacing, textRenderer.LineSpacing, effect, textRenderer.OutlineSize);
+
+            var textSize = new System.Numerics.Vector2(bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
+
+            // Compute pivot offset
+            var pivotOffset = new System.Numerics.Vector2(textSize.X * pivot.X, textSize.Y * pivot.Y);
+
+            // Final position to start rendering from
+            var finalPosition = position - pivotOffset;
+
+            // This line calls the DrawQuad function for every character.
+            font.DrawText(this, text, finalPosition, new FSColor(textRenderer.Color), rotation, origin, scale, 0,
+                          textRenderer.CharacterSpacing, textRenderer.LineSpacing, TextStyle.None,
+                          effect, Math.Clamp(textRenderer.OutlineSize, 0, textRenderer.OutlineSize + 1));
         }
     }
 }

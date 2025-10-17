@@ -241,11 +241,18 @@ namespace Game
 
         private void TextRendering()
         {
-            var actor = new Actor<TextWritterTest>();
+            var actor = new Actor<TextWritterTest>("Text1");
             var test = actor.GetComponent<TextWritterTest>();
+            var renderer = actor.AddComponent<TextRenderer>();
             test.Text = "This is a text written line by line!\nand this, is being written just below!!!\nspecial characters: !@#$%^&*()_+ ñ";
             test.DelayToWrite = 0.03f;
-            test.TextSize = 25;
+            test.Transform.WorldPosition = new vec3(0, -200);
+
+            //var actor2 = new Actor<TextWritterTest>("Text2");
+            //var test2 = actor2.GetComponent<TextWritterTest>();
+            //test2.Text = "This is a text written line by line!\nand this, is being written just below!!!\nspecial characters: !@#$%^&*()_+ ñ";
+            //test2.DelayToWrite = 0.05f;
+            //test2.Transform.LocalPosition = new vec3(100, 200);
         }
 
         private void ScreenGrabTest()

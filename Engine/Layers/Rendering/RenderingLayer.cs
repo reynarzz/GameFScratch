@@ -133,6 +133,7 @@ namespace Engine.Layers
             }
 
             Debug.DrawGeometries(VP, sceneRenderTarget.NativeResource);
+            _fontRenderingSystem.Render(VP, sceneRenderTarget);
 
             foreach (var pass in PostProcessingStack.Passes)
             {
@@ -144,12 +145,11 @@ namespace Engine.Layers
                 sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessDraw);
             }
 
-            if (PostProcessingStack.Passes.Count == 0)
-            {
-                DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null, null, _mainCamera);
-            }
+            //if (PostProcessingStack.Passes.Count == 0)
+            //{
+            //    DrawScreenQuad(_screenShader, VP, sceneRenderTarget, null, null, _mainCamera);
+            //}
 
-            _fontRenderingSystem.Render(VP, sceneRenderTarget);
 
             GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
         }
