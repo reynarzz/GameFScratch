@@ -235,8 +235,14 @@ namespace Game
             ScreenGrabTest5();
 
             WaterTest();
+            ParticleSystem();
 
             Debug.Success("Game Layer");
+        }
+
+        private void ParticleSystem()
+        {
+            var particleSystem = new Actor<ParticleSystem>("ParticleSystem");
         }
 
         private void TextRendering()

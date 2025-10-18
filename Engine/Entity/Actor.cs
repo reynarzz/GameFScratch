@@ -88,10 +88,9 @@ namespace Engine
         private List<Component> _onStartComponents;
         private static readonly Action<ScriptBehavior> _awakeAction = x => { x.OnEnabled(); if (x.Actor.IsActiveInHierarchy) x.OnAwake(); };
         private static readonly Action<ScriptBehavior> _startAction = x => x.OnStart();
-        private static readonly Action<ScriptBehavior> _updateAction = x => x.OnUpdate();
-        private static readonly Action<ScriptBehavior> _lateUpdateAction = x => x.OnLateUpdate();
-        private static readonly Action<ScriptBehavior> _fixedUpdateAction = x => x.OnFixedUpdate();
-
+        private static readonly Action<IUpdatableComponent> _updateAction = x => x.OnUpdate();
+        private static readonly Action<ILateUpdatableComponent> _lateUpdateAction = x => x.OnLateUpdate();
+        private static readonly Action<IFixedUpdatableComponent> _fixedUpdateAction = x => x.OnFixedUpdate();
 
         public Actor() : this(string.Empty, string.Empty)
         {
@@ -393,18 +392,19 @@ namespace Engine
             }
         }
 
-        private void UpdateScriptsFunction(Actor actor, Action<ScriptBehavior> action)
+        private void UpdateScriptsFunction<T>(Actor actor, Action<T> action) where T: class, IComponent
         {
             if (actor && actor.IsActiveInHierarchy)
             {
-                foreach (var comp in actor._components)
+                foreach (var component in actor._components)
                 {
-                    if (comp is ScriptBehavior script && script && script.IsEnabled)
+                    var comp = component as T;
+                    if (comp != null && comp.IsValid() && comp.IsEnabled)
                     {
 #if DEBUG
                         try
                         {
-                            action(script);
+                            action(comp);
                         }
                         catch (Exception e)
                         {

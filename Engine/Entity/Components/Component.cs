@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public abstract class Component : EObject
+    public abstract class Component : EObject, IComponent
     {
         public Actor Actor { get; internal set; }
         public Transform Transform
@@ -17,7 +17,7 @@ namespace Engine
                 return Actor.Transform;
             }
         }
-       
+        
         public override string Name { get => Actor?.Name ?? GetType().Name; set => Actor.Name = value; }
 
         private bool _isEnabled = true;

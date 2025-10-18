@@ -8,7 +8,7 @@ using Engine.Layers;
 
 namespace Engine
 {
-    public abstract class EObject
+    public abstract class EObject : IObject
     {
         public virtual string Name { get; set; } = DefaultObjectName;
 
@@ -83,5 +83,10 @@ namespace Engine
 #endif
 
         public virtual void OnDestroy() { }
+
+        public bool IsValid()
+        {
+            return this;
+        }
     }
 }
