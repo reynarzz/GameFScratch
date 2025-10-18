@@ -159,7 +159,7 @@ namespace Engine.Rendering
                 _verticesData[startIndex + i] = vertices[i];
             }
           
-            //if (!existId) 
+            if (!existId) 
             {
                 VertexCount += vertices.Length;
                 IndexCount += indicesCount;

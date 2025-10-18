@@ -153,8 +153,11 @@ namespace Engine.Rendering
 
                         if (!CanPushGeometry(currentBatch, vertexCount, texture, material))
                         {
-                            var indexBufferNew = GraphicsHelper.CreateQuadIndexBuffer(vertexCount / VerticesPerQuad);
-                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, indexBufferNew);
+                            if (!_batchesPool.GetCurrentBatch(renderer, out currentBatch))
+                            {
+                                var indexBufferNew = GraphicsHelper.CreateQuadIndexBuffer(vertexCount / VerticesPerQuad);
+                                currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material);
+                            }
                         }
 
                         currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));

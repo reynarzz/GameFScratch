@@ -23,7 +23,6 @@ namespace Engine
 
         private List<Particle> _particles = new();
         private float _emitAccumulator = 0f;
-        private int _aliveCount;
 
         public vec2 Gravity { get; set; }
         public bool Prewarm { get; set; }
@@ -35,7 +34,16 @@ namespace Engine
             Mesh.IndicesToDrawCount = 0;
             const float bufferOffset = 1.2f;
 
-           // _particles.Capacity = (int)MathF.Ceiling(EmitRate * ParticleLife * bufferOffset);
+            _particles.Capacity = (int)MathF.Ceiling(EmitRate * ParticleLife * bufferOffset);
+
+
+            ////-----------------
+            //for (int i = 0; i < EmitRate * ParticleLife * 14; i++) // Remove this
+            //{
+            //    Mesh.Vertices.Add(default); // Remove this
+            //}
+            //Mesh.IndicesToDrawCount = Mesh.Vertices.Count / 4 * 6; // Remove this
+            ////------------------
         }
 
         public void OnUpdate()
@@ -48,8 +56,6 @@ namespace Engine
                 if (particle.Life <= 0)
                 {
                     _particles.RemoveAt(i);
-                   // Debug.Log("Delete partcile");
-                    _aliveCount--;
                     continue;
                 }
 
@@ -90,8 +96,6 @@ namespace Engine
                 Size = StartSize
             };
 
-            _aliveCount++;
-
             _particles.Add(particle);
         }
 
@@ -127,26 +131,17 @@ namespace Engine
                     Mesh.Vertices.Add(default);
                 }
                 //Debug.Log(particle.Position);
-                Debug.DrawBox(new vec3(particleModel[3][0], particleModel[3][1]), size, particle.Color);
+                // Debug.DrawBox(new vec3(particleModel[3][0], particleModel[3][1]), size, particle.Color);
 
                 // Update vertex data
                 Mesh.Vertices[baseIndex + 0] = quad.v0;
                 Mesh.Vertices[baseIndex + 1] = quad.v1;
                 Mesh.Vertices[baseIndex + 2] = quad.v2;
                 Mesh.Vertices[baseIndex + 3] = quad.v3;
-
             }
 
             Mesh.IndicesToDrawCount = _particles.Count * 6;
-
-            if (Mesh.IndicesToDrawCount > 0)
-            {
-                IsDirty = true;
-            }
-            else
-            {
-                IsDirty = false;
-            }
+            IsDirty = true;
         }
     }
 }

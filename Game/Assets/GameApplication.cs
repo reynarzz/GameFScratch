@@ -18,6 +18,7 @@ namespace Game
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
         // Avoid batch to take more texture slots that the system is supported, take into account materials texture count.
+        // Fix: existId in batch2D, so we can update vertices, now the vertices can be added just once.
 
         // For game:
         // Implement enemies
@@ -112,14 +113,14 @@ namespace Game
                 WorldDepth = 0
             });
 
-            //tilemap2.SetTilemapLDtk(project, new LDtkOptions()
-            //{
-            //    RenderIntGridLayer = true,
-            //    RenderTilesLayer = true,
-            //    RenderAutoLayer = true,
-            //    LayersToLoadMask = 1 << 3,
-            //    WorldDepth = 0
-            //});
+            tilemap2.SetTilemapLDtk(project, new LDtkOptions()
+            {
+                RenderIntGridLayer = true,
+                RenderTilesLayer = true,
+                RenderAutoLayer = true,
+                LayersToLoadMask = 1 << 3,
+                WorldDepth = 0
+            });
 
             //tilemap3.SetTilemapLDtk(json2, new LDtkOptions()
             //{
@@ -249,18 +250,18 @@ namespace Game
             var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest + new vec3(0, 4);
             particleSystem.ParticleLife = 2;
-            Debug.Log("Particle position " + _playerStartPosTest + "Player actor: " + _player.Transform.WorldPosition);
             
-            particleSystem.EmitRate = 2;
-            particleSystem.SortOrder = 2;
-
-            
+            particleSystem.EmitRate = 52;
+            particleSystem.SortOrder = 7;
+            particleSystem.EndSize = new vec2(0, 0);
+            particleSystem.Gravity = new vec2(1, 8);
+          
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);
             mat1.Name = "Particle material";
             particleSystem.Material = mat1;
-            particleSystem.Material.Passes.ElementAt(0).Blending.Enabled = false;
+            //particleSystem.Material.Passes.ElementAt(0).Blending.Enabled = false;
             var sprite = new Sprite();
             sprite.Texture = Texture2D.White;
             sprite.Texture.PixelPerUnit = 1;

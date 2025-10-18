@@ -19,11 +19,25 @@ namespace Engine.Rendering
             _batches = new List<Batch2D>();
         }
 
-        internal Batch2D Get(Renderer2D renderer, int vertexToAdd, int maxVertexSize, Material mat, GfxResource indexBuffer = null)
+        internal bool GetCurrentBatch(Renderer2D renderer, out Batch2D batchOut)
         {
+            batchOut = null;
             foreach (var batch in _batches)
             {
                 if (batch.Contains(renderer))
+                {
+                    batchOut = batch;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal Batch2D Get(Renderer2D renderer, int vertexToAdd, int maxVertexSize, Material mat, GfxResource indexBuffer = null)
+        {
+            {
+                if (GetCurrentBatch(renderer, out var batch))
                 {
                     return batch;
                 }
