@@ -242,7 +242,16 @@ namespace Game
 
         private void ParticleSystem()
         {
-            var particleSystem = new Actor<ParticleSystem>("ParticleSystem");
+            var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
+            particleSystem.Transform.WorldPosition = _playerStartPosTest;
+            particleSystem.EmitRate = 1;
+
+            var sprite = new Sprite();
+
+            sprite.Texture = Texture2D.White;
+            sprite.Texture.PixelPerUnit = 16;
+
+            particleSystem.Sprite = sprite;
         }
 
         private void TextRendering()

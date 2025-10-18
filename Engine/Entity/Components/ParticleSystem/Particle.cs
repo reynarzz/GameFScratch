@@ -10,6 +10,7 @@ namespace Engine
     public struct Particle
     {
         public vec2 Position;
+        public vec2 Size;
         public vec2 Velocity;
         public float Rotation;
         public float AngularVelocity;

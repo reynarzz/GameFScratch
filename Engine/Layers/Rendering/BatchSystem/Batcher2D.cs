@@ -114,6 +114,11 @@ namespace Engine.Rendering
                         renderer.MarkNotDirty();
                     }
 
+                    if (renderer is ParticleSystem2D particle)
+                    {
+                        particle.Render();
+                    }
+
                     if (renderer.Mesh == null)
                     {
                         var chunk = renderer.Sprite?.GetAtlasChunk() ?? AtlasChunk.DefaultChunk;

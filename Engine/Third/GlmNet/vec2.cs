@@ -10,6 +10,11 @@ namespace GlmNet
         public float x;
         public float y;
 
+        public static vec2 One => new vec2(1, 1);
+        public static vec2 Zero => new vec2(0, 0);
+        public static vec2 Right => new vec2(1, 0);
+        public static vec2 Up => new vec2(0, 1);
+
         public float this[int index]
         {
             get
@@ -95,7 +100,7 @@ namespace GlmNet
         }
 
         #region Comparision
-        
+
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
         /// The Difference is detected by the different values
@@ -151,16 +156,16 @@ namespace GlmNet
         {
             return this.x.GetHashCode() ^ this.y.GetHashCode();
         }
-        
+
         #endregion
 
         #region ToString support
-            
+
         public override string ToString()
         {
             return String.Format("[{0}, {1}]", x, y);
         }
-        
+
         #endregion
     }
 }
