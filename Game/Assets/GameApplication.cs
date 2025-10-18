@@ -247,20 +247,20 @@ namespace Game
             Debug.Error("Particle system causes crashes");
 
             var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
-            particleSystem.Transform.WorldPosition = _playerStartPosTest;
+            particleSystem.Transform.WorldPosition = _playerStartPosTest + new vec3(0, 4);
             particleSystem.ParticleLife = 2;
             Debug.Log("Particle position " + _playerStartPosTest + "Player actor: " + _player.Transform.WorldPosition);
             
-            particleSystem.EmitRate = 1;
+            particleSystem.EmitRate = 2;
             particleSystem.SortOrder = 2;
 
-          
+            
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);
             mat1.Name = "Particle material";
             particleSystem.Material = mat1;
-
+            particleSystem.Material.Passes.ElementAt(0).Blending.Enabled = false;
             var sprite = new Sprite();
             sprite.Texture = Texture2D.White;
             sprite.Texture.PixelPerUnit = 1;

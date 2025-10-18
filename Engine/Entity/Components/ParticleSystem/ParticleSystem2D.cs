@@ -13,9 +13,9 @@ namespace Engine
     {
         public float EmitRate { get; set; } = 30f;
         public float ParticleLife { get; set; } = 1.5f;
-        public vec2 VelocityMin { get; set; } = new(-2, -5);
-        public vec2 VelocityMax { get; set; } = new(2, -8);
-        public vec2 Spread { get; set; } = new(0.5f, 0.5f);
+        public vec2 VelocityMin { get; set; } = new(-1, -1);
+        public vec2 VelocityMax { get; set; } = new(1, -1);
+        public vec2 Spread { get; set; } = new(2.5f, 0.5f);
         public Color StartColor { get; set; } = Color.White;
         public Color EndColor { get; set; } = Color.Transparent;
         public vec2 StartSize { get; set; } = vec2.One;
@@ -35,22 +35,11 @@ namespace Engine
             Mesh.IndicesToDrawCount = 0;
             const float bufferOffset = 1.2f;
 
-            _particles.Capacity = (int)MathF.Ceiling(EmitRate * ParticleLife * bufferOffset);
-
-            if (Prewarm)
-                PrewarmSystem();
+           // _particles.Capacity = (int)MathF.Ceiling(EmitRate * ParticleLife * bufferOffset);
         }
 
         public void OnUpdate()
         {
-            _emitAccumulator += Time.DeltaTime * EmitRate;
-
-            while (_emitAccumulator >= 1.0f)
-            {
-                EmitParticle();
-                _emitAccumulator -= 1.0f;
-            }
-
             for (int i = _particles.Count - 1; i >= 0; --i)
             {
                 var particle = _particles[i];
@@ -59,7 +48,7 @@ namespace Engine
                 if (particle.Life <= 0)
                 {
                     _particles.RemoveAt(i);
-                    Debug.Log("Delete partcile");
+                   // Debug.Log("Delete partcile");
                     _aliveCount--;
                     continue;
                 }
@@ -73,6 +62,14 @@ namespace Engine
                 particle.Size = Mathf.Lerp(StartSize, EndSize, time);
 
                 _particles[i] = particle;
+            }
+
+            _emitAccumulator += Time.DeltaTime * EmitRate;
+
+            while (_emitAccumulator >= 1.0f)
+            {
+                EmitParticle();
+                _emitAccumulator -= 1.0f;
             }
         }
 
@@ -88,7 +85,7 @@ namespace Engine
                 Life = ParticleLife,
                 Position = new vec2(RandomFloat(-Spread.x, Spread.x), RandomFloat(-Spread.y, Spread.y)),
                 Rotation = 0,
-                Velocity = new vec2(RandomFloat(-VelocityMin.x, VelocityMax.x), RandomFloat(-VelocityMin.y, VelocityMax.y)),
+                Velocity = new vec2(RandomFloat(VelocityMin.x, VelocityMax.x), RandomFloat(VelocityMin.y, VelocityMax.y)),
                 AngularVelocity = RandomFloat(-2.0f, 2.0f),
                 Size = StartSize
             };
@@ -96,19 +93,6 @@ namespace Engine
             _aliveCount++;
 
             _particles.Add(particle);
-        }
-
-        private void PrewarmSystem()
-        {
-            int count = (int)MathF.Ceiling(EmitRate * ParticleLife);
-            for (int i = 0; i < count; i++)
-            {
-                EmitParticle();
-
-                var p = _particles[_aliveCount - 1];
-                p.Life = RandomFloat(0, ParticleLife);
-                _particles[_aliveCount - 1] = p;
-            }
         }
 
         private float RandomFloat(float min, float max)
@@ -122,35 +106,38 @@ namespace Engine
             var chunk = texture.Atlas.GetChunk(0);
             float ppu = texture.PixelPerUnit;
 
-            if (_particles.Count > 0)
-                Mesh.Vertices.Clear(); // remove
-            Mesh.IndicesToDrawCount = 0;
-
             for (int i = 0; i < _particles.Count; i++)
             {
-                var particleModel = Transform.WorldMatrix * glm.translate(mat4.identity(), _particles[i].Position) * glm.rotate(glm.radians(_particles[i].Rotation), new vec3(0, 0, 1));
-                var size = _particles[i].Size;
+                var particle = _particles[i];
 
-                QuadVertices vertices = default;
-                GraphicsHelper.CreateQuad(ref vertices, chunk.Uvs, size.x, size.y, chunk.Pivot, _particles[i].Color, particleModel);
+                var particleModel = Transform.WorldMatrix *
+                                    glm.translate(mat4.identity(), particle.Position) *
+                                    glm.rotate(glm.radians(particle.Rotation), new vec3(0, 0, 1));
 
-                //if(Mesh.Vertices.Count > i * 4)
-                //{
-                //    Mesh.Vertices[i + 0] = vertices.v0;
-                //    Mesh.Vertices[i + 1] = vertices.v1;
-                //    Mesh.Vertices[i + 2] = vertices.v2;
-                //    Mesh.Vertices[i + 3] = vertices.v3;
-                //}
-                //else
+                var size = particle.Size;
+
+                QuadVertices quad = default;
+                GraphicsHelper.CreateQuad(ref quad, chunk.Uvs, size.x, size.y, chunk.Pivot, particle.Color, particleModel);
+
+                int baseIndex = i * 4;
+
+                // Resize if needed
+                while (Mesh.Vertices.Count < baseIndex + 4)
                 {
-                    Mesh.Vertices.Add(vertices.v0);
-                    Mesh.Vertices.Add(vertices.v1);
-                    Mesh.Vertices.Add(vertices.v2);
-                    Mesh.Vertices.Add(vertices.v3);
+                    Mesh.Vertices.Add(default);
                 }
+                //Debug.Log(particle.Position);
+                Debug.DrawBox(new vec3(particleModel[3][0], particleModel[3][1]), size, particle.Color);
 
-                Mesh.IndicesToDrawCount += 6;
+                // Update vertex data
+                Mesh.Vertices[baseIndex + 0] = quad.v0;
+                Mesh.Vertices[baseIndex + 1] = quad.v1;
+                Mesh.Vertices[baseIndex + 2] = quad.v2;
+                Mesh.Vertices[baseIndex + 3] = quad.v3;
+
             }
+
+            Mesh.IndicesToDrawCount = _particles.Count * 6;
 
             if (Mesh.IndicesToDrawCount > 0)
             {

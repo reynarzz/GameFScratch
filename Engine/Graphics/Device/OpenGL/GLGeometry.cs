@@ -11,7 +11,7 @@ namespace Engine.Graphics.OpenGL
     {
         private readonly GLVertexBuffer _vertBuffer;
         private GLIndexBuffer _indexBuffer;
-        private GLIndexBuffer _sharedBufferTest;
+        private GLIndexBuffer _sharedBuffer;
 
         public GLGeometry() : base(glGenVertexArray, glDeleteVertexArray, glBindVertexArray)
         {
@@ -45,7 +45,7 @@ namespace Engine.Graphics.OpenGL
             {
                 (descriptor.SharedIndexBuffer as GLIndexBuffer).Bind();
 
-                _sharedBufferTest = descriptor.SharedIndexBuffer as GLIndexBuffer;
+                _sharedBuffer = descriptor.SharedIndexBuffer as GLIndexBuffer;
             }
 
             _vertBuffer.Bind();
@@ -76,16 +76,15 @@ namespace Engine.Graphics.OpenGL
             Bind();
             _vertBuffer.Update(descriptor.VertexDesc.BufferDesc);
             _vertBuffer.Bind();
-            if(_sharedBufferTest != null)
+            if(_sharedBuffer != null)
             {
-                _sharedBufferTest.Bind();
+                _sharedBuffer.Bind();
             }
-            if (descriptor.SharedIndexBuffer != null && descriptor.SharedIndexBuffer != _sharedBufferTest)
+            if (descriptor.SharedIndexBuffer != null && descriptor.SharedIndexBuffer != _sharedBuffer)
             {
                 Debug.Error("Shared index buffer error");
                 throw new Exception("Different shared index buffer, please handle it");
             }
-            // descriptor.SharedIndexBuffer;
 
             if (_indexBuffer != null)
             {

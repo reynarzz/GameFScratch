@@ -262,7 +262,7 @@ namespace Engine.Graphics.OpenGL
             {
                 renderTarget.Unbind();
             }
-
+            shader.Unbind();
             (drawCallData.Geometry as GLGeometry).Unbind();
         }
 
