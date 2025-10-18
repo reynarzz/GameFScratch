@@ -22,6 +22,8 @@ namespace Engine
         public Color EndColor { get; set; } = Color.Transparent;
         public vec2 StartSize { get; set; } = vec2.One;
         public vec2 EndSize { get; set; } = vec2.One;
+        public float AngularVelocity { get; set; } = 0;
+
         public bool IsWorldSpace { get; set; }
         public float SimulationSpeed { get; set; } = 1;
 
@@ -89,7 +91,7 @@ namespace Engine
                 Position = new vec2(startPos.x, startPos.y),
                 Rotation = 0,
                 Velocity = new vec2(RandomFloat(VelocityMin.x, VelocityMax.x), RandomFloat(VelocityMin.y, VelocityMax.y)),
-                AngularVelocity = RandomFloat(-2.0f, 2.0f),
+                AngularVelocity = RandomFloat(-AngularVelocity, AngularVelocity),
                 Size = StartSize,
                 IsWorldSpace = IsWorldSpace
 

@@ -246,9 +246,9 @@ namespace Game
         {
             var particleSystem = new Actor<ParticleSystem2D, Move>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest + new vec3(0, 4);
-            particleSystem.ParticleLife = 2;
 
-            particleSystem.EmitRate = 52;
+            particleSystem.EmitRate = 152;
+            particleSystem.ParticleLife = 3;
             particleSystem.SortOrder = 7;
             particleSystem.StartColor = Color.White;
             particleSystem.EndColor = new Color(0,0,0,0);
@@ -258,7 +258,7 @@ namespace Game
             particleSystem.SimulationSpeed = 1;
             particleSystem.StartSize = new vec2(0.3f);
             particleSystem.IsWorldSpace = true;
-
+            particleSystem.AngularVelocity = 40;
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);
