@@ -92,7 +92,7 @@ namespace Engine
             return (float)(Random.Shared.NextDouble() * (max - min) + min);
         }
 
-        internal void Render()
+        internal override void Draw()
         {
             var texture = Sprite.Texture;
             var chunk = texture.Atlas.GetChunk(0);

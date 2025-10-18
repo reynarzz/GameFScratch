@@ -18,18 +18,15 @@ namespace Engine.Graphics
     {
         internal int Count { get; set; }
         internal int Offset { get; set; }
-
-        internal abstract int BufferLength { get; }
         internal BufferUsage Usage { get; set; }
-
+        internal abstract int BufferLength { get; }
         internal abstract IntPtr GetBufferUnsafePtr();      
     }
 
-    internal unsafe class BufferDataDescriptor<T> : BufferDataDescriptor
+    internal unsafe class BufferDataDescriptor<T> : BufferDataDescriptor where T: unmanaged
     {
         internal T[] Buffer { get; set; }
         internal override int BufferLength => Buffer.Length * sizeof(T);
-
         internal override IntPtr GetBufferUnsafePtr()
         {
             fixed (void* ptr = Buffer)

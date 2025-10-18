@@ -51,7 +51,7 @@ namespace Engine
             var width = (float)chunk.Width / ppu;
             var height = (float)chunk.Height / ppu;
 
-            var tileMatrix = Transform.WorldMatrix * glm.translate(mat4.identity(), position) * glm.rotate(rot, new vec3(0, 0, glm.radians(1)));
+            var tileMatrix = Transform.WorldMatrix * glm.translate(mat4.identity(), position) * glm.rotate(glm.radians(rot), new vec3(0, 0, 1));
 
             chunk.Uvs = QuadUV.FlipUV(chunk.Uvs, tile.FlipX, tile.FlipY);
 
@@ -73,6 +73,8 @@ namespace Engine
             //Mesh.Indices.Add(index + 2);
             //Mesh.Indices.Add(index + 3);
             //Mesh.Indices.Add(index + 0);
+
+           // Debug.Log("Quads count: " + Mesh.Vertices.Count / 4);
         }
 
         private void PaintTiles(ldtk.Level level, ldtk.LayerInstance layer, ldtk.TileInstance[] tiles)

@@ -49,6 +49,8 @@ namespace Engine
             OnDestroyRenderer?.Invoke(this);
         }
 
+        internal virtual void Draw() { }
+
         public override void OnDestroy()
         {
             base.OnDestroy();

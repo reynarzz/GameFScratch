@@ -19,6 +19,7 @@ namespace Game
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
         // Avoid batch to take more texture slots that the system is supported, take into account materials texture count.
         // Fix: Batch2d vertices shift when an object is destroyed.
+        // Implement a proper way to grow a batch when vertices are greater than MAX_QUADS_PER_BATCH (Tilemap)
 
         // For game:
         // Implement enemies

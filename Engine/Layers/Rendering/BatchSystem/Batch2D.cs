@@ -20,9 +20,9 @@ namespace Engine.Rendering
         internal static int[] TextureSlotArray { get; private set; }
 
         // TODO: cache this
-        internal int VertexCount 
-        { 
-            get 
+        internal int VertexCount
+        {
+            get
             {
                 var vertexCount = 0;
                 foreach (var renderers in _renderers.Values)
@@ -31,7 +31,7 @@ namespace Engine.Rendering
                 }
 
                 return vertexCount;
-            } 
+            }
         }
 
         // TODO: cache this
@@ -60,15 +60,14 @@ namespace Engine.Rendering
         private GeometryDescriptor _geoDescriptor;
         private Vertex[] _verticesData;
         public bool _isDirty;
-        private Dictionary<Renderer, RendererIds> _renderers;
+        private Dictionary<Guid, RendererIds> _renderers;
 
         private struct RendererIds
         {
             public int RendererId;
             public int TextureId;
-
-            public int VertexCount { get; set; }
-            public int IndexCount { get; set; }
+            public int VertexCount;
+            public int IndexCount;
         }
 
         static Batch2D()
@@ -88,7 +87,7 @@ namespace Engine.Rendering
             MaxVertexSize = maxVertexSize;
             _verticesData = new Vertex[MaxVertexSize];
             Textures = new Texture[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
-            _renderers = new Dictionary<Renderer, RendererIds>();
+            _renderers = new Dictionary<Guid, RendererIds>();
            
             // Create geometry buffer for this batch
             _geoDescriptor = new GeometryDescriptor();
@@ -167,20 +166,20 @@ namespace Engine.Rendering
             renderer.OnDestroyRenderer += OnRendererDestroy;
 
             var startIndex = 0;
-            var existId = _renderers.TryGetValue(renderer, out var rendererIds);
+            var existId = _renderers.TryGetValue(renderer.GetID(), out var rendererIds);
 
             if (existId)
             {
                 rendererIds.VertexCount = vertices.Length;
                 rendererIds.IndexCount = indicesCount;
-                _renderers[renderer] = rendererIds;
+                _renderers[renderer.GetID()] = rendererIds;
 
                 startIndex = rendererIds.RendererId;
             }
             else
             {
                 startIndex = VertexCount;
-                _renderers.Add(renderer, new RendererIds() 
+                _renderers.Add(renderer.GetID(), new RendererIds() 
                 {
                     RendererId = startIndex, 
                     TextureId = textureIndex, 
@@ -209,8 +208,8 @@ namespace Engine.Rendering
             renderer.OnDestroyRenderer -= OnRendererDestroy;
 
             _isDirty = true;
-            var rendererIds = _renderers[renderer];
-            _renderers.Remove(renderer);
+            var rendererIds = _renderers[renderer.GetID()];
+            _renderers.Remove(renderer.GetID());
 
             if (_renderers.Count == 0)
             {
@@ -254,7 +253,7 @@ namespace Engine.Rendering
                     var otherRenderer = kv.Key;
                     var otherStartids = kv.Value;
 
-                    if (kv.Key != renderer && kv.Value.TextureId > rendererIds.TextureId)
+                    if (kv.Key != renderer.GetID() && kv.Value.TextureId > rendererIds.TextureId)
                     {
                         var isSlotOccupied = _renderers.Any(x => x.Value.TextureId == otherStartids.TextureId - 1);
 
@@ -262,7 +261,7 @@ namespace Engine.Rendering
                         {
                             otherStartids.TextureId--;
                             _verticesData[otherStartids.RendererId].TextureIndex = otherStartids.TextureId;
-                            Debug.Log($"Change {kv.Key.Name} texture index: " + otherStartids.TextureId);
+                            //Debug.Log($"Change {kv.Key.Name} texture index: " + otherStartids.TextureId);
                             _renderers[kv.Key] = otherStartids;
                         }
                     }
@@ -291,8 +290,6 @@ namespace Engine.Rendering
                            startIndex,
                            remaining);
             }
-
-            // Decrease the amount of vertices and indices to draw
         }
 
         internal void Flush()
@@ -315,9 +312,13 @@ namespace Engine.Rendering
             _isDirty = false;
         }
 
-        internal bool CanPushGeometry(int vertexCount, Texture texture, Material mat)
+        internal bool CanPushGeometry(Renderer renderer, int vertexCount, Texture texture, Material mat)
         {
-            if (vertexCount + VertexCount > MaxVertexSize)
+            var subsTractVertices = 0;
+            _renderers.TryGetValue(renderer.GetID(), out var rendeId);
+            subsTractVertices = rendeId.VertexCount;
+
+            if (vertexCount + VertexCount - subsTractVertices > MaxVertexSize)
             {
                 return false;
             }
@@ -344,7 +345,7 @@ namespace Engine.Rendering
 
         internal bool Contains(Renderer renderer)
         {
-            return _renderers.ContainsKey(renderer);
+            return _renderers.ContainsKey(renderer.GetID());
         }
     }
 }

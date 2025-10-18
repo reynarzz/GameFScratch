@@ -12,8 +12,8 @@ namespace Engine.Rendering
 {
     internal class Batcher2D
     {
-        internal int MaxQuadsPerBatch { get; private set; }
-        private int MaxBatchVertexSize => MaxQuadsPerBatch * 4;
+        private int MaxQuadsPerBatch { get; set; }
+        private int MaxBatchVertexSize => MaxQuadsPerBatch * VerticesPerQuad;
         internal int IndicesToDraw { get; private set; }
 
         private GfxResource _sharedIndexBuffer;
@@ -108,10 +108,7 @@ namespace Engine.Rendering
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
-                    if (renderer is ParticleSystem2D particle) // remove this
-                    {
-                        particle.Render();
-                    }
+                    renderer.Draw();
 
                     if (!renderer.IsDirty && !renderer.Transform.NeedsInterpolation)
                     {
@@ -131,7 +128,7 @@ namespace Engine.Rendering
                         var width = (float)chunk.Width / ppu;
                         var height = (float)chunk.Height / ppu;
 
-                        if (!CanPushGeometry(currentBatch, VerticesPerQuad, texture, material))
+                        if (!CanPushGeometry(currentBatch, renderer, VerticesPerQuad, texture, material))
                         {
                             currentBatch = _batchesPool.Get(renderer, VerticesPerQuad, MaxBatchVertexSize, material);
                         }
@@ -151,7 +148,7 @@ namespace Engine.Rendering
                         // TODO: implement proper mesh drawing, for now, since it is used just for tilemap, this works
                         var vertexCount = Math.Max(MaxBatchVertexSize, renderer.Mesh.Vertices.Count);
 
-                        if (!CanPushGeometry(currentBatch, vertexCount, texture, material))
+                        if (!CanPushGeometry(currentBatch, renderer, vertexCount, texture, material))
                         {
                             if (!_batchesPool.GetCurrentBatch(renderer, out currentBatch))
                             {
@@ -168,9 +165,9 @@ namespace Engine.Rendering
             return _batchesPool.GetActiveBatches();
         }
 
-        private bool CanPushGeometry(Batch2D currentBatch, int vertexCount, Texture texture, Material material)
+        private bool CanPushGeometry(Batch2D currentBatch, Renderer renderer, int vertexCount, Texture texture, Material material)
         {
-            return currentBatch != null && currentBatch.CanPushGeometry(vertexCount, texture, material);
+            return currentBatch != null && currentBatch.CanPushGeometry(renderer, vertexCount, texture, material);
         }
     }
 }

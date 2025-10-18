@@ -11,7 +11,7 @@ namespace Engine
 {
     internal static class GraphicsHelper
     {
-        internal static GfxResource GetEmptyGeometry<T>(int vertCount, int indexCount, ref GeometryDescriptor geoDesc, VertexAtrib[] vertexAttribs, GfxResource indexBuffer = null)
+        internal static GfxResource GetEmptyGeometry<T>(int vertCount, int indexCount, ref GeometryDescriptor geoDesc, VertexAtrib[] vertexAttribs, GfxResource indexBuffer = null) where T: unmanaged
         {
             if(geoDesc == null)
             {
@@ -80,10 +80,8 @@ namespace Engine
                 indices[i * 6 + 5] = i * 4 + 0;
             }
 
-            var desc = new BufferDataDescriptor<byte>();
+            var desc = new BufferDataDescriptor<uint>() { Buffer = indices };
             desc.Usage = BufferUsage.Static;
-            desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
-
             return GfxDeviceManager.Current.CreateIndexBuffer(desc);
         }
 
