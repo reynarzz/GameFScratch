@@ -244,8 +244,6 @@ namespace Game
 
         private void ParticleSystem()
         {
-            Debug.Error("Particle system causes crashes");
-
             var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest + new vec3(0, 4);
             particleSystem.ParticleLife = 2;
