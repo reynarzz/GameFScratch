@@ -9,6 +9,7 @@ GFS is a video game and game engine built entirely from scratch in **C#**, heavi
 - Custom engine written in C#
 - 2D Rendering (Sprites/Tilemap)
 - Sprite batching
+- Particle system.
 - Dynamic text rendering.
 - Audio system.
 - Input handling, physics (Box2D)
