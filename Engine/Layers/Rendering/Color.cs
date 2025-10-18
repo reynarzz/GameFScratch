@@ -9,6 +9,7 @@ namespace Engine
     public struct Color
     {
         public float R,G,B,A;
+        public static Color Transparent => new Color(0, 0, 0, 0);
         public static Color Red => new Color(1, 0, 0, 1);
         public static Color Green => new Color(0, 1, 0, 1);
         public static Color Blue => new Color(0, 0, 1, 1);
@@ -60,6 +61,17 @@ namespace Engine
         public static implicit operator Color(uint packet)
         {
             return new ColorPacketRGBA(packet);
+        }
+
+        public static Color Lerp(Color a, Color b, float t)
+        {
+            t = Math.Clamp(t, 0f, 1f);
+            return new Color(
+                a.R + (b.R - a.R) * t,
+                a.G + (b.G - a.G) * t,
+                a.B + (b.B - a.B) * t,
+                a.A + (b.A - a.A) * t
+            );
         }
     }
 
