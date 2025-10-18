@@ -250,9 +250,12 @@ namespace Game
 
             particleSystem.EmitRate = 52;
             particleSystem.SortOrder = 7;
+            particleSystem.StartColor = Color.Red;
+            particleSystem.EndColor = new Color(0,0,0,0);
             particleSystem.EndSize = new vec2(0, 0);
-            particleSystem.Gravity = new vec2(1, 8);
-
+            particleSystem.Gravity = new vec2(1, 5);
+            particleSystem.Spread = new vec2(0.0f, 0);
+            particleSystem.SimulationSpeed = 4;
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);

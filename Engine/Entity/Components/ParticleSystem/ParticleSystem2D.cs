@@ -20,6 +20,7 @@ namespace Engine
         public Color EndColor { get; set; } = Color.Transparent;
         public vec2 StartSize { get; set; } = vec2.One;
         public vec2 EndSize { get; set; } = vec2.One;
+        public float SimulationSpeed { get; set; } = 1;
 
         private List<Particle> _particles = new();
         private float _emitAccumulator = 0f;
@@ -39,10 +40,12 @@ namespace Engine
 
         public void OnUpdate()
         {
+            var dt = Time.DeltaTime * SimulationSpeed;
+
             for (int i = _particles.Count - 1; i >= 0; --i)
             {
                 var particle = _particles[i];
-                particle.Life -= Time.DeltaTime;
+                particle.Life -= dt;
 
                 if (particle.Life <= 0)
                 {
@@ -52,16 +55,16 @@ namespace Engine
 
                 float time = 1.0f - (particle.Life / particle.StartLife);
 
-                particle.Velocity += Gravity * Time.DeltaTime;
-                particle.Position += particle.Velocity * Time.DeltaTime;
-                particle.Rotation += particle.AngularVelocity * Time.DeltaTime;
+                particle.Velocity += Gravity * dt;
+                particle.Position += particle.Velocity * dt;
+                particle.Rotation += particle.AngularVelocity * dt;
                 particle.Color = Color.Lerp(StartColor, EndColor, time);
                 particle.Size = Mathf.Lerp(StartSize, EndSize, time);
 
                 _particles[i] = particle;
             }
 
-            _emitAccumulator += Time.DeltaTime * EmitRate;
+            _emitAccumulator += dt * EmitRate;
 
             while (_emitAccumulator >= 1.0f)
             {
