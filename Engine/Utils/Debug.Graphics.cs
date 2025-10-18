@@ -81,7 +81,7 @@ namespace Engine
                     };
 
 
-                    _linesGeometry = GraphicsHelper.GetEmptyGeometry(LINES_MAX_VERTICES, 0, ref _linesGeoDescriptor, attribs);
+                    _linesGeometry = GraphicsHelper.GetEmptyGeometry<DebugVertex>(LINES_MAX_VERTICES, 0, ref _linesGeoDescriptor, attribs);
                 }
 
                 _shader = new Shader(DebugVertexShader, DebugFragmentShader);
@@ -99,7 +99,7 @@ namespace Engine
         {
             Initialize();
 
-            if(_totalLinesVerticesToDraw >= _linesVertexPositions.Length)
+            if (_totalLinesVerticesToDraw >= _linesVertexPositions.Length)
             {
                 Debug.Error($"Can't draw more lines, lines vertices max is: {LINES_MAX_VERTICES}");
                 return;
@@ -320,13 +320,13 @@ namespace Engine
                 // Push geometries updates
                 PushLineGeometries();
 
-                if(renderTexture != null)
+                if (renderTexture != null)
                 {
                     renderTexture.Bind();
                 }
                 // Draw
                 DrawLines();
-                if(renderTexture != null)
+                if (renderTexture != null)
                 {
                     renderTexture.Unbind();
                 }
@@ -345,12 +345,10 @@ namespace Engine
         {
             unsafe
             {
-                var verticesBuffer = MemoryMarshal.AsBytes<DebugVertex>(_linesVertexPositions);
-
                 // Only copy the vertices needed.
                 for (int i = 0; i < sizeof(DebugVertex) * _totalLinesVerticesToDraw; i++)
                 {
-                    _linesGeoDescriptor.VertexDesc.BufferDesc.Buffer[i] = verticesBuffer[i];
+                    (_linesGeoDescriptor.VertexDesc.BufferDesc as BufferDataDescriptor<DebugVertex>).Buffer[i] = _linesVertexPositions[i];
                 }
 
                 _linesGeoDescriptor.VertexDesc.BufferDesc.Offset = 0;

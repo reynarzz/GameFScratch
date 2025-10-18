@@ -83,7 +83,7 @@ namespace Engine.Graphics
                      new VertexAtrib() { Count = 1, Normalized = false, Type = GfxValueType.Int, Stride = stride, Offset = sizeof(float) * 5 }, // charIndex
                 };
 
-                return GraphicsHelper.GetEmptyGeometry(_vertexData.Length, 0, ref desc, attribs, _sharedIndexBuffer);
+                return GraphicsHelper.GetEmptyGeometry<FontVertex>(_vertexData.Length, 0, ref desc, attribs, _sharedIndexBuffer);
             }
         }
 
@@ -130,8 +130,7 @@ namespace Engine.Graphics
                 _geometryDescriptor.VertexDesc.BufferDesc.Count = sizeof(FontVertex) * _vertexIndex;
             }
 
-            // TODO: improve this, it should not be called every frame.
-            _geometryDescriptor.VertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<FontVertex>(_vertexData).ToArray();
+            (_geometryDescriptor.VertexDesc.BufferDesc as BufferDataDescriptor<FontVertex>).Buffer =_vertexData;
 
             GfxDeviceManager.Current.UpdateResouce(geometryTest, _geometryDescriptor);
             int texIndex = 0;

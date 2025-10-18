@@ -18,7 +18,7 @@ namespace Engine.Graphics.OpenGL
             Target = target;
         }
 
-        protected override bool CreateResource(BufferDataDescriptor desc)
+        protected override unsafe bool CreateResource(BufferDataDescriptor desc)
         {
             int usage = desc.Usage switch
             {
@@ -35,7 +35,7 @@ namespace Engine.Graphics.OpenGL
                 return false;
             }
 
-            if (desc.Buffer == null || desc.Buffer.Length == 0)
+            if (desc.GetBufferUnsafePtr().ToPointer() == null || desc.BufferLength == 0)
             {
                 Debug.Error("Invalid buffer data (zero/null)");
 
@@ -46,11 +46,9 @@ namespace Engine.Graphics.OpenGL
 
             unsafe
             {
-                fixed (byte* data = desc.Buffer)
-                {
-                    glBufferData(Target, desc.Buffer.Length, data, usage);
-                }
+                glBufferData(Target, desc.BufferLength, desc.GetBufferUnsafePtr(), usage);
             }
+
             Unbind();
 
             return true;
@@ -61,10 +59,7 @@ namespace Engine.Graphics.OpenGL
             Bind();
             unsafe
             {
-                fixed (byte* data = desc.Buffer)
-                {
-                    glBufferSubData(Target, desc.Offset, desc.Count, data);
-                }
+                glBufferSubData(Target, desc.Offset, desc.Count, desc.GetBufferUnsafePtr());
             }
             Unbind();
         }

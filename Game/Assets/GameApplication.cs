@@ -149,7 +149,7 @@ namespace Game
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
             camera.OrthographicSize = 512.0f / 2.0f / 16.0f;
             // camera.OrthoMatch = CameraOrthoMatch.Width;
-            camera.RenderTexture = new RenderTexture(512*2, 288*2);
+            camera.RenderTexture = new RenderTexture(512 * 2, 288 * 2);
 
             LoadTilemap(camera);
 
@@ -168,9 +168,7 @@ namespace Game
 
             Debug.Log("Enabled: " + LayerMask.AreEnabled(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Player")));
 
-
-
-             _player = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
+            _player = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
             _player.Layer = LayerMask.NameToLayer("Player");
             _player.GetComponent<SpriteRenderer>().Material = mat1;
             _player.GetComponent<SpriteRenderer>().SortOrder = 2;
@@ -250,12 +248,12 @@ namespace Game
             var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest + new vec3(0, 4);
             particleSystem.ParticleLife = 2;
-            
+
             particleSystem.EmitRate = 52;
             particleSystem.SortOrder = 7;
             particleSystem.EndSize = new vec2(0, 0);
             particleSystem.Gravity = new vec2(1, 8);
-          
+
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);

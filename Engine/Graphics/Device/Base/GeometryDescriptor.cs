@@ -28,7 +28,7 @@ namespace Engine.Graphics
         /// <summary>
         /// Define an index buffer to be created
         /// </summary>
-        internal BufferDataDescriptor IndexDesc { get; set; }
+        internal BufferDataDescriptor<uint> IndexDesc { get; set; }
 
         /// <summary>
         /// Set an indexBuffer, no index buffer will be created, note: shared index buffers cannot be updated by clients.

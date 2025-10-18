@@ -90,60 +90,6 @@ namespace Engine.Utils
             return shaderDescriptor;
         }
 
-        internal static unsafe GeometryDescriptor GetTestGeometryDescriptor()
-        {
-           
-
-            //var vertices = new float[]
-            //{
-            //    // x,     y,    z,    u,   v
-            //    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,  // bottom-left
-            //    -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,   // top-left
-            //     0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // top-right
-            //     0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // bottom-right
-            //};
-
-            var vertices = new Vertex[]
-            {
-                new(){ Position = new vec3(-0.5f, -0.5f, 0.0f), UV = new vec2(0.0f, 0.0f), Color = new Color(1,1,1,1) },
-                new(){ Position = new vec3(-0.5f,  0.5f, 0.0f), UV = new vec2(0.0f, 1.0f), Color = new Color(1,1,1,1) },
-                new(){ Position = new vec3(0.5f,   0.5f, 0.0f), UV = new vec2(1.0f, 1.0f), Color = new Color(1,1,1,1) },
-                new(){ Position = new vec3(0.5f,  -0.5f, 0.0f), UV = new vec2(1.0f, 0.0f), Color = new Color(1,1,1,1) },
-            };
-
-            var geoDesc = new GeometryDescriptor();
-
-            var vertexDesc = new VertexDataDescriptor();
-            vertexDesc.BufferDesc = new BufferDataDescriptor();
-
-            vertexDesc.BufferDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<Vertex>(vertices).ToArray();
-
-            vertexDesc.BufferDesc.Usage = BufferUsage.Static;
-            vertexDesc.Attribs = new VertexAtrib[]
-            {
-                new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = 0 },
-                new() { Count = 2, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 3 },
-                new() { Count = 3, Normalized = false, Type = GfxValueType.Float, Stride = sizeof(Vertex), Offset = sizeof(float) * 5 },
-                new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 6 },
-                new() { Count = 1, Normalized = false, Type = GfxValueType.Uint, Stride = sizeof(Vertex), Offset = sizeof(float) * 7 },
-            };
-
-            geoDesc.VertexDesc = vertexDesc;
-
-            var indices = new uint[]
-           {
-               0, 1, 2,
-               0, 2, 3, 1
-           };
-
-            var indexDesc = new BufferDataDescriptor();
-            indexDesc.Usage = BufferUsage.Static;
-            indexDesc.Buffer = System.Runtime.InteropServices.MemoryMarshal.AsBytes<uint>(indices).ToArray();
-
-            geoDesc.IndexDesc = indexDesc;
-
-            return geoDesc;
-        }
 
         internal static TextureDescriptor TestTextureCreation()
         {

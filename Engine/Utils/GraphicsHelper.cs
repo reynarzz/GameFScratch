@@ -11,7 +11,7 @@ namespace Engine
 {
     internal static class GraphicsHelper
     {
-        internal static GfxResource GetEmptyGeometry(int vertCount, int indexCount, ref GeometryDescriptor geoDesc, VertexAtrib[] vertexAttribs, GfxResource indexBuffer = null)
+        internal static GfxResource GetEmptyGeometry<T>(int vertCount, int indexCount, ref GeometryDescriptor geoDesc, VertexAtrib[] vertexAttribs, GfxResource indexBuffer = null)
         {
             if(geoDesc == null)
             {
@@ -24,19 +24,16 @@ namespace Engine
             }
             else
             {
-                geoDesc.IndexDesc = new BufferDataDescriptor();
+                geoDesc.IndexDesc = new BufferDataDescriptor<uint>();
                 geoDesc.IndexDesc.Usage = BufferUsage.Dynamic;
-                geoDesc.IndexDesc.Buffer = new byte[indexCount];
+                geoDesc.IndexDesc.Buffer = new uint[indexCount];
             }
 
             geoDesc.SharedIndexBuffer = indexBuffer;
 
             geoDesc.VertexDesc = new VertexDataDescriptor();
-
             geoDesc.VertexDesc.Attribs = vertexAttribs;
-
-            geoDesc.VertexDesc.BufferDesc = new BufferDataDescriptor();
-            geoDesc.VertexDesc.BufferDesc.Buffer = new byte[vertCount];
+            geoDesc.VertexDesc.BufferDesc = new BufferDataDescriptor<T>() { Buffer = new T[vertCount] };
             geoDesc.VertexDesc.BufferDesc.Usage = BufferUsage.Dynamic;
 
             return GfxDeviceManager.Current.CreateGeometry(geoDesc);
@@ -46,9 +43,8 @@ namespace Engine
         {
             var geoDesc = new GeometryDescriptor();
 
-            geoDesc.IndexDesc = new BufferDataDescriptor();
+            geoDesc.IndexDesc = new BufferDataDescriptor<uint>() { Buffer = [0, 1, 2, 0, 2, 3] };
             geoDesc.IndexDesc.Usage = BufferUsage.Static;
-            geoDesc.IndexDesc.Buffer = MemoryMarshal.AsBytes([0, 1, 2, 0, 2, 3]).ToArray();
 
             geoDesc.VertexDesc = new VertexDataDescriptor();
 
@@ -64,8 +60,7 @@ namespace Engine
             QuadVertices vertices = default;
             CreateQuad(ref vertices, QuadUV.DefaultUVs, 2, 2, new vec2(0.5f), Color.White, mat4.identity());
 
-            geoDesc.VertexDesc.BufferDesc = new BufferDataDescriptor();
-            geoDesc.VertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes([vertices.v0, vertices.v1, vertices.v2, vertices.v3]).ToArray();
+            geoDesc.VertexDesc.BufferDesc = new BufferDataDescriptor<Vertex>() { Buffer = [vertices.v0, vertices.v1, vertices.v2, vertices.v3] };
             geoDesc.VertexDesc.BufferDesc.Usage = BufferUsage.Static;
 
             return GfxDeviceManager.Current.CreateGeometry(geoDesc);
@@ -85,7 +80,7 @@ namespace Engine
                 indices[i * 6 + 5] = i * 4 + 0;
             }
 
-            var desc = new BufferDataDescriptor();
+            var desc = new BufferDataDescriptor<byte>();
             desc.Usage = BufferUsage.Static;
             desc.Buffer = MemoryMarshal.AsBytes<uint>(indices).ToArray();
 

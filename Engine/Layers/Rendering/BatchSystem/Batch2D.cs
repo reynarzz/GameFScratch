@@ -71,26 +71,29 @@ namespace Engine.Rendering
             public int IndexCount { get; set; }
         }
 
+        static Batch2D()
+        {
+            if (TextureSlotArray == null)
+            {
+                TextureSlotArray = new int[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
+                for (int i = 0; i < TextureSlotArray.Length; i++)
+                {
+                    TextureSlotArray[i] = i;
+                }
+            }
+        }
+
         internal Batch2D(int maxVertexSize, GfxResource sharedIndexBuffer)
         {
             MaxVertexSize = maxVertexSize;
             _verticesData = new Vertex[MaxVertexSize];
             Textures = new Texture[GfxDeviceManager.Current.GetDeviceInfo().MaxValidTextureUnits];
             _renderers = new Dictionary<Renderer, RendererIds>();
-            if (TextureSlotArray == null)
-            {
-                TextureSlotArray = new int[Textures.Length];
-                for (int i = 0; i < TextureSlotArray.Length; i++)
-                {
-                    TextureSlotArray[i] = i;
-                }
-            }
-
+           
             // Create geometry buffer for this batch
             _geoDescriptor = new GeometryDescriptor();
             var vertexDesc = new VertexDataDescriptor();
-            vertexDesc.BufferDesc = new BufferDataDescriptor();
-            vertexDesc.BufferDesc.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
+            vertexDesc.BufferDesc = new BufferDataDescriptor<Vertex>() { Buffer = _verticesData };
             vertexDesc.BufferDesc.Usage = BufferUsage.Dynamic;
             _geoDescriptor.SharedIndexBuffer = sharedIndexBuffer;
 
@@ -304,7 +307,7 @@ namespace Engine.Rendering
                     vertDataDescriptor.Count = sizeof(Vertex) * VertexCount;
                 }
 
-                vertDataDescriptor.Buffer = MemoryMarshal.AsBytes<Vertex>(_verticesData).ToArray();
+                (vertDataDescriptor as BufferDataDescriptor<Vertex>).Buffer = _verticesData;
 
                 GfxDeviceManager.Current.UpdateGeometry(Geometry, _geoDescriptor);
             }
