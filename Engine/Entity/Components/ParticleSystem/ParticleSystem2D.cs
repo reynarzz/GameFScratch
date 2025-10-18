@@ -35,15 +35,6 @@ namespace Engine
             const float bufferOffset = 1.2f;
 
             _particles.Capacity = (int)MathF.Ceiling(EmitRate * ParticleLife * bufferOffset);
-
-
-            ////-----------------
-            //for (int i = 0; i < EmitRate * ParticleLife * 14; i++) // Remove this
-            //{
-            //    Mesh.Vertices.Add(default); // Remove this
-            //}
-            //Mesh.IndicesToDrawCount = Mesh.Vertices.Count / 4 * 6; // Remove this
-            ////------------------
         }
 
         public void OnUpdate()
@@ -81,9 +72,6 @@ namespace Engine
 
         private void EmitParticle()
         {
-            //if (_aliveCount >= _particles.Count)
-            //    return;
-            Debug.Log("Emit");
             var particle = new Particle()
             {
                 Color = StartColor,
@@ -130,8 +118,6 @@ namespace Engine
                 {
                     Mesh.Vertices.Add(default);
                 }
-                //Debug.Log(particle.Position);
-                // Debug.DrawBox(new vec3(particleModel[3][0], particleModel[3][1]), size, particle.Color);
 
                 // Update vertex data
                 Mesh.Vertices[baseIndex + 0] = quad.v0;

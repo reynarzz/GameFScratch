@@ -18,8 +18,38 @@ namespace Engine.Rendering
         internal GfxResource Geometry { get; }
         internal Texture[] Textures { get; }
         internal static int[] TextureSlotArray { get; private set; }
-        internal int VertexCount { get; private set; }
-        internal int IndexCount { get; private set; }
+
+        // TODO: cache this
+        internal int VertexCount 
+        { 
+            get 
+            {
+                var vertexCount = 0;
+                foreach (var renderers in _renderers.Values)
+                {
+                    vertexCount += renderers.VertexCount;
+                }
+
+                return vertexCount;
+            } 
+        }
+
+        // TODO: cache this
+        internal int IndexCount
+        {
+            get
+            {
+                var amount = 0;
+                foreach (var renderers in _renderers.Values)
+                {
+                    amount += renderers.IndexCount;
+                }
+
+                return amount;
+            }
+        }
+
+        // internal int IndexCount { get; private set; }
         internal bool IsActive { get; private set; }
         internal DrawMode DrawMode { get; set; } = DrawMode.Triangles;
         internal DrawType DrawType { get; set; } = DrawType.Indexed;
@@ -36,6 +66,9 @@ namespace Engine.Rendering
         {
             public int RendererId;
             public int TextureId;
+
+            public int VertexCount { get; set; }
+            public int IndexCount { get; set; }
         }
 
         internal Batch2D(int maxVertexSize, GfxResource sharedIndexBuffer)
@@ -90,8 +123,6 @@ namespace Engine.Rendering
         internal void Clear()
         {
             SortOrder = 0;
-            VertexCount = 0;
-            IndexCount = 0;
             Material = null;
             _isDirty = false;
             IsActive = false;
@@ -105,19 +136,12 @@ namespace Engine.Rendering
 
         internal void PushGeometry(Renderer2D renderer, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
         {
-            
-
             _isDirty = true;
             IsActive = true;
             if (!Material)
             {
                 Material = material;
             }
-
-            //if (vertices.Length == 0)
-            //{
-            //    return;
-            //}
 
             int textureIndex = 0;
             // Adds texture to a empty slot
@@ -144,12 +168,22 @@ namespace Engine.Rendering
 
             if (existId)
             {
+                rendererIds.VertexCount = vertices.Length;
+                rendererIds.IndexCount = indicesCount;
+                _renderers[renderer] = rendererIds;
+
                 startIndex = rendererIds.RendererId;
             }
             else
             {
                 startIndex = VertexCount;
-                _renderers.Add(renderer, new RendererIds() { RendererId = startIndex, TextureId = textureIndex });
+                _renderers.Add(renderer, new RendererIds() 
+                {
+                    RendererId = startIndex, 
+                    TextureId = textureIndex, 
+                    VertexCount = vertices.Length,
+                     IndexCount = indicesCount
+                });
             }
 
             // Copies vertices data
@@ -158,12 +192,6 @@ namespace Engine.Rendering
                 vertices[i].TextureIndex = textureIndex;
                 _verticesData[startIndex + i] = vertices[i];
             }
-          
-            if (!existId) 
-            {
-                VertexCount += vertices.Length;
-                IndexCount += indicesCount;
-            }
         }
 
         /// <summary>
@@ -171,7 +199,6 @@ namespace Engine.Rendering
         /// </summary>
         internal void PushGeometryImmediate(Material material, Texture texture, int indicesCount, params Vertex[] vertices)
         {
-            // TODO: 
         }
 
         private void OnRendererDestroy(Renderer renderer)
@@ -263,9 +290,6 @@ namespace Engine.Rendering
             }
 
             // Decrease the amount of vertices and indices to draw
-            VertexCount -= rendererVerticesCount;
-            IndexCount -= rendererIndicesCount;
-
         }
 
         internal void Flush()

@@ -18,7 +18,7 @@ namespace Game
         // Fix rigidbody marked as interpolate if is made parent of another that is not, after exiting, the interpolation is disabled.
         // Simple animation system (state machine, variable(bool,int,float) and transition conditions (bool (true/false), int(equal,less, greater) float(less, greater)))
         // Avoid batch to take more texture slots that the system is supported, take into account materials texture count.
-        // Fix: existId in batch2D, so we can update vertices, now the vertices can be added just once.
+        // Fix: Batch2d vertices shift when an object is destroyed.
 
         // For game:
         // Implement enemies
