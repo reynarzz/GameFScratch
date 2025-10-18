@@ -150,7 +150,7 @@ namespace Game
             // camera.OrthoMatch = CameraOrthoMatch.Width;
             camera.RenderTexture = new RenderTexture(512*2, 288*2);
 
-            //LoadTilemap(camera);
+            LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -227,9 +227,9 @@ namespace Game
 
             ScreenGrabTest();
             TextRendering();
-            //ScreenGrabTest2();
 
             ScreenGrabTest3();
+
             Portal();
             Portal().Transform.LocalPosition = new vec3(33, -9.1f);
             Portal().Transform.LocalPosition = new vec3(43, -1);
@@ -237,7 +237,7 @@ namespace Game
             ScreenGrabTest5();
 
             WaterTest();
-             ParticleSystem();
+            ParticleSystem();
 
             Debug.Success("Game Layer");
         }
@@ -248,12 +248,12 @@ namespace Game
 
             var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest;
+            particleSystem.ParticleLife = 2;
             Debug.Log("Particle position " + _playerStartPosTest + "Player actor: " + _player.Transform.WorldPosition);
             
             particleSystem.EmitRate = 1;
             particleSystem.SortOrder = 2;
 
-            var sprite = new Sprite();
           
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
@@ -261,8 +261,9 @@ namespace Game
             mat1.Name = "Particle material";
             particleSystem.Material = mat1;
 
+            var sprite = new Sprite();
             sprite.Texture = Texture2D.White;
-            sprite.Texture.PixelPerUnit = 16;
+            sprite.Texture.PixelPerUnit = 1;
 
             particleSystem.Sprite = sprite;
         }

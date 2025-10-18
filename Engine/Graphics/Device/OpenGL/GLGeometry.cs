@@ -73,12 +73,27 @@ namespace Engine.Graphics.OpenGL
 
         internal override void UpdateResource(GeometryDescriptor descriptor)
         {
+            Bind();
             _vertBuffer.Update(descriptor.VertexDesc.BufferDesc);
+            _vertBuffer.Bind();
+            if(_sharedBufferTest != null)
+            {
+                _sharedBufferTest.Bind();
+            }
+            if (descriptor.SharedIndexBuffer != null && descriptor.SharedIndexBuffer != _sharedBufferTest)
+            {
+                Debug.Error("Shared index buffer error");
+                throw new Exception("Different shared index buffer, please handle it");
+            }
+            // descriptor.SharedIndexBuffer;
 
             if (_indexBuffer != null)
             {
                 _indexBuffer.Update(descriptor.IndexDesc);
+                _indexBuffer.Bind();
             }
+
+            Unbind();
         }
 
         protected override void FreeResource()

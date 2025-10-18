@@ -147,7 +147,7 @@ namespace Engine.Graphics.OpenGL
             {
                 buffer.UpdateResource(desc as RenderTargetDescriptor);
             }
-            else if(resource is GLTexture texture)
+            else if (resource is GLTexture texture)
             {
                 texture.UpdateResource(desc as TextureDescriptor);
             }
@@ -263,6 +263,7 @@ namespace Engine.Graphics.OpenGL
                 renderTarget.Unbind();
             }
 
+            (drawCallData.Geometry as GLGeometry).Unbind();
         }
 
         internal override byte[] ReadRenderTargetColors(GfxResource nativeResource)

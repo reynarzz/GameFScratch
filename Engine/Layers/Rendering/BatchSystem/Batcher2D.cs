@@ -14,11 +14,7 @@ namespace Engine.Rendering
     {
         internal int MaxQuadsPerBatch { get; private set; }
         private int MaxBatchVertexSize => MaxQuadsPerBatch * 4;
-
-        internal int BatchCount => _batches.Count;
         internal int IndicesToDraw { get; private set; }
-
-        private List<Batch2D> _batches;
 
         private GfxResource _sharedIndexBuffer;
 
@@ -157,10 +153,11 @@ namespace Engine.Rendering
 
                         if (!CanPushGeometry(currentBatch, vertexCount, texture, material))
                         {
-                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, GraphicsHelper.CreateQuadIndexBuffer(vertexCount / VerticesPerQuad));
+                            var indexBufferNew = GraphicsHelper.CreateQuadIndexBuffer(vertexCount / VerticesPerQuad);
+                            currentBatch = _batchesPool.Get(renderer, renderer.Mesh.Vertices.Count, vertexCount, material, indexBufferNew);
                         }
 
-                        currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));
+                       currentBatch.PushGeometry(renderer, material, texture, renderer.Mesh.IndicesToDrawCount, CollectionsMarshal.AsSpan(renderer.Mesh.Vertices));
                     }
                 }
             }

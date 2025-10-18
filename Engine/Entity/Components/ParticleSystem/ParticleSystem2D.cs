@@ -13,8 +13,8 @@ namespace Engine
     {
         public float EmitRate { get; set; } = 30f;
         public float ParticleLife { get; set; } = 1.5f;
-        public vec2 VelocityMin { get; set; } = new(-20, -50);
-        public vec2 VelocityMax { get; set; } = new(20, -80);
+        public vec2 VelocityMin { get; set; } = new(-2, -5);
+        public vec2 VelocityMax { get; set; } = new(2, -8);
         public vec2 Spread { get; set; } = new(0.5f, 0.5f);
         public Color StartColor { get; set; } = Color.White;
         public Color EndColor { get; set; } = Color.Transparent;
@@ -37,15 +37,7 @@ namespace Engine
 
             _particles.Capacity = (int)MathF.Ceiling(EmitRate * ParticleLife * bufferOffset);
 
-
-            QuadVertices vertices = default;
-                Mesh.Vertices.Add(vertices.v0);
-                Mesh.Vertices.Add(vertices.v1);
-                Mesh.Vertices.Add(vertices.v2);
-                Mesh.Vertices.Add(vertices.v3);
-
-
-                if (Prewarm)
+            if (Prewarm)
                 PrewarmSystem();
         }
 
@@ -67,6 +59,7 @@ namespace Engine
                 if (particle.Life <= 0)
                 {
                     _particles.RemoveAt(i);
+                    Debug.Log("Delete partcile");
                     _aliveCount--;
                     continue;
                 }
@@ -77,7 +70,7 @@ namespace Engine
                 particle.Position += particle.Velocity * Time.DeltaTime;
                 particle.Rotation += particle.AngularVelocity * Time.DeltaTime;
                 particle.Color = Color.Lerp(StartColor, EndColor, time);
-                // particle.Size = Mathf.Lerp(StartSize, EndSize, time);
+                particle.Size = Mathf.Lerp(StartSize, EndSize, time);
 
                 _particles[i] = particle;
             }
@@ -87,7 +80,7 @@ namespace Engine
         {
             //if (_aliveCount >= _particles.Count)
             //    return;
-
+            Debug.Log("Emit");
             var particle = new Particle()
             {
                 Color = StartColor,
@@ -129,10 +122,10 @@ namespace Engine
             var chunk = texture.Atlas.GetChunk(0);
             float ppu = texture.PixelPerUnit;
 
-            if(_particles.Count > 0)
-            Mesh.Vertices.Clear(); // remove
+            if (_particles.Count > 0)
+                Mesh.Vertices.Clear(); // remove
             Mesh.IndicesToDrawCount = 0;
-            
+
             for (int i = 0; i < _particles.Count; i++)
             {
                 var particleModel = Transform.WorldMatrix * glm.translate(mat4.identity(), _particles[i].Position) * glm.rotate(glm.radians(_particles[i].Rotation), new vec3(0, 0, 1));
@@ -159,14 +152,14 @@ namespace Engine
                 Mesh.IndicesToDrawCount += 6;
             }
 
-            if(Mesh.IndicesToDrawCount > 0)
+            if (Mesh.IndicesToDrawCount > 0)
             {
                 IsDirty = true;
             }
-            else {
+            else
+            {
                 IsDirty = false;
             }
-            Debug.Log("Particle system: " + _particles.Count + ", " + Mesh.IndicesToDrawCount);
         }
     }
 }
