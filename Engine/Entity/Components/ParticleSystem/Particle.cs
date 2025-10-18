@@ -17,5 +17,6 @@ namespace Engine
         public float Life;
         public float StartLife;
         public Color Color;
+        public bool IsWorldSpace;
     }
 }

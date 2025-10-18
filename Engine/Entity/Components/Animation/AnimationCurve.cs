@@ -17,6 +17,7 @@ namespace Engine
     {
         private readonly List<Keyframe> _keys = new();
         public CurveMode Mode { get; set; } = CurveMode.Smooth;
+        public int Count => _keys.Count;
 
         public AnimationCurve(params Keyframe[] keys)
         {
@@ -27,6 +28,15 @@ namespace Engine
         public void AddKey(Keyframe key)
         {
             _keys.Add(key);
+        }
+
+        public void RemoveKey(int index)
+        {
+            _keys.RemoveAt(index);
+        }
+
+        public void Apply()
+        {
             _keys.Sort((a, b) => a.Time.CompareTo(b.Time));
         }
 

@@ -244,18 +244,21 @@ namespace Game
 
         private void ParticleSystem()
         {
-            var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
+            var particleSystem = new Actor<ParticleSystem2D, Move>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest + new vec3(0, 4);
             particleSystem.ParticleLife = 2;
 
             particleSystem.EmitRate = 52;
             particleSystem.SortOrder = 7;
-            particleSystem.StartColor = Color.Red;
+            particleSystem.StartColor = Color.White;
             particleSystem.EndColor = new Color(0,0,0,0);
             particleSystem.EndSize = new vec2(0, 0);
-            particleSystem.Gravity = new vec2(1, 5);
+            //particleSystem.Gravity = new vec2(1, 3);
             particleSystem.Spread = new vec2(0.0f, 0);
-            particleSystem.SimulationSpeed = 4;
+            particleSystem.SimulationSpeed = 1;
+            particleSystem.StartSize = new vec2(0.3f);
+            particleSystem.IsWorldSpace = true;
+
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);

@@ -11,6 +11,8 @@ namespace Engine
 {
     public class ParticleSystem2D : Renderer2D, IUpdatableComponent
     {
+        private static mat4 _particlePositionM = mat4.identity();
+
         public float EmitRate { get; set; } = 30f;
         public float ParticleLife { get; set; } = 1.5f;
         public vec2 VelocityMin { get; set; } = new(-1, -1);
@@ -20,6 +22,7 @@ namespace Engine
         public Color EndColor { get; set; } = Color.Transparent;
         public vec2 StartSize { get; set; } = vec2.One;
         public vec2 EndSize { get; set; } = vec2.One;
+        public bool IsWorldSpace { get; set; }
         public float SimulationSpeed { get; set; } = 1;
 
         private List<Particle> _particles = new();
@@ -75,16 +78,21 @@ namespace Engine
 
         private void EmitParticle()
         {
+            var localPos = new vec4(RandomFloat(-Spread.x, Spread.x), RandomFloat(-Spread.y, Spread.y), 0, 1);
+            var startPos = IsWorldSpace ? Transform.WorldMatrix * localPos : localPos;
+
             var particle = new Particle()
             {
                 Color = StartColor,
                 StartLife = ParticleLife,
                 Life = ParticleLife,
-                Position = new vec2(RandomFloat(-Spread.x, Spread.x), RandomFloat(-Spread.y, Spread.y)),
+                Position = new vec2(startPos.x, startPos.y),
                 Rotation = 0,
                 Velocity = new vec2(RandomFloat(VelocityMin.x, VelocityMax.x), RandomFloat(VelocityMin.y, VelocityMax.y)),
                 AngularVelocity = RandomFloat(-2.0f, 2.0f),
-                Size = StartSize
+                Size = StartSize,
+                IsWorldSpace = IsWorldSpace
+
             };
 
             _particles.Add(particle);
@@ -101,13 +109,17 @@ namespace Engine
             var chunk = texture.Atlas.GetChunk(0);
             float ppu = texture.PixelPerUnit;
 
+
             for (int i = 0; i < _particles.Count; i++)
             {
                 var particle = _particles[i];
 
-                var particleModel = Transform.WorldMatrix *
-                                    glm.translate(mat4.identity(), particle.Position) *
-                                    glm.rotate(glm.radians(particle.Rotation), new vec3(0, 0, 1));
+                _particlePositionM[3] = new vec4(particle.Position, 1);
+
+                var particleM = _particlePositionM *
+                                glm.rotate(glm.radians(particle.Rotation), new vec3(0, 0, 1));
+
+                var particleModel = particle.IsWorldSpace? particleM: Transform.WorldMatrix * particleM;
 
                 var size = particle.Size;
 

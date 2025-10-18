@@ -86,6 +86,7 @@ namespace GlmNet
             set { cols[column] = value; }
         }
 
+
         /// <summary>
         /// Gets or sets the element at <paramref name="column"/> and <paramref name="row"/>.
         /// </summary>

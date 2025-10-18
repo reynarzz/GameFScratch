@@ -61,6 +61,14 @@ namespace GlmNet
             this.w = w;
         }
 
+        public vec4(vec2 xy, float w)
+        {
+            this.x = xy.x;
+            this.y = xy.y;
+            this.z = 0;
+            this.w = w;
+        }
+
         public static vec4 operator +(vec4 lhs, vec4 rhs)
         {
             return new vec4(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w);
