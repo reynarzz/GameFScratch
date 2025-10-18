@@ -11,6 +11,7 @@ namespace Engine.Graphics.OpenGL
     {
         private readonly GLVertexBuffer _vertBuffer;
         private GLIndexBuffer _indexBuffer;
+        private GLIndexBuffer _sharedBufferTest;
 
         public GLGeometry() : base(glGenVertexArray, glDeleteVertexArray, glBindVertexArray)
         {
@@ -43,6 +44,8 @@ namespace Engine.Graphics.OpenGL
             else if(descriptor.SharedIndexBuffer != null)
             {
                 (descriptor.SharedIndexBuffer as GLIndexBuffer).Bind();
+
+                _sharedBufferTest = descriptor.SharedIndexBuffer as GLIndexBuffer;
             }
 
             _vertBuffer.Bind();

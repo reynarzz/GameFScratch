@@ -32,10 +32,16 @@ namespace Engine.Rendering
 
         private struct BucketKey : IEquatable<BucketKey>
         {
-            public Material Material { get; set; }
-            public int SortOrder { get; set; }
+            private readonly Material Material;
+            private readonly int SortOrder;
 
-            public bool Equals(BucketKey other) => ReferenceEquals(Material, other.Material) && SortOrder == other.SortOrder;
+            public BucketKey(Material material, int sortOrder)
+            {
+                Material = material;
+                SortOrder = sortOrder;
+            }
+
+            public bool Equals(BucketKey other) => Equals(Material, other.Material) && SortOrder == other.SortOrder;
             public override bool Equals(object obj) => obj is BucketKey other && Equals(other);
             public override int GetHashCode()
             {
@@ -58,6 +64,7 @@ namespace Engine.Rendering
             _renderBuckets = new Dictionary<BucketKey, List<Renderer2D>>();
 
             _pinkMaterial = new Material(Tests.GetShaderPink());
+            _pinkMaterial.Name = "Pink Material";
             _whiteTexture = new Texture2D(TextureMode.Clamp, 1, 1, 4, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
             _whiteTexture.PixelPerUnit = 1;
 
@@ -85,7 +92,7 @@ namespace Engine.Rendering
                     continue;
                 }
 
-                var key = new BucketKey() { SortOrder = renderer.SortOrder, Material = renderer.Material };
+                var key = new BucketKey(renderer.Material, renderer.SortOrder);
 
                 if (!_renderBuckets.ContainsKey(key))
                 {
@@ -105,6 +112,11 @@ namespace Engine.Rendering
                     var texture = renderer.Sprite?.Texture ?? _whiteTexture;
                     var material = renderer.Material ?? _pinkMaterial;
 
+                    if (renderer is ParticleSystem2D particle) // remove this
+                    {
+                        particle.Render();
+                    }
+
                     if (!renderer.IsDirty && !renderer.Transform.NeedsInterpolation)
                     {
                         continue;
@@ -112,11 +124,6 @@ namespace Engine.Rendering
                     else
                     {
                         renderer.MarkNotDirty();
-                    }
-
-                    if (renderer is ParticleSystem2D particle)
-                    {
-                        particle.Render();
                     }
 
                     if (renderer.Mesh == null)

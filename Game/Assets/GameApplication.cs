@@ -53,7 +53,8 @@ namespace Game
             string json = Assets.GetText(filepath).Text;
             string json2 = Assets.GetText(testPathNow + "/Test_Grass.ldtk").Text;
 
-            var mat1 = new Material(new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text));
+            var tilemapMaterial = new Material(new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text));
+            tilemapMaterial.Name = "Tilemap material";
 
             var project = ldtk.LdtkJson.FromJson(json);
             var color = project.BgColor;
@@ -88,17 +89,17 @@ namespace Game
 
             var tilemapActor = new Actor<TilemapRenderer>("Foreground tilemap");
             var tilemap = tilemapActor.GetComponent<TilemapRenderer>();
-            tilemap.Material = mat1;
+            tilemap.Material = tilemapMaterial;
             tilemap.Sprite = tilemapSprite;
 
             var tilemapActor2 = new Actor<TilemapRenderer>("Background tilemap");
             var tilemap2 = tilemapActor2.GetComponent<TilemapRenderer>();
-            tilemap2.Material = mat1;
+            tilemap2.Material = tilemapMaterial;
             tilemap2.Sprite = tilemapSprite;
 
             var tilemapActor3 = new Actor<TilemapRenderer>("Grass tilemap");
             var tilemap3 = tilemapActor3.GetComponent<TilemapRenderer>();
-            tilemap3.Material = mat1;
+            tilemap3.Material = tilemapMaterial;
             tilemap3.Sprite = tilemapSprite;
 
             // tilemap.SetTilemapLDtk(project, new LDtkOptions() { RenderIntGridLayer = true, RenderTilesLayer = true, RenderAutoLayer = true });
@@ -111,14 +112,14 @@ namespace Game
                 WorldDepth = 0
             });
 
-            tilemap2.SetTilemapLDtk(project, new LDtkOptions()
-            {
-                RenderIntGridLayer = true,
-                RenderTilesLayer = true,
-                RenderAutoLayer = true,
-                LayersToLoadMask = 1 << 3,
-                WorldDepth = 0
-            });
+            //tilemap2.SetTilemapLDtk(project, new LDtkOptions()
+            //{
+            //    RenderIntGridLayer = true,
+            //    RenderTilesLayer = true,
+            //    RenderAutoLayer = true,
+            //    LayersToLoadMask = 1 << 3,
+            //    WorldDepth = 0
+            //});
 
             //tilemap3.SetTilemapLDtk(json2, new LDtkOptions()
             //{
@@ -135,12 +136,13 @@ namespace Game
             tilemap.AddComponent<TilemapCollider2D>();
             tilemap.Actor.Layer = 1;
         }
-
+        private Actor _player;
         public override void Initialize()
         {
             var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
 
             var mat1 = new Material(mainShader);
+            mat1.Name = "Entities material (player/platform etc)";
 
             var camera = new Actor<Camera, CameraFollow>("Camera").GetComponent<Camera>();
             camera.BackgroundColor = new Engine.Color(0.2f, 0.2f, 0.2f, 1);
@@ -148,7 +150,7 @@ namespace Game
             // camera.OrthoMatch = CameraOrthoMatch.Width;
             camera.RenderTexture = new RenderTexture(512*2, 288*2);
 
-            LoadTilemap(camera);
+            //LoadTilemap(camera);
 
             //var defChunk = sprite1.GetAtlasChunk();
             //defChunk.Pivot = new GlmNet.vec2(0.5f, 0);
@@ -167,10 +169,10 @@ namespace Game
 
 
 
-            var playerActor = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
-            playerActor.Layer = LayerMask.NameToLayer("Player");
-            playerActor.GetComponent<SpriteRenderer>().Material = mat1;
-            playerActor.GetComponent<SpriteRenderer>().SortOrder = 2;
+             _player = new Actor<SpriteRenderer, RigidBody2D, CapsuleCollider2D, PlayerTest, SpriteAnimation2D>("Player");
+            _player.Layer = LayerMask.NameToLayer("Player");
+            _player.GetComponent<SpriteRenderer>().Material = mat1;
+            _player.GetComponent<SpriteRenderer>().SortOrder = 2;
             var PlayerMatPass = mat1.Passes.ElementAt(0);
             PlayerMatPass.Stencil.Enabled = true;
             PlayerMatPass.Stencil.Func = StencilFunc.Always;
@@ -178,7 +180,7 @@ namespace Game
             PlayerMatPass.Stencil.ZPassOp = StencilOp.Replace;
 
             var audioClip = Assets.GetAudioClip("Audio/music/streamloops/Stream Loops 2024-02-14_L01.wav");
-            var source = playerActor.AddComponent<AudioSource>();
+            var source = _player.AddComponent<AudioSource>();
             source.Clip = audioClip;
             source.Loop = true;
             //source.Play();
@@ -195,14 +197,14 @@ namespace Game
             // playerActor.GetComponent<SpriteRenderer>().Sprite = animSprites[0];
             //sprite4.Texture.Atlas.UpdatePivot(0, new vec2(0.4f, 0.4f));
 
-            playerActor.GetComponent<CapsuleCollider2D>().Offset = new vec2(0, 0.25f);
-            playerActor.GetComponent<CapsuleCollider2D>().Size = new vec2(1.4f, 1.7f);
-            var collider3 = playerActor.GetComponent<Collider2D>();
-            var rigid3 = playerActor.GetComponent<RigidBody2D>();
+            _player.GetComponent<CapsuleCollider2D>().Offset = new vec2(0, 0.25f);
+            _player.GetComponent<CapsuleCollider2D>().Size = new vec2(1.4f, 1.7f);
+            var collider3 = _player.GetComponent<Collider2D>();
+            var rigid3 = _player.GetComponent<RigidBody2D>();
             //rigid3.Transform.WorldEulerAngles = new GlmNet.vec3(0, 0, 42);
             rigid3.Transform.WorldPosition = _playerStartPosTest;
-            camera.Transform.WorldPosition = new GlmNet.vec3(playerActor.Transform.WorldPosition.x,
-                                                             playerActor.Transform.WorldPosition.y, -12);
+            camera.Transform.WorldPosition = new GlmNet.vec3(_player.Transform.WorldPosition.x,
+                                                             _player.Transform.WorldPosition.y, -12);
             rigid3.LockZRotation = true;
 
             // rigid3.Actor.IsEnabled = false;
@@ -214,7 +216,7 @@ namespace Game
 
             if (camera)
             {
-                camera.GetComponent<CameraFollow>().Target = playerActor.Transform;
+                camera.GetComponent<CameraFollow>().Target = _player.Transform;
             }
 
             var platform = new Actor<Platform, SpriteRenderer>("Platform");
@@ -235,18 +237,29 @@ namespace Game
             ScreenGrabTest5();
 
             WaterTest();
-            ParticleSystem();
+             ParticleSystem();
 
             Debug.Success("Game Layer");
         }
 
         private void ParticleSystem()
         {
+            Debug.Error("Particle system causes crashes");
+
             var particleSystem = new Actor<ParticleSystem2D>("ParticleSystem").GetComponent<ParticleSystem2D>();
             particleSystem.Transform.WorldPosition = _playerStartPosTest;
+            Debug.Log("Particle position " + _playerStartPosTest + "Player actor: " + _player.Transform.WorldPosition);
+            
             particleSystem.EmitRate = 1;
+            particleSystem.SortOrder = 2;
 
             var sprite = new Sprite();
+          
+            var mainShader = new Shader(Assets.GetText("Shaders/SpriteVert.vert").Text, Assets.GetText("Shaders/SpriteFrag.frag").Text);
+
+            var mat1 = new Material(mainShader);
+            mat1.Name = "Particle material";
+            particleSystem.Material = mat1;
 
             sprite.Texture = Texture2D.White;
             sprite.Texture.PixelPerUnit = 16;

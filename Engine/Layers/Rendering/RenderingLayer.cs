@@ -124,7 +124,7 @@ namespace Engine.Layers
                         if (!batchGrab.IsActive || batchGrab == batch)
                             break;
 
-                        batchGrab.Flush();
+                        // batchGrab.Flush();
                         RenderPass(batchGrab, ref VP, _screenGrabTarget, _screenGrabTarget, _mainCamera);
                     }
                 }
@@ -134,17 +134,17 @@ namespace Engine.Layers
 
             Debug.DrawGeometries(VP, sceneRenderTarget.NativeResource);
 
-            _fontRenderingSystem.Render(VP, sceneRenderTarget);
+            //_fontRenderingSystem.Render(VP, sceneRenderTarget);
 
-            foreach (var pass in PostProcessingStack.Passes)
-            {
-                void PostProcessDraw(Shader shader, RenderTexture inTex, RenderTexture outTex, PostProcessingPass.PassUniform[] uniforms)
-                {
-                    DrawScreenQuad(shader, VP, inTex, outTex, uniforms, _mainCamera);
-                }
+            //foreach (var pass in PostProcessingStack.Passes)
+            //{
+            //    void PostProcessDraw(Shader shader, RenderTexture inTex, RenderTexture outTex, PostProcessingPass.PassUniform[] uniforms)
+            //    {
+            //        DrawScreenQuad(shader, VP, inTex, outTex, uniforms, _mainCamera);
+            //    }
 
-                sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessDraw);
-            }
+            //    sceneRenderTarget = pass.Render(sceneRenderTarget, PostProcessDraw);
+            //}
 
             GfxDeviceManager.Current.Present(sceneRenderTarget.NativeResource);
         }

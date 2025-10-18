@@ -105,6 +105,9 @@ namespace Engine.Rendering
 
         internal void PushGeometry(Renderer2D renderer, Material material, Texture texture, int indicesCount, Span<Vertex> vertices)
         {
+            if (vertices.Length == 0)
+                return;
+
             _isDirty = true;
             IsActive = true;
             if (!Material)
@@ -151,7 +154,7 @@ namespace Engine.Rendering
                 vertices[i].TextureIndex = textureIndex;
                 _verticesData[startIndex + i] = vertices[i];
             }
-
+          
             if (!existId)
             {
                 VertexCount += vertices.Length;
