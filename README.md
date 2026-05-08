@@ -1,7 +1,7 @@
 # Laminar Engine
 
 <p align="center">
-  <img src="engine preview.png" alt="Engine Preview">
+  <img src="Engine.gif" alt="Engine Preview">
 </p>
 
 Laminar Engine is a 2D/3D video game engine built entirely from scratch with **C#**.
