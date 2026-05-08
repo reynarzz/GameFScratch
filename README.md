@@ -30,6 +30,7 @@ Laminar Engine is a 2D/3D video game engine built entirely from scratch with **C
 - [x] Font rendering.
 - [x] Windows deploy.
 - [x] Implement particle system.
+- [ ] Tests.
 - [ ] 3D rendering.
 - [ ] Jolt 3D physics. 
 - [ ] Implement exhaustive test suite.
