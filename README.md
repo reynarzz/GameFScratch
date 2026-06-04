@@ -4,12 +4,12 @@
   <img src="Engine.gif" alt="Engine Preview">
 </p>
 
-Laminar Engine is a 2D/3D video game engine built entirely from scratch with **C#**.
+Laminar Engine is a Unity3D-inspired 2D/3D video game engine built entirely from scratch with just **C#**.
 
 ## Features
 
 - Custom engine written in C#
-- Editor (ImGui): Windows, MacOs.
+- Editor (C#/C++) (ImGui): Windows, MacOs.
 - 2D Rendering (Sprites/Tilemap)
 - 2D Physics (Box2D)
 - Sprite batching.
